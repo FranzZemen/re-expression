@@ -11,7 +11,7 @@ export class ValueExpressionParser extends ExpressionParser {
     super(ExpressionType.Value);
   }
 
-  parse(remaining: string, scope: Map<string, any>, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, ValueExpressionReference] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, ValueExpressionReference] {
     const log = new LoggerAdapter(ec, 'rules-engine', 'value-expression-parser', 'parse');
     const typeHint = hints.get(ExpressionHintKey.ExpressionType);
     if(typeHint && typeHint !== ExpressionType.Value) {

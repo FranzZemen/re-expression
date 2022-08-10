@@ -1,5 +1,6 @@
 import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
 import {ExpressionReference, ExpressionType} from '../expression';
+import {ExpressionScope} from '../scope/expression-scope';
 
 export abstract class ExpressionParser {
 
@@ -16,5 +17,5 @@ export abstract class ExpressionParser {
    * @param ec
    * @return remaining after parsing as well as the reference parsed
    */
-  abstract parse(remaining: string, scope: Map<string, any>, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, ExpressionReference];
+  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, ExpressionReference];
 }
