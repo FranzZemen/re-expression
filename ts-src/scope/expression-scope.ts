@@ -1,5 +1,5 @@
 import {ExecutionContextI} from '@franzzemen/app-utility';
-import {RuleElementModuleReference} from '@franzzemen/re-common';
+import {RuleElementModuleReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
 import {AwaitEvaluation} from '../await-evaluation/await-evaluation-factory';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser';
@@ -20,8 +20,8 @@ export class ExpressionScope extends DataTypeScope {
   public static ExpressionStringifier = 'ExpressionStringifier';
 
 
-  constructor(options?: ExpressionOptions, ec?: ExecutionContextI) {
-    super(options, ec);
+  constructor(options?: ExpressionOptions, parentScope?: Scope, ec?: ExecutionContextI) {
+    super(options, parentScope, ec);
     this.set(ExpressionScope.ExpressionFactory, new ExpressionFactory(ec));
     const expressionStackParser = new ExpressionStackParser();
     this.set(ExpressionScope.ExpressionStackParser, expressionStackParser);
