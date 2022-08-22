@@ -1,6 +1,5 @@
-import {ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {AwaitEvaluation, ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {HasRefName, isPromise} from '@franzzemen/re-common';
-import {AwaitEvaluation} from '../await-evaluation/await-evaluation-factory';
 
 
 import {Expression, ExpressionReference, ExpressionType} from '../expression';

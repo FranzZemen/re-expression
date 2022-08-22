@@ -1,7 +1,6 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
+import {AwaitEvaluation, ExecutionContextI} from '@franzzemen/app-utility';
 import {RuleElementModuleReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
-import {AwaitEvaluation} from '../await-evaluation/await-evaluation-factory';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser';
 import {FunctionExpressionParser} from '../parser/function-expression-parser';
 import {SetExpressionParser} from '../parser/set-expression-parser';

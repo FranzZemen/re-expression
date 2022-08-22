@@ -1,6 +1,5 @@
 
-import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-import {AwaitEvaluation} from '../../publish';
+import {AwaitEvaluation, ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
 
 
 const awaitEvaluation: AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI, ...params) : any | Promise<any> => {

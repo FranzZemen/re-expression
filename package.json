@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/re-expression",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Expressions",
   "main": "Gulpfile.js",
   "scripts": {
@@ -31,9 +31,9 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@franzzemen/app-utility": "0.2.9",
-    "@franzzemen/re-common": "0.0.45",
-    "@franzzemen/re-data-type": "0.0.24",
+    "@franzzemen/app-utility": "0.2.11",
+    "@franzzemen/re-common": "0.0.47",
+    "@franzzemen/re-data-type": "0.0.27",
     "fastest-validator": "^1.13.0",
     "moment": "^2.29.4",
     "object-path": "^0.11.8",
