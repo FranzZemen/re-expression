@@ -14,6 +14,8 @@ exports.npmu = (cb) => npmu([
   }, {
     path: join(__dirname, '../re-common'), packageName: '@franzzemen/re-common',
   }, {
+    path: join(__dirname, '../re-data-type'), packageName: '@franzzemen/re-data-type',
+  }, {
     path: join(__dirname, './'), packageName: '@franzzemen/re-expression',
   }])
   .then(() => {
