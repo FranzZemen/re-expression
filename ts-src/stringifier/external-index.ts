@@ -1,3 +1,3 @@
-export * from './stringify-expression-options';
-export * from './expression-stringifier';
+export * from './stringify-expression-options.js';
+export * from './expression-stringifier.js';
 

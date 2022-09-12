@@ -1,6 +1,6 @@
 import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
-import {ExpressionReference, ExpressionType} from '../expression';
-import {ExpressionScope} from '../scope/expression-scope';
+import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 
 export abstract class ExpressionParser {
 
@@ -13,9 +13,9 @@ export abstract class ExpressionParser {
    * @param remaining
    * @param scope
    * @param hints
-   * @param allowUndefinedDataType
+   * @param allowUnknownDataType
    * @param ec
    * @return remaining after parsing as well as the reference parsed
    */
-  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, ExpressionReference];
+  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, ExpressionReference] | Promise<[string, ExpressionReference]>;
 }

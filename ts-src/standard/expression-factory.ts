@@ -1,68 +1,39 @@
 import {ExecutionContextI} from '@franzzemen/app-utility';
-import {AttributeExpression, isAttributeExpression, isAttributeExpressionReference} from './attribute-expression';
-import {Expression, ExpressionReference, ExpressionType, isExpressionType} from '../expression';
-import {FunctionExpression, isFunctionExpression, isFunctionExpressionReference} from './function-expression';
-import {ExpressionScope} from '../scope/expression-scope';
-import {isSetExpression, isSetExpressionReference, SetExpression} from './set-expression';
-import {isValueExpression, isValueExpressionReference, ValueExpression} from './value-expression';
+import {isPromise} from 'util/types';
+import {Expression, ExpressionReference, ExpressionType, isExpression} from '../expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
+import {AttributeExpression, AttributeExpressionReference} from './attribute-expression';
+import {FunctionExpression, FunctionExpressionReference} from './function-expression';
+import {SetExpression, SetExpressionReference} from './set-expression.js';
+import {ValueExpression, ValueExpressionReference} from './value-expression.js';
 
+export class ExpressionFactory {
+  constructor(ec?: ExecutionContextI) {
+  }
 
-/**
- * Understands how to create an expression from a reference
- */
-export class ExpressionFactory  {
-  // protected functionExpressionReferences: FunctionExpressionReference[] = [];
-  // protected functionExpressions = new Map<string,FunctionExpression>();
-
-
-  createExpression (expressionRef: ExpressionReference | Expression, scope: ExpressionScope, ec?:ExecutionContextI) : Expression | ValueExpression | AttributeExpression {
-    if(isExpressionType(expressionRef.type)) {
-      switch(expressionRef.type) {
-        case ExpressionType.Value:
-          if(isValueExpression(expressionRef) || isValueExpressionReference(expressionRef)) {
-            return new ValueExpression(expressionRef, scope, ec);
-          } else {
-            throw new Error('Inconsistent expression reference for ValueExpression');
-          }
-        case ExpressionType.Attribute:
-          if(isAttributeExpression(expressionRef) || isAttributeExpressionReference(expressionRef)) {
-            return new AttributeExpression(expressionRef, scope, ec);
-          }else {
-            throw new Error('Inconsistent expression reference for AttributeExpression');
-          }
-        case ExpressionType.Function:
-          if(isFunctionExpression(expressionRef) || isFunctionExpressionReference(expressionRef)) {
-            return new FunctionExpression(expressionRef, scope, ec);
-          } else {
-            throw new Error('Inconsistent expression reference for Function Expression');
-          }
-        case ExpressionType.Set:
-          if(isSetExpression(expressionRef) || isSetExpressionReference(expressionRef)) {
-            return new SetExpression(expressionRef, scope, ec);
-          } else {
-            throw new Error('Inconsistent expression reference for Set Expression');
-          }
-      }
+  createExpression(expressionRef: ExpressionReference | Expression, scope: ExpressionScope, ec?: ExecutionContextI): Expression | Promise<Expression> {
+    let expressionReference: ExpressionReference;
+    if (isExpression(expressionRef)) {
+      expressionReference = expressionRef.to(ec);
+    } else {
+      expressionReference = expressionRef;
     }
-    // TODO: Create custom expression from a module load
+    let expression: Expression;
+    switch (expressionRef.type) {
+      case ExpressionType.Value:
+        expression = new ValueExpression(expressionReference as ValueExpressionReference, scope, ec);
+        break;
+      case ExpressionType.Attribute:
+        expression = new AttributeExpression(expressionReference as AttributeExpressionReference, scope, ec);
+        break;
+      case ExpressionType.Function:
+        expression = new FunctionExpression(expressionReference as FunctionExpressionReference, scope, ec);
+        break;
+      case ExpressionType.Set:
+        expression = new SetExpression(expressionReference as SetExpressionReference, scope, ec);
+        break;
+    }
+    const trueOrPromise = expression.initialize(scope, ec);
+    return isPromise(trueOrPromise) ? Promise.resolve(expression): expression;
   }
-
-
-
-  constructor(execContext?: ExecutionContextI) {
-  }
-/*
-  addFunctionExpressions(ref: FunctionExpressionReference[], execContext?:ExecutionContextI) {
-    ref.forEach(functionExpressionRef => {
-      if(fu)
-    });
-    //this.functionExpressionReferences = this.functionExpressionReferences.concat(ref);
-  }
-*/
-
 }
-// TODO: MOved this to scope, delete it
-// export const expressionFactory = new ExpressionFactory();
-
-
-// TODO: write tests for expression factory

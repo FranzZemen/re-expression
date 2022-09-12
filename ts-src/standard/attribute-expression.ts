@@ -1,7 +1,7 @@
 import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
 import {get as getFromPath, Path} from 'object-path';
-import {ExpressionScope} from '../scope/expression-scope';
-import {Expression, ExpressionReference} from '../expression';
+import {ExpressionScope} from '../scope/expression-scope.js';
+import {Expression, ExpressionReference} from '../expression.js';
 
 
 
@@ -20,14 +20,20 @@ export interface AttributeExpressionReference extends ExpressionReference {
 
 
 export class AttributeExpression extends Expression {
+
   // The internal representation of path as expected by package 'object-path'
   private objectPath: Path;
   // The original set path which may match internal
   private originalPath: Path;
 
-  constructor(ref?: AttributeExpressionReference | AttributeExpression, scope?: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref?: AttributeExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
     super(ref, scope, ec);
     this.path = ref.path;
+    this.init = true;
+  }
+
+  protected initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true> {
+    return true;
   }
 
   get path(): Path {
@@ -75,8 +81,8 @@ export class AttributeExpression extends Expression {
     return ref as AttributeExpressionReference;
   }
 
-  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any {
-    const log = new LoggerAdapter(ec, 'rules-engine', 'attribute-expression', 'awaitEvaluation');
+  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
+    const log = new LoggerAdapter(ec, 're-expression', 'attribute-expression', 'awaitEvaluation');
     if (!dataDomain) {
       return undefined;
     }
@@ -99,6 +105,5 @@ export class AttributeExpression extends Expression {
     }
     return propertyValue === undefined ? undefined : this.awaitEval(propertyValue, scope);
   }
-
 
 }

@@ -1,27 +1,32 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {loadModuleDefinitionFromHints, RuleElementModuleReference} from '@franzzemen/re-common';
-import {ExpressionReference, ExpressionType} from '../expression';
-import {FunctionExpressionReference} from '../standard/function-expression';
-import {ExpressionScope} from '../scope/expression-scope';
-import {ExpressionHintKey} from '../util/expression-hint-key';
-import {MultivariateParser} from './multivariate-parser';
+import {StandardDataType} from '@franzzemen/re-data-type';
+import {isPromise} from 'util/types';
+import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
+import {FunctionExpressionReference} from '../standard/function-expression.js';
+import {ExpressionHintKey} from '../util/expression-hint-key.js';
+import {MultivariateDataTypeHandling, MultivariateParser} from './multivariate-parser.js';
 
 export class FunctionExpressionParser extends MultivariateParser {
 
   constructor() {
-    super(ExpressionType.Function, false);
+    super(ExpressionType.Function, MultivariateDataTypeHandling.Multivariate);
   }
 
-  parse(remaining: string, scope:ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
-    const log = new LoggerAdapter(ec, 'rules-engine', 'function-expression-parser', 'parse');
+  parse(remaining: string, scope:ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] | Promise<[string, FunctionExpressionReference]>{
+    const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;
     let module: ModuleDefinition;
-    const dataTypeRef = hints.get('data-type') as string
-    if(!dataTypeRef && !allowUndefinedDataType) {
-      // A function expression always requires a data-type, directly or indirectly hinted.  Since no data type hint exists
-      // it must not be a Function Expression (or could be an error...to be handled outside this inference)
-      return [remaining, undefined];
+    let dataTypeRef = hints.get('data-type') as string
+    if(!dataTypeRef) {
+      if(!allowUnknownDataType) {
+        return [remaining, undefined]; // No expression found
+      } else {
+        dataTypeRef = StandardDataType.Unknown;
+      }
     }
+
     const multivariateRef = hints.get(ExpressionHintKey.Multivariate);
     let multivariate: boolean;
     if(multivariateRef) {
@@ -45,20 +50,65 @@ export class FunctionExpressionParser extends MultivariateParser {
       if(module && !refNameRegistered) {
         // Load the awaitEvaluation
         const ruleElementModuleReference: RuleElementModuleReference = {refName, module};
-        scope.addAwaitEvaluationFunction([ruleElementModuleReference], ec);
+        const result = scope.addAwaitEvaluationFunction([ruleElementModuleReference], false, false, undefined, undefined, ec);
+        if(isPromise(result)) {
+          return result
+            .then(() => {
+              let params: ExpressionReference[];
+              if(remaining.startsWith('[')) {
+                const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, hints, false, ec);
+                if(isPromise(multivariateResultOrPromise)) {
+                  return multivariateResultOrPromise
+                    .then(multivariateResult => {
+                      [remaining, , params] = multivariateResult;
+                      return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
+                    })
+                } else {
+                  [remaining, , params] = multivariateResultOrPromise;
+                  return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
+                }
+              }
+            }, err => {
+              log.error(err);
+              throw err;
+            })
+        } else {
+          let params: ExpressionReference[];
+          if(remaining.startsWith('[')) {
+            const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, hints, false, ec);
+            if(isPromise(multivariateResultOrPromise)) {
+              return multivariateResultOrPromise
+                .then(multivariateResult => {
+                  [remaining, , params] = multivariateResult;
+                  return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
+                })
+            } else {
+              [remaining, , params] = multivariateResultOrPromise;
+              return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
+            }
+          }
+        }
       } else if (!refNameRegistered) {
         const err = new Error(`No AwaitEvaluation registered for refName ${refName}`);
         log.error(err);
         throw err;
+      } else {
+        let params: ExpressionReference[];
+        if(remaining.startsWith('[')) {
+          const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, hints, false, ec);
+          if(isPromise(multivariateResultOrPromise)) {
+            return multivariateResultOrPromise
+              .then(multivariateResult => {
+                [remaining, , params] = multivariateResult;
+                return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
+              })
+          } else {
+            [remaining, , params] = multivariateResultOrPromise;
+            return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
+          }
+        }
+        return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
       }
-
-      // Check to see if it has parameters
-      let params: ExpressionReference[];
-      if(remaining.startsWith('[')) {
-        // Parse the parameters
-        [remaining, , params] = this.parseMultivariate(remaining, scope, hints, false, ec);
-      }
-      return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
     }  else {
       return [remaining, undefined];
     }

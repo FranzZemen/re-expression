@@ -1,9 +1,9 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
-import {isPromise} from '@franzzemen/re-common';
-import {Expression, ExpressionType} from '../expression';
-import {ExpressionFactory} from './expression-factory';
-import {MultivariateExpression} from './multivariate-expression';
-import {ExpressionScope} from '../scope/expression-scope';
+import {ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {isPromise} from 'util/types';
+import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionFactory} from './expression-factory.js';
+import {MultivariateExpression} from './multivariate-expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 
 export function isSetExpressionReference(ref: any | SetExpressionReference): ref is SetExpressionReference {
   return 'set' in ref && Array.isArray(ref.set) && !('awaitEvaluation' in ref) && ref['type'] === ExpressionType.Set;
@@ -13,42 +13,102 @@ export function isSetExpression(ref: any | SetExpression): ref is SetExpression 
   return 'set' in ref && Array.isArray(ref.set) &&  ref['type'] === ExpressionType.Set && 'awaitEvaluation' in ref;
 }
 
-export interface SetExpressionReference extends MultivariateExpression {
+export interface SetExpressionReference extends MultivariateExpression  {
 }
 
 
-export class SetExpression extends  Expression {
+export class SetExpression extends Expression implements SetExpressionReference{
   set: Expression[] = [];
+  private setReferences?: ExpressionReference []
 
-  constructor(ref: SetExpressionReference | SetExpression, scope: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: SetExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
     super(ref, scope, ec);
     this.multivariate = true;
-    const factory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
-    ref.set.forEach(expressionRef => {
-      this.set.push(factory.createExpression(expressionRef, scope, ec));
-    })
+    this.setReferences = ref.set;
+  }
+
+
+  protected initializeExpression(scope:ExpressionScope, ec?:ExecutionContextI): true | Promise<true> {
+    if(this.init) {
+      return true;
+    } else if(this.setReferences) {
+      if (this.setReferences.length === 0) {
+        this.init = true;
+        delete this.setReferences;
+        return true;
+      } else {
+        const factory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
+        let isAsync = false;
+        const expressionsOrPromises: (Expression | Promise<Expression>)[] = [];
+        this.setReferences.forEach(expressionReference => {
+          const expressionOrPromise = factory.createExpression(expressionReference, scope, ec);
+          if (isPromise(expressionOrPromise)) {
+            isAsync = true;
+          }
+          expressionsOrPromises.push(expressionOrPromise);
+        });
+        if(isAsync) {
+          return Promise.all(expressionsOrPromises)
+            .then(expressions => {
+              this.set = expressions;
+              this.init = true;
+              delete this.setReferences;
+              return true;
+            }, err => {
+              const log = new LoggerAdapter(ec, 're-expression', 'set-expression', `initializeExpression`);
+              log.error(err);
+              throw err;
+            })
+        } else {
+          this.set = expressionsOrPromises as Expression[];
+          this.init = true;
+          delete this.setReferences;
+          return true;
+        }
+      }
+    }
   }
 
   awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
-    let hasPromises = false;
-    let results: any[] = [];
-    this.set.forEach(element => {
-      const evaluation = element.awaitEvaluation(dataDomain, scope, ec);
-      if(isPromise(evaluation)) {
-        hasPromises = true;
+    if(this.init) {
+      let hasPromises = false;
+      let results: any[] = [];
+      this.set.forEach(element => {
+        const evaluation = element.awaitEvaluation(dataDomain, scope, ec);
+        if (isPromise(evaluation)) {
+          hasPromises = true;
+        }
+        results.push(evaluation);
+      });
+      if (hasPromises) {
+        return Promise.all(results);
+      } else {
+        return results;
       }
-      results.push(evaluation);
-    });
-    if(hasPromises) {
-      return Promise.all(results);
     } else {
-      return results;
+      const log = new LoggerAdapter(ec, 're-expression', 'set-expression', 'awaitEvaluation');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
     }
   }
 
 
   to(ec?: ExecutionContextI): SetExpressionReference {
-    return undefined;
+    if(this.init) {
+      const setExpressionReference: Partial<SetExpressionReference> = {
+        set: []
+      }
+      super.toBase(setExpressionReference, ec);
+      this.set.forEach(expression => {
+        setExpressionReference.set.push(expression.to(ec));
+      })
+      return setExpressionReference as SetExpressionReference;
+    } else {
+      const log = new LoggerAdapter(ec, 're-expression', 'set-expression', 'awaitEvaluation');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
+    }
   }
-
 }

@@ -1,1 +1,1 @@
-export * from './expression-hint-key';
+export * from './expression-hint-key.js';

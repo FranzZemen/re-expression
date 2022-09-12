@@ -1,6 +1,6 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
-import {ExpressionScope} from '../scope/expression-scope';
-import {Expression, ExpressionReference, ExpressionType} from '../expression';
+import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
+import {ExpressionScope} from '../scope/expression-scope.js';
+import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 
 export interface ValueExpressionReference extends ExpressionReference {
   value: any;
@@ -29,9 +29,14 @@ export class ValueExpression extends Expression {
   value: any;
 
 
-  constructor(expressionRef?: ValueExpressionReference | ValueExpression, scope?: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(expressionRef?: ValueExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
     super(expressionRef, scope, ec);
     this.value = expressionRef.value;
+    this.init = true;
+  }
+
+  initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true> {
+    return true;
   }
 
   to(ec?: ExecutionContextI): ValueExpressionReference {

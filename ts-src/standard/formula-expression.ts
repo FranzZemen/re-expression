@@ -1,5 +1,5 @@
 import {ExecutionContextI} from '@franzzemen/app-utility';
-import {Expression, ExpressionReference} from '../expression';
+import {Expression, ExpressionReference} from '../expression.js';
 /*
 export type OperationReference = {operation: OperatorRef, ref: ExpressionReference};
 export type Operation = {operation: OperatorRef}

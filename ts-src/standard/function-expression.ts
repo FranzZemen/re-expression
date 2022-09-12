@@ -1,11 +1,10 @@
+import {isPromise} from 'util/types';
 import {AwaitEvaluation, ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
-import {HasRefName, isPromise} from '@franzzemen/re-common';
+import {HasRefName} from '@franzzemen/re-common';
 
 
-import {Expression, ExpressionReference, ExpressionType} from '../expression';
-import {ExpressionFactory} from './expression-factory';
-import {ExpressionScope} from '../scope/expression-scope';
-
+import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 
 
 export interface FunctionExpressionReference extends ExpressionReference, HasRefName {
@@ -28,71 +27,104 @@ export class FunctionExpression extends Expression implements HasRefName {
   awaitEvaluationFunction : AwaitEvaluation;
   params?: Expression[];
 
-  constructor(ref: FunctionExpressionReference | FunctionExpression, scope?: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: FunctionExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
     super(ref, scope, ec);
-    const log = new LoggerAdapter(ec, 'rules-engine', 'function-expression', `${FunctionExpression.name}.constructor`)
+    const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `${FunctionExpression.name}.constructor`)
     this.refName = ref.refName;
     this.module = ref.module ? {moduleName: ref.module.moduleName, functionName: ref.module.functionName, constructorName: ref.module.functionName} : undefined;
-    if(isFunctionExpression(ref)) {
-      this.awaitEvaluationFunction = ref.awaitEvaluationFunction; // Copy the function...it should be stateless
-      if (ref.params) {
-        this.params = [];
-        const expressionFactory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
-        ref.params.forEach(param => {
-          this.params.push(expressionFactory.createExpression(param, scope, ec));
-        });
-      }
+    this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(ref.refName, true, ec);
+    if(this.awaitEvaluationFunction) {
+      this.init = true;
+    }
+    if(!this.awaitEvaluationFunction && !this.module) {
+      const err = new Error('Function Expression cannot be created due to missing awaitEvaluationFunction and no module to load from');
+      log.error(err);
+      throw(err);
+    }
+  }
+
+
+  protected initializeExpression(scope:ExpressionScope, ec?:ExecutionContextI): true | Promise<true> {
+    if(this.init) {
+      return true;
+    } else if(this.awaitEvaluationFunction) {
+      return true;
     } else {
-      this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(ref.refName, true, ec);
-      if(!this.awaitEvaluationFunction) {
-        if(ref.module) {
-          scope.addAwaitEvaluationFunction([{refName: ref.refName, module: ref.module}], ec);
+      if(this.module) {
+        const addedOrPromise = scope.addAwaitEvaluationFunction([{refName: this.refName, module: this.module}],  false, false, undefined, undefined, ec);
+
+        if(isPromise(addedOrPromise)) {
+          return addedOrPromise
+            .then(() => {
+              this.init = true;
+              return true;
+            }, err => {
+              const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `initializeExpression`);
+              log.error(err);
+              throw err;
+            })
         } else {
-          const err = new Error(`No valid AwaitEvaluation for ${ref.refName}`);
-          log.error(err);
-          throw err;
+          return true;
         }
-      }
-      this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(this.refName, true, ec);
-      if (ref.params) {
-        this.params = [];
-        const expressionFactory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
-        ref.params.forEach(param => {
-          this.params.push(expressionFactory.createExpression(param, scope, ec));
-        });
+      } else {
+        const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `initializeExpression`);
+        const err = new Error('Function Expression cannot be initialized due to missing module');
+        log.error(err);
+        throw err;
       }
     }
   }
 
+
+
   to(ec?: ExecutionContextI) : FunctionExpressionReference {
-    const ref: Partial<FunctionExpressionReference> = {};
-    super.toBase(ref, ec);
-    ref.refName = this.refName;
-    ref.module = this.module ? {moduleName: this.module.moduleName, functionName: this.module.functionName, constructorName: this.module.constructorName} : undefined;
-    return ref as FunctionExpressionReference;
+    if (this.init) {
+      const ref: Partial<FunctionExpressionReference> = {};
+      super.toBase(ref, ec);
+      ref.refName = this.refName;
+      ref.module = this.module ? {
+        moduleName: this.module.moduleName,
+        functionName: this.module.functionName,
+        constructorName: this.module.constructorName
+      } : undefined;
+      return ref as FunctionExpressionReference;
+    } else {
+      const log = new LoggerAdapter(ec, 're-expression', 'function-expression', 'to');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
+    }
   }
 
   awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
-    if(this.params && this.params.length) {
-      const paramResults: any[] = [];
-      let hasPromise = false;
-      this.params.forEach(param => {
-        const result = param.awaitEvaluation(dataDomain, scope, ec);
-        if(isPromise(result)) {
-          hasPromise = true;
+    if (this.init) {
+      if (this.params && this.params.length) {
+        const paramResults: any[] = [];
+        let hasPromise = false;
+        this.params.forEach(param => {
+          const result = param.awaitEvaluation(dataDomain, scope, ec);
+          if (isPromise(result)) {
+            hasPromise = true;
+          }
+          paramResults.push(result);
+        });
+        if (hasPromise) {
+          return Promise.all(paramResults)
+            .then(resolvedResults => {
+              return this.awaitEvaluationFunction(dataDomain, scope, ec, resolvedResults);
+            });
+        } else {
+          return this.awaitEvaluationFunction(dataDomain, scope, ec, paramResults);
         }
-        paramResults.push(result);
-      });
-      if(hasPromise) {
-        return Promise.all(paramResults)
-          .then(resolvedResults => {
-            return this.awaitEvaluationFunction(dataDomain, scope, ec, resolvedResults);
-          });
       } else {
-        return this.awaitEvaluationFunction(dataDomain, scope,ec, paramResults);
+        return this.awaitEvaluationFunction(dataDomain, scope, ec);
       }
     } else {
-      return this.awaitEvaluationFunction(dataDomain, scope, ec);
+      const log = new LoggerAdapter(ec, 're-expression', 'function-expression', 'awaitEvaluation');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
     }
   }
+
 }

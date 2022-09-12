@@ -2,9 +2,10 @@
   "name": "@franzzemen/re-expression",
   "version": "0.0.17",
   "description": "Expressions",
-  "main": "Gulpfile.js",
+  "type": "module",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
@@ -17,8 +18,8 @@
   },
   "homepage": "https://github.com/FranzZemen/re-expression#readme",
   "devDependencies": {
-    "@franzzemen/gulp-base": "^7.5.5",
-    "@franzzemen/npmu": "^1.2.11",
+    "@franzzemen/gulp-base": "^10.1.6",
+    "@franzzemen/npmu": "^2.0.0",
     "@franzzemen/safe-config": "^2.0.45",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^9.1.1",
@@ -28,15 +29,15 @@
     "gulp": "^4.0.2",
     "gulp-mocha": "^8.0.0",
     "mocha": "^10.0.0",
-    "typescript": "^4.8.2"
+    "typescript": "^4.8.3"
   },
   "dependencies": {
-    "@franzzemen/app-utility": "0.2.12",
-    "@franzzemen/re-common": "0.0.49",
-    "@franzzemen/re-data-type": "0.0.28",
-    "fastest-validator": "^1.13.0",
+    "@franzzemen/app-utility": "2.2.2",
+    "@franzzemen/re-common": "3.0.0",
+    "@franzzemen/re-data-type": "1.1.6",
+    "fastest-validator": "^1.15.0",
     "moment": "^2.29.4",
     "object-path": "^0.11.8",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   }
 }

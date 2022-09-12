@@ -1,7 +1,8 @@
+import {isPromise} from 'node:util/types';
 import {ExecutionContextI, LoggerAdapter, ModuleDefinition, reverseEnumerationToSet} from '@franzzemen/app-utility';
-import {isPromise} from '@franzzemen/re-common';
+
 import {DataTypeFactory, DataTypeI} from '@franzzemen/re-data-type';
-import {ExpressionScope} from './scope/expression-scope';
+import {ExpressionScope} from './scope/expression-scope.js';
 
 
 /**
@@ -41,37 +42,41 @@ export function isExpressionReference(ref: any | ExpressionReference): ref is Ex
   return 'type' in ref && 'dataTypeRef' in ref;
 }
 
+export function isExpression(exp: any | Expression): exp is Expression {
+  return isExpressionReference(exp) && 'init' in exp;
+}
+
 /**
  * Internal representation - should not be persisted or transmitted
  */
 export abstract class Expression implements ExpressionReference {
+  protected init = false;
   type: ExpressionType | string
   dataTypeRef: string;
   dataType: DataTypeI;
   dataTypeModule?: ModuleDefinition;
   multivariate?: boolean;
 
+  get isInitialized(): boolean {
+    return this.init;
+  }
+
   // TODO: ref, scope probably should not be optional????
-  constructor(ref?: ExpressionReference | Expression, scope?: ExpressionScope, ec?: ExecutionContextI) {
-    const log = new LoggerAdapter(ec, 'rules-engine', 'expression', `${Expression.name}.constructor`);
+  constructor(ref?: ExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
+    const log = new LoggerAdapter(ec, 're-expression', 'expression', `${Expression.name}.constructor`);
     this.type = ref.type;
     this.dataTypeRef = ref.dataTypeRef;
     const dataTypeFactory: DataTypeFactory = scope.get(ExpressionScope.DataTypeFactory);
     this.dataType = dataTypeFactory.getRegistered(this.dataTypeRef);
     if(!this.dataType) {
-      if(ref.dataTypeModule) {
-        scope.addDataTypes([{refName: this.dataTypeRef, module: this.dataTypeModule}], false, false, ec);
-      } else {
-        const err = new Error(`No valid data type module definition for ${this.dataTypeRef}`);
-        log.error(err);
-        throw err;
-      }
+      throw new Error('Data types need to be loaded outside of Expression')
     }
     this.dataTypeModule = ref.dataTypeModule; // TODO: copy Module Definition
     if(ref.multivariate !== undefined) {
       this.multivariate = ref.multivariate;
     }
   }
+
   /**
    * Create an ExpressionReference from itself
    * @param ref
@@ -79,19 +84,48 @@ export abstract class Expression implements ExpressionReference {
    * @protected
    */
   protected toBase(ref: Partial<ExpressionReference>, ec?:ExecutionContextI) {
-    ref.type = this.type;
-    ref.dataTypeRef = this.dataTypeRef;
-    ref.dataTypeModule = this.dataTypeModule; // TODO: copy Module Definition
-    if(this.multivariate) {
-      ref.multivariate = this.multivariate;
+    if(this.init) {
+      ref.type = this.type;
+      ref.dataTypeRef = this.dataTypeRef;
+      ref.dataTypeModule = this.dataTypeModule; // TODO: copy Module Definition
+      if (this.multivariate) {
+        ref.multivariate = this.multivariate;
+      }
+    } else {
+      const log = new LoggerAdapter(ec, 're-expression', 'expression', 'toBase');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
     }
   }
+
+  initialize(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true> {
+    if(this.init) {
+      return true;
+    }  else {
+      const resultOrPromise = this.initializeExpression(scope, ec);
+      if(isPromise(resultOrPromise)) {
+        return resultOrPromise
+          .then(result => {
+            return result;
+          }, err => {
+            const log = new LoggerAdapter(ec, 're-expression', 'expression', 'initialize');
+            log.error(err);
+            throw err;
+          })
+      } else {
+        return resultOrPromise;
+      }
+    }
+  }
+
+  protected abstract initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true>;
 
   /**
    * Contract to convert from internal representation to a reference
    * @param ec
    */
-  abstract to(ec?: ExecutionContextI): ExpressionReference;
+  abstract to(ec?: ExecutionContextI) : ExpressionReference;
 
   /**
    * Evaluate the expression.  Note that Value and Attribute expressions will never return a Promise.  Other expressions
@@ -111,11 +145,18 @@ export abstract class Expression implements ExpressionReference {
    * @param ec
    */
   evaluate(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any {
-    const result = this.awaitEvaluation(dataDomain, scope, ec);
-    if(isPromise(result)) {
-      return undefined;
+    if(this.init) {
+      const result = this.awaitEvaluation(dataDomain, scope, ec);
+      if (isPromise(result)) {
+        return undefined;
+      }
+      return result;
+    } else {
+      const log = new LoggerAdapter(ec, 're-expression', 'expression', 'evaluate');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
     }
-    return result;
   }
 
 
@@ -126,11 +167,18 @@ export abstract class Expression implements ExpressionReference {
    * @param ec
    */
   evaluateAsync(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): Promise<any> {
-    const result = this.awaitEvaluation(dataDomain, scope, ec);
-    if(isPromise(result)) {
-      return result;
+    if (this.init) {
+      const result = this.awaitEvaluation(dataDomain, scope, ec);
+      if (isPromise(result)) {
+        return result;
+      }
+      return Promise.resolve(result);
+    } else {
+      const log = new LoggerAdapter(ec, 're-expression', 'expression', 'evaluateAsync');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      Promise.reject(err);
     }
-    return Promise.resolve(result);
   }
 
 
@@ -142,11 +190,18 @@ export abstract class Expression implements ExpressionReference {
    * @protected
    */
   protected awaitEval(data: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
-    if(!this.dataType) {
-      const dataTypeFactory: DataTypeFactory = scope.get(ExpressionScope.DataTypeFactory);
-      this.dataType = dataTypeFactory.getRegistered(this.dataTypeRef);
+    if(this.init) {
+      if (!this.dataType) {
+        const dataTypeFactory: DataTypeFactory = scope.get(ExpressionScope.DataTypeFactory);
+        this.dataType = dataTypeFactory.getRegistered(this.dataTypeRef);
+      }
+      return this.dataType.eval(data);
+    } else {
+      const log = new LoggerAdapter(ec, 're-expression', 'expression', 'awaitEval');
+      const err = new Error ('Expression not initialized');
+      log.error(err);
+      throw err;
     }
-    return this.dataType.eval(data);
   }
 }
 

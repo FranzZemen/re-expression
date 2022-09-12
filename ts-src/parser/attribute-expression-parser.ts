@@ -1,14 +1,15 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
-import {AttributeExpressionReference} from '../standard/attribute-expression';
-import {ExpressionType} from '../expression';
-import {ExpressionHintKey} from '../util/expression-hint-key';
-import {ExpressionParser} from './expression-parser';
+import {StandardDataType} from '@franzzemen/re-data-type';
+import {AttributeExpressionReference} from '../standard/attribute-expression.js';
+import {ExpressionType} from '../expression.js';
+import {ExpressionHintKey} from '../util/expression-hint-key.js';
+import {ExpressionParser} from './expression-parser.js';
 
 export class AttributeExpressionParser extends ExpressionParser {
   constructor() {
     super(ExpressionType.Attribute);
   }
-  parse(remaining: string, scope: Map<string, any>, hints: Hints, allowUndefinedDataType?:boolean, execContext?: ExecutionContextI): [string, AttributeExpressionReference] {
+  parse(remaining: string, scope: Map<string, any>, hints: Hints, allowUnknownDataType?:boolean, execContext?: ExecutionContextI): [string, AttributeExpressionReference] {
     // Formats:
     // someAttributeName.anotherAttributeName
     // [1].someAttributeName.anotherAttributeName[5].yetAnother[4]
@@ -19,7 +20,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     // function expression
     // invocation expression
 
-    const log = new LoggerAdapter(execContext, 'rules-engine', 'attribute-expression-parser', 'parse');
+    const log = new LoggerAdapter(execContext, 're-expression', 'attribute-expression-parser', 'parse');
     const typeHint = hints.get(ExpressionHintKey.ExpressionType);
     if(typeHint && typeHint !== ExpressionType.Attribute) {
       log.debug(`Type hint ${typeHint} conflicts with ${ExpressionType.Attribute}, not parsing`);
@@ -30,8 +31,12 @@ export class AttributeExpressionParser extends ExpressionParser {
     if(dataTypeHint) {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
     }
-    if(!dataTypeRef && !allowUndefinedDataType) {
-      return [remaining, undefined];
+    if(!dataTypeRef) {
+      if(!allowUnknownDataType) {
+        return [remaining, undefined]; // No expression found
+      } else {
+        dataTypeRef = StandardDataType.Unknown;
+      }
     }
     let multivariate: boolean;
     const multivariateRef = hints.get(ExpressionHintKey.Multivariate);
