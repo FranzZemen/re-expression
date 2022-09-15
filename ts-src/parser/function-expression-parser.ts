@@ -1,4 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {loadModuleDefinitionFromHints, RuleElementModuleReference} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {isPromise} from 'util/types';
@@ -68,9 +69,6 @@ export class FunctionExpressionParser extends MultivariateParser {
                   return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
                 }
               }
-            }, err => {
-              log.error(err);
-              throw err;
             })
         } else {
           let params: ExpressionReference[];
@@ -90,8 +88,7 @@ export class FunctionExpressionParser extends MultivariateParser {
         }
       } else if (!refNameRegistered) {
         const err = new Error(`No AwaitEvaluation registered for refName ${refName}`);
-        log.error(err);
-        throw err;
+        logErrorAndThrow(err, log, ec);
       } else {
         let params: ExpressionReference[];
         if(remaining.startsWith('[')) {

@@ -1,4 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataType, StandardDataType} from '@franzzemen/re-data-type';
 import {isPromise} from 'util/types';
 
@@ -27,14 +28,12 @@ export abstract class MultivariateParser extends ExpressionParser {
       const innerExpression = candidate.parseResult[1];
       if(!innerExpression) {
         const err = new Error(`Unable to parse inner expression: ${candidate.near} around ${remaining}`);
-        log.error(err);
-        throw err;
+        logErrorAndThrow(err, log, ec);
       } else {
         if(this.dataTypeHandling === MultivariateDataTypeHandling.Multivariate) {
           if(innerExpression.dataTypeRef === StandardDataType.Unknown) {
             const err = new Error(`Inner expression data type must be determinable multivariate expressions with data type handling set to ${this.dataTypeHandling} near ${candidate.near}`);
-            log.error(err);
-            throw err;
+            logErrorAndThrow(err, log, ec);
           }
         } else if (this.dataTypeHandling === MultivariateDataTypeHandling.Consistent) {
           if(multivariateDataTypeRef === StandardDataType.Unknown) {
@@ -46,8 +45,7 @@ export abstract class MultivariateParser extends ExpressionParser {
               innerExpression.dataTypeRef = multivariateDataTypeRef;
             } else if(innerExpression.dataTypeRef !== multivariateDataTypeRef) {
               const err = new Error(`Determined inner expression data type ${innerExpression.dataTypeRef} must match determined multivariate data type ${multivariateDataTypeRef} near ${candidate.near}`);
-              log.error(err);
-              throw err;
+              logErrorAndThrow(err, log, ec);
             }
           }
         }
@@ -58,8 +56,7 @@ export abstract class MultivariateParser extends ExpressionParser {
       // By now, the multivariate data type was either known or determined
       if (multivariateDataTypeRef === StandardDataType.Unknown) {
         const err = new Error(`Indeterminate data type for multivariate expression near ${remaining}`);
-        log.error(err);
-        throw err;
+        logErrorAndThrow(err, log, ec);
       }
       innerExpressions.every(expression => expression.dataTypeRef = multivariateDataTypeRef);
     }
@@ -105,8 +102,7 @@ export abstract class MultivariateParser extends ExpressionParser {
             const err = new Error(`Multivariate expression with declared ${multivariateDataTypeRef} data type 
                   and ${this.dataTypeHandling} data type handling must have a ${StandardDataType.Multivariate} or 
                   ${StandardDataType.Unknown} data type`);
-            log.error(err);
-            throw err;
+            logErrorAndThrow(err, log, ec);
           }
         }
       } else if (this.dataTypeHandling === MultivariateDataTypeHandling.Multivariate) {
@@ -127,8 +123,7 @@ export abstract class MultivariateParser extends ExpressionParser {
         // it wil  avoid an infinite loop to always look for that.
         if (innerRemaining.indexOf(']') < 0) {
           const err = new Error('No end of set detected');
-          log.error(err);
-          throw err;
+          logErrorAndThrow(err, log, ec);
         }
         // Next expression
         innerExpressionReference = undefined;
@@ -184,13 +179,9 @@ export abstract class MultivariateParser extends ExpressionParser {
             });
             if(failures) {
               const err = new Error(`Failures processing inner expressions near ${remaining}`);
-              log.error(err);
-              throw err;
+              logErrorAndThrow(err, log, ec);
             }
             return this._parseMultivariatePostProcessing(remaining, innerRemaining, multivariateDataTypeRef, syncCandidates, ec);
-          }, err => {
-            log.error(err);
-            throw err;
           })
       } else {
         // Sync guaranteed.

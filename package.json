@@ -32,9 +32,9 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
-    "@franzzemen/app-utility": "2.2.2",
-    "@franzzemen/re-common": "3.0.0",
-    "@franzzemen/re-data-type": "1.1.6",
+    "@franzzemen/app-utility": "2.3.7",
+    "@franzzemen/re-common": "3.0.5",
+    "@franzzemen/re-data-type": "1.1.11",
     "fastest-validator": "^1.15.0",
     "moment": "^2.29.4",
     "object-path": "^0.11.8",

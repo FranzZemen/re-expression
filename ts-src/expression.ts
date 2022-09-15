@@ -1,3 +1,4 @@
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {isPromise} from 'node:util/types';
 import {ExecutionContextI, LoggerAdapter, ModuleDefinition, reverseEnumerationToSet} from '@franzzemen/app-utility';
 
@@ -94,8 +95,7 @@ export abstract class Expression implements ExpressionReference {
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'expression', 'toBase');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 
@@ -108,10 +108,6 @@ export abstract class Expression implements ExpressionReference {
         return resultOrPromise
           .then(result => {
             return result;
-          }, err => {
-            const log = new LoggerAdapter(ec, 're-expression', 'expression', 'initialize');
-            log.error(err);
-            throw err;
           })
       } else {
         return resultOrPromise;
@@ -144,7 +140,7 @@ export abstract class Expression implements ExpressionReference {
    * @param scope
    * @param ec
    */
-  evaluate(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any {
+  evaluate(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
     if(this.init) {
       const result = this.awaitEvaluation(dataDomain, scope, ec);
       if (isPromise(result)) {
@@ -154,8 +150,7 @@ export abstract class Expression implements ExpressionReference {
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'expression', 'evaluate');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 
@@ -199,8 +194,7 @@ export abstract class Expression implements ExpressionReference {
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'expression', 'awaitEval');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 }

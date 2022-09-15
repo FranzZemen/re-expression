@@ -1,4 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
@@ -31,8 +32,7 @@ export class ValueExpressionParser extends ExpressionParser {
     } else {
       if(!dataTypeHint) {
         const err = new Error(`Undefined data type for Value Expression.  Value Expressions must always have a data type defined by their value; near: ${near}`);
-        log.error(err);
-        throw err;
+        logErrorAndThrow(err, log, ec);
       }
       return [remaining, {
         type: ExpressionType.Value,

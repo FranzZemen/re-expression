@@ -1,4 +1,5 @@
 import {ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {isPromise} from 'util/types';
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionFactory} from './expression-factory.js';
@@ -54,10 +55,6 @@ export class SetExpression extends Expression implements SetExpressionReference{
               this.init = true;
               delete this.setReferences;
               return true;
-            }, err => {
-              const log = new LoggerAdapter(ec, 're-expression', 'set-expression', `initializeExpression`);
-              log.error(err);
-              throw err;
             })
         } else {
           this.set = expressionsOrPromises as Expression[];
@@ -88,8 +85,7 @@ export class SetExpression extends Expression implements SetExpressionReference{
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'set-expression', 'awaitEvaluation');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 
@@ -107,8 +103,7 @@ export class SetExpression extends Expression implements SetExpressionReference{
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'set-expression', 'awaitEvaluation');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 }

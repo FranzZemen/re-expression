@@ -1,4 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
 import {InferenceStackParser, loadModuleDefinitionFromHints} from '@franzzemen/re-common';
 import {isStandardDataType} from '@franzzemen/re-data-type';
@@ -7,6 +8,9 @@ import {ExpressionReference, isExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
+
+
+export type ExpressionParseResult = [string, ExpressionReference];
 
 
 export interface ExpressionStackParserContext {
@@ -64,15 +68,13 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
           // TODO check if it has been loaded if not try to load inline
           // When loading inline, append it to the inference stack as well
           const err = new Error(`Expression type="${typeStr}" is not supported`);
-          log.error(err);
-          throw err;
+          logErrorAndThrow(err, log, ec);
         }
       }
       dataTypeRefName = expressionHints.get('data-type') as string;
       if (dataTypeHint && dataTypeRefName && dataTypeHint !== dataTypeRefName) {
         const err = new Error(`Inconsistent suggested data type ${dataTypeHint} and hinted data type ${dataTypeHint}`);
-        log.error(err);
-        throw err;
+        logErrorAndThrow(err, log, ec);
       }
       if (!dataTypeRefName && dataTypeHint) {
         log.debug(`No data type hint provided, but suggested data type passed in ${dataTypeHint}, so using that as hint`);
@@ -97,9 +99,6 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
                 return result
                   .then(() => {
                     return [remaining, expressionHints];
-                  }, err => {
-                    log.error(err);
-                    throw err;
                   });
               } else {
                 return [remaining, expressionHints];
@@ -108,6 +107,8 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
               const error = new Error(`Custom data type ${dataTypeRefName} has no registered module and is not defined inline`);
             }
           }
+        } else {
+          return [remaining, expressionHints];
         }
       } else {
         return [remaining, expressionHints];
@@ -128,9 +129,6 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
       return result
         .then((tuple: [string, Hints]) => {
           return this._parseBody(tuple[0], tuple[1], near, scope, context, ec);
-        }, err => {
-          log.error(err);
-          throw err;
         });
     } else {
       return this._parseBody(result[0], result[1], near, scope, context, ec);
@@ -155,9 +153,6 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
               expressionReference.dataTypeModule = module;
             }
             return [remaining, expressionReference];
-          }, err => {
-            log.error(err);
-            throw err;
           });
       } else {
         [remaining, expressionReference] = resultOrPromise;
@@ -196,8 +191,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
             } else {
               // If you reached this point, there is no valid parser for the expression
               const err = new Error(`No valid parser near ${near}`);
-              log.error(err);
-              throw err;
+              logErrorAndThrow(err, log, ec);
             }
           });
       } else {
@@ -220,8 +214,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
         } else {
           // If you reached this point, there is no valid parser for the expression
           const err = new Error(`No valid parser near ${near}`);
-          log.error(err);
-          throw err;
+          logErrorAndThrow(err, log, ec);
         }
       }
     }

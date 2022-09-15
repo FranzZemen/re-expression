@@ -1,3 +1,4 @@
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {isPromise} from 'util/types';
 import {AwaitEvaluation, ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {HasRefName} from '@franzzemen/re-common';
@@ -31,15 +32,20 @@ export class FunctionExpression extends Expression implements HasRefName {
     super(ref, scope, ec);
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `${FunctionExpression.name}.constructor`)
     this.refName = ref.refName;
-    this.module = ref.module ? {moduleName: ref.module.moduleName, functionName: ref.module.functionName, constructorName: ref.module.functionName} : undefined;
+    this.module = ref.module ? {
+      moduleName: ref.module.moduleName,
+      functionName: ref.module.functionName,
+      constructorName: ref.module.constructorName,
+      moduleResolution: ref.module.moduleResolution,
+      loadSchema: ref.module.loadSchema
+    } : undefined;
     this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(ref.refName, true, ec);
     if(this.awaitEvaluationFunction) {
       this.init = true;
     }
     if(!this.awaitEvaluationFunction && !this.module) {
       const err = new Error('Function Expression cannot be created due to missing awaitEvaluationFunction and no module to load from');
-      log.error(err);
-      throw(err);
+      logErrorAndThrow(err, log, ec);
     }
   }
 
@@ -58,10 +64,6 @@ export class FunctionExpression extends Expression implements HasRefName {
             .then(() => {
               this.init = true;
               return true;
-            }, err => {
-              const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `initializeExpression`);
-              log.error(err);
-              throw err;
             })
         } else {
           return true;
@@ -69,8 +71,7 @@ export class FunctionExpression extends Expression implements HasRefName {
       } else {
         const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `initializeExpression`);
         const err = new Error('Function Expression cannot be initialized due to missing module');
-        log.error(err);
-        throw err;
+        logErrorAndThrow(err, log, ec);
       }
     }
   }
@@ -91,8 +92,7 @@ export class FunctionExpression extends Expression implements HasRefName {
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'function-expression', 'to');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 
@@ -122,8 +122,7 @@ export class FunctionExpression extends Expression implements HasRefName {
     } else {
       const log = new LoggerAdapter(ec, 're-expression', 'function-expression', 'awaitEvaluation');
       const err = new Error ('Expression not initialized');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
   }
 

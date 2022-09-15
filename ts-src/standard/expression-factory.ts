@@ -2,8 +2,8 @@ import {ExecutionContextI} from '@franzzemen/app-utility';
 import {isPromise} from 'util/types';
 import {Expression, ExpressionReference, ExpressionType, isExpression} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {AttributeExpression, AttributeExpressionReference} from './attribute-expression';
-import {FunctionExpression, FunctionExpressionReference} from './function-expression';
+import {AttributeExpression, AttributeExpressionReference} from './attribute-expression.js';
+import {FunctionExpression, FunctionExpressionReference} from './function-expression.js';
 import {SetExpression, SetExpressionReference} from './set-expression.js';
 import {ValueExpression, ValueExpressionReference} from './value-expression.js';
 

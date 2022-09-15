@@ -1,9 +1,10 @@
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
-import moment, {isMoment, Moment} from 'moment';
-import {ExpressionScope, ExpressionType, ValueExpression, ValueExpressionReference} from '../publish';
+import moment, {Moment} from 'moment';
+import {ExpressionScope, ExpressionType, ValueExpression, ValueExpressionReference} from '../publish/index.js';
 
+const isMoment = moment.isMoment;
 
 let should = chai.should();
 let expect = chai.expect;

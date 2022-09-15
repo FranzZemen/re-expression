@@ -1,15 +1,18 @@
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
-import moment, {isMoment, Moment} from 'moment';
+
+
+import moment, {Moment} from 'moment';
 import {
   AttributeExpression,
   AttributeExpressionReference,
   ExpressionScope,
   ExpressionStackParser,
   ExpressionType
-} from '../publish';
+} from '../publish/index.js';
 
+const isMoment = moment.isMoment;
 
 let should = chai.should();
 let expect = chai.expect;

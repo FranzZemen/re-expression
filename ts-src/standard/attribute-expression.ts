@@ -1,9 +1,10 @@
 import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-import {get as getFromPath, Path} from 'object-path';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {Expression, ExpressionReference} from '../expression.js';
-
-
+import pkg from 'object-path';
+import {Path} from 'object-path';
+const getFromPath = pkg.get;
 
 export function isAttributeExpressionReference(ref: any | AttributeExpressionReference): ref is AttributeExpressionReference {
   return 'path' in ref;
@@ -100,8 +101,7 @@ export class AttributeExpression extends Expression {
       }
     } else if (isMultivariateValue) {
       const err = new Error('Attribute Expression marked as not multivariate, but domain value is an array');
-      log.error(err);
-      throw err;
+      logErrorAndThrow(err, log, ec);
     }
     return propertyValue === undefined ? undefined : this.awaitEval(propertyValue, scope);
   }
