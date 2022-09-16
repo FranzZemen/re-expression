@@ -62,6 +62,7 @@ export class FunctionExpression extends Expression implements HasRefName {
         if(isPromise(addedOrPromise)) {
           return addedOrPromise
             .then(() => {
+              this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(this.refName, true, ec);
               this.init = true;
               return true;
             })

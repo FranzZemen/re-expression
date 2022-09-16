@@ -48,6 +48,7 @@ export class FunctionExpressionParser extends MultivariateParser {
       remaining = result[2].trim();
       const refNameRegistered = scope.hasAwaitEvaluationFactory(scope, refName, ec);
       module = loadModuleDefinitionFromHints(hints, ec);
+      const multivariateHints = new Hints(`'data-type=${StandardDataType.Unknown} ${ExpressionHintKey.Multivariate} type=${ExpressionType.Function}`);
       if(module && !refNameRegistered) {
         // Load the awaitEvaluation
         const ruleElementModuleReference: RuleElementModuleReference = {refName, module};
@@ -57,7 +58,7 @@ export class FunctionExpressionParser extends MultivariateParser {
             .then(() => {
               let params: ExpressionReference[];
               if(remaining.startsWith('[')) {
-                const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, hints, false, ec);
+                const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, multivariateHints, false, ec);
                 if(isPromise(multivariateResultOrPromise)) {
                   return multivariateResultOrPromise
                     .then(multivariateResult => {
@@ -68,12 +69,14 @@ export class FunctionExpressionParser extends MultivariateParser {
                   [remaining, , params] = multivariateResultOrPromise;
                   return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
                 }
+              } else {
+                return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
               }
             })
         } else {
           let params: ExpressionReference[];
           if(remaining.startsWith('[')) {
-            const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, hints, false, ec);
+            const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, multivariateHints, false, ec);
             if(isPromise(multivariateResultOrPromise)) {
               return multivariateResultOrPromise
                 .then(multivariateResult => {
@@ -84,6 +87,8 @@ export class FunctionExpressionParser extends MultivariateParser {
               [remaining, , params] = multivariateResultOrPromise;
               return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
             }
+          } else {
+            return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
           }
         }
       } else if (!refNameRegistered) {
@@ -92,7 +97,7 @@ export class FunctionExpressionParser extends MultivariateParser {
       } else {
         let params: ExpressionReference[];
         if(remaining.startsWith('[')) {
-          const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, hints, false, ec);
+          const multivariateResultOrPromise = this.parseMultivariate(remaining, scope, multivariateHints, false, ec);
           if(isPromise(multivariateResultOrPromise)) {
             return multivariateResultOrPromise
               .then(multivariateResult => {
@@ -103,8 +108,9 @@ export class FunctionExpressionParser extends MultivariateParser {
             [remaining, , params] = multivariateResultOrPromise;
             return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
           }
+        } else {
+          return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
         }
-        return [remaining, {type, dataTypeRef, refName, module, multivariate, params}];
       }
     }  else {
       return [remaining, undefined];

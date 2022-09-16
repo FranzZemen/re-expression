@@ -16,19 +16,18 @@ const unreachableCode = true;
 const scope = new ExpressionScope();
 const defaultExpressionStackParser: ExpressionStackParser = scope.get(ExpressionScope.ExpressionStackParser);
 
-describe('Expression Stack Parser Tests', () => {
-  describe('ExpressionParser Tests', () => {
-    describe(`core/expression/parser/expression-stack-parser.test`, () => {
-      /*
+describe('re-expression tests', () => {
+  describe('expression stack parser tests', () => {
+    describe(`parser/expression-stack-parser.test`, () => {
       const noHints = new Hints('');
+      noHints.loadAndInitialize();
       describe('ValueExpressionParser Tests', () => {
-        it('Should parse Number through inference', done => {
+        it('Should parse Number through inference', () => {
           const parser = new ValueExpressionParser();
           const result = parser.parse('12345 = ', new ExpressionScope(), noHints);
           result[0].should.equal('=');
           result[1].value.should.equal(12345);
           result[1].dataTypeRef.should.equal('Number');
-          done();
         });
         it('Should parse Float through inference', done => {
           const parser = new ValueExpressionParser();
@@ -50,7 +49,7 @@ describe('Expression Stack Parser Tests', () => {
           const parser = new ValueExpressionParser();
           const result = parser.parse('"false" = ', new ExpressionScope(), noHints);
           result[0].should.equal('=');
-          result[1].value.should.equal("false");
+          result[1].value.should.equal('false');
           result[1].dataTypeRef.should.equal('Text');
           done();
         });
@@ -58,7 +57,7 @@ describe('Expression Stack Parser Tests', () => {
           const parser = new ValueExpressionParser();
           const result = parser.parse('"2021-12-31 23:59:00" m= ', new ExpressionScope(), noHints);
           result[0].should.equal('m=');
-          (typeof result[1].value).should.equal("object");
+          (typeof result[1].value).should.equal('object');
           result[1].dataTypeRef.should.equal('Timestamp');
           done();
         });
@@ -66,7 +65,7 @@ describe('Expression Stack Parser Tests', () => {
           const parser = new ValueExpressionParser();
           const result = parser.parse('"2021-12-31" = ', new ExpressionScope(), noHints);
           result[0].should.equal('=');
-          (typeof result[1].value).should.equal("object");
+          (typeof result[1].value).should.equal('object');
           result[1].dataTypeRef.should.equal('Date');
           done();
         });
@@ -74,7 +73,7 @@ describe('Expression Stack Parser Tests', () => {
           const parser = new ValueExpressionParser();
           const result = parser.parse('"23:59:00" m= ', new ExpressionScope(), noHints);
           result[0].should.equal('m=');
-          (typeof result[1].value).should.equal("object");
+          (typeof result[1].value).should.equal('object');
           result[1].dataTypeRef.should.equal('Time');
           done();
         });
@@ -93,7 +92,7 @@ describe('Expression Stack Parser Tests', () => {
           done();
         });
         it('Should parse a value expression (data type=Number) with full hints', done => {
-          const result = defaultExpressionStackParser.parse('<<ex type=Value data-type=Number>> 12345 =', scope, undefined)
+          const result = defaultExpressionStackParser.parse('<<ex type=Value data-type=Number>> 12345 =', scope, undefined);
           result[0].should.equal('=');
           result[1].dataTypeRef.should.equal('Number');
           result[1].type.should.equal('Value');
@@ -113,14 +112,16 @@ describe('Expression Stack Parser Tests', () => {
         it('Should parse a text attribute expression with path "foo[other.lookup]"', () => {
           const [remaining, expressionRef] = defaultExpressionStackParser.parse('foo[other.lookup]', scope, {inferredDataType: StandardDataType.Text}) as ExpressionParseResult;
           (expressionRef as AttributeExpressionReference).path.should.equal('foo[other.lookup]');
-        })
+        });
       });
+
       describe('Inline data type tests', () => {
         it('Should parse attribute with inline data type fields', () => {
           const promise: Promise<ExpressionParseResult> = defaultExpressionStackParser.parse(`<<ex 
           data-type="Contrived Data Type" 
-          data-type-module-name=../../../testing/parser/contrived-data-type
-          data-type-function-name=contrivedDataType>> myAttribute`, scope) as Promise<ExpressionParseResult>;
+          data-type-module-name=../../../testing/parser/contrived-data-type.js
+          data-type-function-name=contrivedDataType
+          data-type-module-resolution=es>> myAttribute`, scope) as Promise<ExpressionParseResult>;
           promise
             .then(([remaining, expressionRef]) => {
               expressionRef.type.should.equal(ExpressionType.Attribute);
@@ -135,13 +136,12 @@ describe('Expression Stack Parser Tests', () => {
               expressionRef.dataTypeModule.functionName.should.equal('contrivedDataType');
             });
         });
-
         it('Should parse attribute with inline data type module', () => {
           const promise = defaultExpressionStackParser.parse(`<<ex 
           data-type="Contrived Data Type" 
-          data-type-module={"moduleName": "../../../testing/parser/contrived-data-type", "functionName": "contrivedDataType"}>> myAttribute`, scope) as Promise<ExpressionParseResult>;
+          data-type-module={"moduleName": "../../../testing/parser/contrived-data-type.js", "functionName": "contrivedDataType", "moduleResolution":"es"}>> myAttribute`, scope) as Promise<ExpressionParseResult>;
 
-          promise.then( ([remaining, expressionRef]) => {
+          promise.then(([remaining, expressionRef]) => {
             expressionRef.type.should.equal(ExpressionType.Attribute);
             expressionRef.dataTypeRef.should.equal('Contrived Data Type');
             if (isAttributeExpressionReference(expressionRef)) {
@@ -155,8 +155,6 @@ describe('Expression Stack Parser Tests', () => {
           });
         });
       });
-
-       */
     });
   });
 });

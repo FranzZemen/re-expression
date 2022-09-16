@@ -92,7 +92,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
             // -----
           } else {
             // Check if data type is dynamically defined in-line
-            const module: ModuleDefinition = loadModuleDefinitionFromHints(expressionHints, ec, ExpressionHintKey.DataTypeModule, ExpressionHintKey.DataTypeModuleName, ExpressionHintKey.DataTypeFunctionName, ExpressionHintKey.DataTypeConstructorName);
+            const module: ModuleDefinition = loadModuleDefinitionFromHints(expressionHints, ec, ExpressionHintKey.DataTypeModule, ExpressionHintKey.DataTypeModuleName, ExpressionHintKey.DataTypeFunctionName, ExpressionHintKey.DataTypeConstructorName, ExpressionHintKey.DataTypeModuleResolutionName, ExpressionHintKey.DataTypeLoadSchemaName);
             if (module) {
               const result = scope.addDataTypes([{refName: dataTypeRefName, module}]);
               if (isPromise(result)) {
@@ -120,6 +120,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
 
   parse(remaining: string, scope: ExpressionScope, context: ExpressionStackParserContext = undefined, ec?: ExecutionContextI): [string, ExpressionReference] | Promise<[string, ExpressionReference]> {
     const log = new LoggerAdapter(ec, 're-expression', 'expression-stack-parser', 'parse');
+    remaining = remaining.trim();
     const near = remaining;
     // Get and/or process hints (passed in by caller or parsed in processHints
     let expressionHints: Hints;
@@ -181,6 +182,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
           .then(results => {
             const found = results.find(result => result[1]);
             if (found) {
+              remaining = found[0];
               expressionReference = found[1] as unknown as ExpressionReference;
               // If a data type was declared inline, add it to the reference
               const module: ModuleDefinition = loadModuleDefinitionFromHints(expressionHints, ec, ExpressionHintKey.DataTypeModule, ExpressionHintKey.DataTypeModuleName, ExpressionHintKey.DataTypeFunctionName, ExpressionHintKey.DataTypeConstructorName);
@@ -204,6 +206,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
           }
         });
         if (found) {
+          remaining = found[0];
           expressionReference = found[1] as unknown as ExpressionReference;
           // If a data type was declared inline, add it to the reference
           const module: ModuleDefinition = loadModuleDefinitionFromHints(expressionHints, ec, ExpressionHintKey.DataTypeModule, ExpressionHintKey.DataTypeModuleName, ExpressionHintKey.DataTypeFunctionName, ExpressionHintKey.DataTypeConstructorName);
