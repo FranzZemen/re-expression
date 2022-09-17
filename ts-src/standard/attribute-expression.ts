@@ -27,14 +27,14 @@ export class AttributeExpression extends Expression {
   // The original set path which may match internal
   private originalPath: Path;
 
-  constructor(ref?: AttributeExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: AttributeExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
     super(ref, scope, ec);
     this.path = ref.path;
     this.init = true;
   }
 
-  protected initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true> {
-    return true;
+  protected initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): AttributeExpression | Promise<AttributeExpression> {
+    return this;
   }
 
   get path(): Path {

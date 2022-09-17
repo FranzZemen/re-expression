@@ -148,6 +148,8 @@ export abstract class MultivariateParser extends ExpressionParser {
             parseResult: stackParser.parse(innerRemaining, scope, context, ec)
           };
           candidates.push(candidate);
+          // Move to next part of the text
+          innerRemaining = candidate.parseResult[0];
         }
       } while (!endOfSet)
       // Check there are async values

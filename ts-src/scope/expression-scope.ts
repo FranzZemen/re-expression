@@ -37,7 +37,7 @@ export class ExpressionScope extends DataTypeScope {
 
   }
 
-  addAwaitEvaluationFunction(awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[],  override: boolean, overrideDown: boolean, checks?: CheckFunction[], paramsArrays?: any[][], ec?: ExecutionContextI): void | Promise<void> {
+  addAwaitEvaluationFunctions(awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[], override: boolean, overrideDown: boolean, checks?: CheckFunction[], paramsArrays?: any[][], ec?: ExecutionContextI): AwaitEvaluation[] | Promise<AwaitEvaluation[]> {
     return this.addScopedFactoryItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, override, overrideDown, checks, paramsArrays, ec);
   }
 

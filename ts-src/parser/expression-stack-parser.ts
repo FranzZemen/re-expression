@@ -1,5 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
 import {InferenceStackParser, loadModuleDefinitionFromHints} from '@franzzemen/re-common';
 import {isStandardDataType} from '@franzzemen/re-data-type';
@@ -195,6 +195,8 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
               const err = new Error(`No valid parser near ${near}`);
               logErrorAndThrow(err, log, ec);
             }
+          }, err => {
+            throw logErrorAndReturn(err,log,ec);
           });
       } else {
         // The first expression is the result.

@@ -1,5 +1,5 @@
 import {ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {isPromise} from 'util/types';
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionFactory} from './expression-factory.js';
@@ -29,14 +29,14 @@ export class SetExpression extends Expression implements SetExpressionReference{
   }
 
 
-  protected initializeExpression(scope:ExpressionScope, ec?:ExecutionContextI): true | Promise<true> {
+  protected initializeExpression(scope:ExpressionScope, ec?:ExecutionContextI): SetExpression | Promise<SetExpression> {
     if(this.init) {
-      return true;
+      return this;
     } else if(this.setReferences) {
       if (this.setReferences.length === 0) {
         this.init = true;
         delete this.setReferences;
-        return true;
+        return this;
       } else {
         const factory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
         let isAsync = false;
@@ -54,13 +54,16 @@ export class SetExpression extends Expression implements SetExpressionReference{
               this.set = expressions;
               this.init = true;
               delete this.setReferences;
-              return true;
+              return this;
+            }, err => {
+              const log = new LoggerAdapter(ec, 're-expression', 'set-expression', 'initializeExpression');
+              throw logErrorAndReturn(err, log, ec);
             })
         } else {
           this.set = expressionsOrPromises as Expression[];
           this.init = true;
           delete this.setReferences;
-          return true;
+          return this;
         }
       }
     }

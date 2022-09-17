@@ -113,6 +113,7 @@ describe('re-expression tests', () => {
               }
             }, err => {
               console.error(err);
+              unreachableCode.should.be.true;
             });
         } else {
           unreachableCode.should.be.true; // Loading ES file

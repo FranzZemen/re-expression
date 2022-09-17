@@ -1,4 +1,4 @@
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {EnhancedError, logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {isPromise} from 'util/types';
 import {AwaitEvaluation, ExecutionContextI, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {HasRefName} from '@franzzemen/re-common';
@@ -6,6 +6,7 @@ import {HasRefName} from '@franzzemen/re-common';
 
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
+import {ExpressionFactory} from './expression-factory.js';
 
 
 export interface FunctionExpressionReference extends ExpressionReference, HasRefName {
@@ -27,8 +28,10 @@ export class FunctionExpression extends Expression implements HasRefName {
   module: ModuleDefinition;
   awaitEvaluationFunction : AwaitEvaluation;
   params?: Expression[];
+  paramsOrPromises?: (Expression | Promise<Expression>)[];
 
-  constructor(ref: FunctionExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
+
+  constructor(ref: FunctionExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
     super(ref, scope, ec);
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `${FunctionExpression.name}.constructor`)
     this.refName = ref.refName;
@@ -39,9 +42,36 @@ export class FunctionExpression extends Expression implements HasRefName {
       moduleResolution: ref.module.moduleResolution,
       loadSchema: ref.module.loadSchema
     } : undefined;
+    /*
+    Keep track of whether initialization creates Promises.  If it does, a call to initializeExpression will be needed
+    by the caller.
+
+    There are a several conditions under which a Promise might be generated.  As of writing this comment these include:
+    - Loading the awaitEvaluationFunction from an ES module (no Promise from a CommonJS module)
+    - Processing of a parameter expression reference into an expression that itself may create a Promise
+    */
+
+    let async = false;
     this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(ref.refName, true, ec);
-    if(this.awaitEvaluationFunction) {
+    if(!this.awaitEvaluationFunction) {
+      async = true;
+    }
+    if(ref.params) {
+      this.paramsOrPromises = [];
+      const expressionFactory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
+
+      ref.params.forEach(expRef => {
+        const expOrPromise = expressionFactory.createExpression(expRef, scope, ec);
+        if(isPromise(expOrPromise)) {
+          async = true;
+        }
+        this.paramsOrPromises.push(expOrPromise);
+      });
+    }
+    if(async === false) {
       this.init = true;
+      this.params = this.paramsOrPromises as Expression[];
+      delete this.paramsOrPromises;
     }
     if(!this.awaitEvaluationFunction && !this.module) {
       const err = new Error('Function Expression cannot be created due to missing awaitEvaluationFunction and no module to load from');
@@ -50,29 +80,63 @@ export class FunctionExpression extends Expression implements HasRefName {
   }
 
 
-  protected initializeExpression(scope:ExpressionScope, ec?:ExecutionContextI): true | Promise<true> {
-    if(this.init) {
-      return true;
-    } else if(this.awaitEvaluationFunction) {
-      return true;
-    } else {
-      if(this.module) {
-        const addedOrPromise = scope.addAwaitEvaluationFunction([{refName: this.refName, module: this.module}],  false, false, undefined, undefined, ec);
+  private _initProcessing(results: any[], ec?: ExecutionContextI) : FunctionExpression {
+    if (results[0] !== undefined) {
+      if(!(Array.isArray(results[0]) && results[0].length === 1)) {
+        const log = new LoggerAdapter(ec, 're-expression', 'function-expression', '_initProcessing');
+        logErrorAndThrow(new EnhancedError('Expected Array of Length 1'));
+      }
+      const evaluations = results[0];
+      this.awaitEvaluationFunction = evaluations[0];
+    }
+    results.splice(0, 1);
+    if(results.length > 0) {
+      this.params = results as Expression[];
+      delete this.paramsOrPromises;
+    }
+    this.init = true;
+    return this;
+  }
 
-        if(isPromise(addedOrPromise)) {
-          return addedOrPromise
-            .then(() => {
-              this.awaitEvaluationFunction = scope.getAwaitEvaluationFunction(this.refName, true, ec);
-              this.init = true;
-              return true;
-            })
+  protected initializeExpression(scope:ExpressionScope, ec?:ExecutionContextI): FunctionExpression | Promise<FunctionExpression> {
+    const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `initializeExpression`);
+    if (this.init) {
+      return this;
+    } else {
+      let promises: any | Promise<any>[] = [];
+      let async = false;
+      if (!this.awaitEvaluationFunction) {
+        if (this.module) {
+          const awaitEvaluations: AwaitEvaluation[] | Promise<AwaitEvaluation[]> = scope.addAwaitEvaluationFunctions([{
+            refName: this.refName,
+            module: this.module
+          }], false, false, undefined, undefined, ec);
+          if (isPromise(awaitEvaluations)) {
+            async = true;
+          }
+          promises.push(awaitEvaluations);
         } else {
-          return true;
+          const err = new Error('Function Expression cannot be initialized due to missing module');
+          logErrorAndThrow(err, log, ec);
         }
       } else {
-        const log = new LoggerAdapter(ec, 're-expression', 'function-expression', `initializeExpression`);
-        const err = new Error('Function Expression cannot be initialized due to missing module');
-        logErrorAndThrow(err, log, ec);
+        promises.push(undefined);
+      }
+      if (this.paramsOrPromises && this.paramsOrPromises.length > 0) {
+        if(!async) {
+          async = this.paramsOrPromises.some(paramOrPromise => isPromise(paramOrPromise));
+        }
+        promises = promises.concat(this.paramsOrPromises);
+      }
+      if (async) {
+        return Promise.all(promises)
+          .then(values => {
+            return this._initProcessing(values, ec);
+          }, err => {
+            throw logErrorAndReturn(err, log, ec);
+          })
+      } else {
+        return this._initProcessing(promises, ec);
       }
     }
   }

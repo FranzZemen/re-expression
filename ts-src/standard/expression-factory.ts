@@ -33,7 +33,6 @@ export class ExpressionFactory {
         expression = new SetExpression(expressionReference as SetExpressionReference, scope, ec);
         break;
     }
-    const trueOrPromise = expression.initialize(scope, ec);
-    return isPromise(trueOrPromise) ? Promise.resolve(expression): expression;
+    return expression.initialize(scope, ec);
   }
 }

@@ -63,7 +63,7 @@ export abstract class Expression implements ExpressionReference {
   }
 
   // TODO: ref, scope probably should not be optional????
-  constructor(ref?: ExpressionReference, scope?: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: ExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
     const log = new LoggerAdapter(ec, 're-expression', 'expression', `${Expression.name}.constructor`);
     this.type = ref.type;
     this.dataTypeRef = ref.dataTypeRef;
@@ -99,24 +99,15 @@ export abstract class Expression implements ExpressionReference {
     }
   }
 
-  initialize(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true> {
+  initialize(scope: ExpressionScope, ec?: ExecutionContextI): Expression | Promise<Expression> {
     if(this.init) {
-      return true;
+      return this;
     }  else {
-      const resultOrPromise = this.initializeExpression(scope, ec);
-      if(isPromise(resultOrPromise)) {
-        return resultOrPromise
-          .then(result => {
-            return result;
-          })
-      } else {
-        return resultOrPromise;
-      }
+      return this.initializeExpression(scope, ec);
     }
   }
 
-  protected abstract initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): true | Promise<true>;
-
+  protected abstract initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): Expression | Promise<Expression>;
   /**
    * Contract to convert from internal representation to a reference
    * @param ec

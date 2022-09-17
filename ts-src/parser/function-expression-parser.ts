@@ -1,4 +1,4 @@
-import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {AwaitEvaluation, ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {loadModuleDefinitionFromHints, RuleElementModuleReference} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
@@ -49,12 +49,13 @@ export class FunctionExpressionParser extends MultivariateParser {
       const refNameRegistered = scope.hasAwaitEvaluationFactory(scope, refName, ec);
       module = loadModuleDefinitionFromHints(hints, ec);
       const multivariateHints = new Hints(`'data-type=${StandardDataType.Unknown} ${ExpressionHintKey.Multivariate} type=${ExpressionType.Function}`);
+      multivariateHints.loadAndInitialize(ec) as true; // Nothing in the hints would cause a Promise
       if(module && !refNameRegistered) {
         // Load the awaitEvaluation
         const ruleElementModuleReference: RuleElementModuleReference = {refName, module};
-        const result = scope.addAwaitEvaluationFunction([ruleElementModuleReference], false, false, undefined, undefined, ec);
-        if(isPromise(result)) {
-          return result
+        const syncOrAsyncResult: AwaitEvaluation[] | Promise<AwaitEvaluation[]> = scope.addAwaitEvaluationFunctions([ruleElementModuleReference], false, false, undefined, undefined, ec);
+        if(isPromise(syncOrAsyncResult)) {
+          return syncOrAsyncResult
             .then(() => {
               let params: ExpressionReference[];
               if(remaining.startsWith('[')) {
