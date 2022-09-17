@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/re-expression",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Expressions",
   "type": "module",
   "main": "index.js",

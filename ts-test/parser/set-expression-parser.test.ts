@@ -22,25 +22,28 @@ const unreachableCode = false;
 describe('Rules Engine Tests', () => {
   describe('Set Expression Parser Tests', () => {
     describe('/core/expression/parser/set-expression-parser.test', () => {
-      /*
       it('should not parse empty string', done => {
-        let [remaining, expRef] = parser.parse('', scope, new Hints('')) as [string, SetExpressionReference];
+        const hints = new Hints('');
+        hints.loadAndInitialize();
+        let [remaining, expRef] = parser.parse('', scope, hints) as [string, SetExpressionReference];
         remaining.should.equal('');
         expect(expRef).to.be.undefined;
         done();
       });
-      it('should not parse empty contents without data type hint[]', done => {
+      it('should not parse empty contents without data type hint[]', () => {
         try {
-          let [remaining, expRef] = parser.parse('[]', scope, new Hints('')) as [string, SetExpressionReference];
+          const hints = new Hints('');
+          hints.loadAndInitialize();
+          let [remaining, expRef] = parser.parse('[]', scope, hints) as [string, SetExpressionReference];
           unreachableCode.should.be.true;
         } catch (err) {
-          err.message.should.equal('Indeterminate data type for set expression');
-          done();
+          expect(err.message.startsWith('Indeterminate data type')).to.be.true;
         }
       })
       it('should parse empty contents with data type hint <<ex data-type=Number>> []', done => {
         try {
           const hints = new Hints('data-type=Number');
+          hints.loadAndInitialize();
           let [remaining, expRef] = parser.parse('[]', scope, hints) as [string, SetExpressionReference];
           remaining.should.equal('');
           expRef.set.should.be.empty;
@@ -53,6 +56,7 @@ describe('Rules Engine Tests', () => {
       it('should parse Value expression contents with data type hint <<ex data-type=Number>> [6]', done => {
         try {
           const hints = new Hints('data-type=Number');
+          hints.loadAndInitialize();
           let [remaining, expRef] = parser.parse('[6]', scope, hints) as [string, SetExpressionReference];
           remaining.should.equal('');
           expRef.set.length.should.equal(1);
@@ -70,6 +74,7 @@ describe('Rules Engine Tests', () => {
       it('should parse Value expression contents  [6]', done => {
         try {
           const hints = new Hints('');
+          hints.loadAndInitialize();
           let [remaining, expRef] = parser.parse('[6]', scope, hints) as [string, SetExpressionReference];
           remaining.should.equal('');
           expRef.set.length.should.equal(1);
@@ -87,6 +92,7 @@ describe('Rules Engine Tests', () => {
       it('should parse Value expression contents  [6 7]', done => {
         try {
           const hints = new Hints('');
+          hints.loadAndInitialize();
           let [remaining, expRef] = parser.parse('[6 7]', scope, hints) as [string, SetExpressionReference];
           remaining.should.equal('');
           expRef.set.length.should.equal(2);
@@ -105,6 +111,7 @@ describe('Rules Engine Tests', () => {
       it('should parse Number expression contents including attribute [6 myAttribute]', done => {
         try {
           const hints = new Hints('');
+          hints.loadAndInitialize();
           let [remaining, expRef] = parser.parse('[6 myAttribute]', scope, hints) as [string, SetExpressionReference];
           remaining.should.equal('');
           expRef.set.length.should.equal(2);
@@ -123,6 +130,7 @@ describe('Rules Engine Tests', () => {
       it('should parse Number expression contents including attribute [6, myAttribute]', done => {
         try {
           const hints = new Hints('');
+          hints.loadAndInitialize();
           let [remaining, expRef] = parser.parse('[6, myAttribute]', scope, hints) as [string, SetExpressionReference];
           remaining.should.equal('');
           expRef.set.length.should.equal(2);
@@ -140,6 +148,7 @@ describe('Rules Engine Tests', () => {
       })
       it('should parse Number expression contents including attribute [myAttribute, 6]', done => {
         const hints = new Hints('');
+        hints.loadAndInitialize();
         let [remaining, expRef] = parser.parse('[myAttribute, 6]', scope, hints) as [string, SetExpressionReference];
         remaining.should.equal('');
         expRef.set.length.should.equal(2);
@@ -156,6 +165,7 @@ describe('Rules Engine Tests', () => {
     it('should parse Number expression contents including attribute [<<ex type=Attribute data-type=Number>> myAttribute, 6]', () => {
       try {
         const hints = new Hints('');
+        hints.loadAndInitialize();
         let [remaining, expRef] = parser.parse('[<<ex type=Attribute data-type=Number>> myAttribute, 6]', scope, hints) as ExpressionParseResult;
         if (isSetExpressionReference(expRef)) {
           remaining.should.equal('');
@@ -175,6 +185,7 @@ describe('Rules Engine Tests', () => {
     it('should parse Number expression contents including attribute [<<ex type=Attribute data-type=Number>> myAttribute, 6 18]', () => {
       try {
         const hints = new Hints('');
+        hints.loadAndInitialize();
         let [remaining, expRef] = parser.parse('[<<ex type=Attribute data-type=Number>> myAttribute, 6 18]', scope, hints) as ExpressionParseResult;
         if (isSetExpressionReference(expRef)) {
           remaining.should.equal('');
@@ -193,8 +204,6 @@ describe('Rules Engine Tests', () => {
       } catch (err) {
         unreachableCode.should.be.true;
       }
-
-       */
     })
   })
 });
