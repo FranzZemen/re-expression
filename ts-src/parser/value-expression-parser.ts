@@ -1,21 +1,23 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
-import {ExpressionType} from '../expression.js';
+import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
 import {ValueExpressionReference} from '../standard/value-expression.js';
+
+export type ValueExpressionParserResult = [string, ValueExpressionReference];
 
 export class ValueExpressionParser extends ExpressionParser {
   constructor() {
     super(ExpressionType.Value);
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, ValueExpressionReference] {
+  parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'value-expression-parser', 'parse');
     const near = remaining;
-    const typeHint = hints.get(ExpressionHintKey.ExpressionType);
+    const typeHint = hints.get(ExpressionHintKey.Type);
     if(typeHint && typeHint !== ExpressionType.Value) {
       log.debug(`Type hint ${typeHint} conflicts with ${ExpressionType.Value}, not parsing`);
       return [remaining, undefined];
@@ -26,7 +28,7 @@ export class ValueExpressionParser extends ExpressionParser {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
     }
     let value: any;
-    [remaining, [value, dataTypeHint]] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(remaining, scope, dataTypeRef, ec);
+    [remaining, [value, dataTypeHint]] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(moduleResolver, remaining, scope, dataTypeRef, ec);
     if(value === undefined) {
       return [remaining, undefined];
     } else {
@@ -40,5 +42,15 @@ export class ValueExpressionParser extends ExpressionParser {
         value
       }];
     }
+  }
+
+  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
+    const moduleResolver = new ModuleResolver();
+    const result = this.parse(moduleResolver,remaining,scope,hints, allowUnknownDataType,ec);
+    if(moduleResolver.hasPendingResolutions()) {
+      const log = new LoggerAdapter(ec, 're-expression', 'value-expression-parser', 'parseAndResolve');
+      logErrorAndThrow(new EnhancedError('Value Expression parsing does not require resolutions'),log, ec);
+    }
+    return result;
   }
 }

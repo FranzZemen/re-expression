@@ -1,6 +1,14 @@
-import {AwaitEvaluation, CheckFunction, ExecutionContextI} from '@franzzemen/app-utility';
+import {
+  AwaitEvaluation,
+  ExecutionContextI, LoggerAdapter,
+  ModuleResolutionResult,
+  ModuleResolutionSetter,
+  ModuleResolver
+} from '@franzzemen/app-utility';
+import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {RuleElementInstanceReference, RuleElementModuleReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
+import {isPromise} from 'node:util/types';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser.js';
 import {FunctionExpressionParser} from '../parser/function-expression-parser.js';
 import {SetExpressionParser} from '../parser/set-expression-parser.js';
@@ -27,18 +35,22 @@ export class ExpressionScope extends DataTypeScope {
 
     // Condition parser should be at the top of the stack prior to individual expression parsers  once validated
     // expressionStackParser.addParser(new ConditionExpressionParser(), true, ec);
-    expressionStackParser.addParser(new ValueExpressionParser(), true, undefined, undefined, ec);
-    expressionStackParser.addParser(new AttributeExpressionParser(), true, undefined, undefined, ec);
-    expressionStackParser.addParser(new FunctionExpressionParser(), true, undefined, undefined, ec);
-    expressionStackParser.addParser(new SetExpressionParser(), true, undefined, undefined, ec);
+    expressionStackParser.addParser(new ValueExpressionParser(), true, ec);
+    expressionStackParser.addParser(new AttributeExpressionParser(), true, ec);
+    expressionStackParser.addParser(new FunctionExpressionParser(), true, ec);
+    expressionStackParser.addParser(new SetExpressionParser(), true, ec);
 
     this.set(ExpressionScope.ExpressionStringifier, new ExpressionStringifier());
     this.set(ExpressionScope.AwaitEvaluationFactory, new AwaitEvaluationFactory());
 
   }
 
-  addAwaitEvaluationFunctions(awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[], override: boolean, overrideDown: boolean, checks?: CheckFunction[], paramsArrays?: any[][], ec?: ExecutionContextI): AwaitEvaluation[] | Promise<AwaitEvaluation[]> {
-    return this.addScopedFactoryItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, override, overrideDown, checks, paramsArrays, ec);
+  addAwaitEvaluationFunctions(awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[], override: boolean, overrideDown: boolean, ec?: ExecutionContextI): AwaitEvaluation[] | Promise<AwaitEvaluation[]> {
+    return this.addScopedFactoryItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, override, overrideDown, ec);
+  }
+
+  addAwaitEvaluationFunctionsResolver(moduleResolver: ModuleResolver, awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[], override: boolean, overrideDown: boolean, ec?: ExecutionContextI) {
+    return this.addScopedFactoryItemsResolver<AwaitEvaluation>(moduleResolver, awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, override, overrideDown, ec);
   }
 
   getAwaitEvaluationFunction(refName: string, searchParent = true, ec?: ExecutionContextI): AwaitEvaluation {

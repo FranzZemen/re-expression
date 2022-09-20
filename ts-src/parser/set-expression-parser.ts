@@ -1,9 +1,12 @@
-import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
+import {ExecutionContextI, Hints, ModuleResolver} from '@franzzemen/app-utility';
 import {isPromise} from 'util/types';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {SetExpressionReference} from '../standard/set-expression.js';
+import {ResolvedExpressionParserResult} from './expression-parser.js';
 import {MultivariateDataTypeHandling, MultivariateParser} from './multivariate-parser.js';
+
+export type SetExpressionParserResult = [remaining: string, reference: SetExpressionReference];
 
 export class SetExpressionParser extends MultivariateParser {
 
@@ -11,7 +14,10 @@ export class SetExpressionParser extends MultivariateParser {
     super(ExpressionType.Set, MultivariateDataTypeHandling.Consistent);
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, SetExpressionReference] | Promise<[string, SetExpressionReference]> {
+  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ResolvedExpressionParserResult {
+
+  }
+  parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): SetExpressionParserResult {
     let expRef: ExpressionReference, set: ExpressionReference[];
     const resultOrPromise = this.parseMultivariate(remaining, scope, hints, true, ec);
     if(isPromise(resultOrPromise)) {

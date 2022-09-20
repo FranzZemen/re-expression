@@ -1,9 +1,8 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
-import {DataType, StandardDataType} from '@franzzemen/re-data-type';
-import {isPromise} from 'util/types';
+import {StandardDataType} from '@franzzemen/re-data-type';
 
-import {ExpressionReference, ExpressionType, isExpressionReference} from '../expression';
+import {ExpressionReference, ExpressionType} from '../expression';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
@@ -14,59 +13,18 @@ export enum MultivariateDataTypeHandling {
   Multivariate = 'Multivariate'
 }
 
+export type MultivariateParserResult = [string, ExpressionReference, ExpressionReference[]];
+
 
 export abstract class MultivariateParser extends ExpressionParser {
   constructor(expressionType: ExpressionType, private dataTypeHandling: MultivariateDataTypeHandling) {
     super(expressionType);
   }
 
-
-  private _parseMultivariatePostProcessing(remaining: string, innerRemaining: string, multivariateDataTypeRef: string, candidates: {near: string, parseResult: [string, ExpressionReference]}[], ec?: ExecutionContextI): [string, ExpressionReference, ExpressionReference[]] {
-    const log = new LoggerAdapter(ec, 're-expression', 'multivariate-parser', '_parseMultivariatePostProcessing');
-    let innerExpressions: ExpressionReference [] = [];
-    candidates.forEach(candidate => {
-      const innerExpression = candidate.parseResult[1];
-      if(!innerExpression) {
-        const err = new Error(`Unable to parse inner expression: ${candidate.near} around ${remaining}`);
-        logErrorAndThrow(err, log, ec);
-      } else {
-        if(this.dataTypeHandling === MultivariateDataTypeHandling.Multivariate) {
-          if(innerExpression.dataTypeRef === StandardDataType.Unknown) {
-            const err = new Error(`Inner expression data type must be determinable multivariate expressions with data type handling set to ${this.dataTypeHandling} near ${candidate.near}`);
-            logErrorAndThrow(err, log, ec);
-          }
-        } else if (this.dataTypeHandling === MultivariateDataTypeHandling.Consistent) {
-          if(multivariateDataTypeRef === StandardDataType.Unknown) {
-            if(innerExpression.dataTypeRef !== StandardDataType.Unknown) {
-              multivariateDataTypeRef = innerExpression.dataTypeRef;
-            }
-          } else {
-            if(innerExpression.dataTypeRef === StandardDataType.Unknown) {
-              innerExpression.dataTypeRef = multivariateDataTypeRef;
-            } else if(innerExpression.dataTypeRef !== multivariateDataTypeRef) {
-              const err = new Error(`Determined inner expression data type ${innerExpression.dataTypeRef} must match determined multivariate data type ${multivariateDataTypeRef} near ${candidate.near}`);
-              logErrorAndThrow(err, log, ec);
-            }
-          }
-        }
-      }
-      innerExpressions.push(innerExpression);
-    })
-    if(this.dataTypeHandling === MultivariateDataTypeHandling.Consistent) {
-      // By now, the multivariate data type was either known or determined
-      if (multivariateDataTypeRef === StandardDataType.Unknown) {
-        const err = new Error(`Indeterminate data type for multivariate expression near ${remaining}`);
-        logErrorAndThrow(err, log, ec);
-      }
-      innerExpressions.every(expression => expression.dataTypeRef = multivariateDataTypeRef);
-    }
-    return [innerRemaining.trim(), {type: this.refName, dataTypeRef: multivariateDataTypeRef, multivariate: true}, innerExpressions];
-  }
-
-  parseMultivariate(remaining: string, scope:ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, ExpressionReference, ExpressionReference[]] | Promise<[string, ExpressionReference, ExpressionReference[]]> {
+  parseMultivariate(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): MultivariateParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'multivariate-parser', 'parse');
     // Exclude a misaligned expression type:
-    const type = hints.get(ExpressionHintKey.ExpressionType) as string;
+    const type = hints.get(ExpressionHintKey.Type) as string;
     if (type && this.refName !== type) {
       return [remaining, undefined, undefined];
     }
@@ -92,8 +50,8 @@ export abstract class MultivariateParser extends ExpressionParser {
           with determinable data types must have the same data type, and then all the other expressions including the multivariate
           data type itself will be set to that.
       */
-      let multivariateDataTypeRef = hints.get('data-type') as string;
-      if(multivariateDataTypeRef) {
+      let multivariateDataTypeRef = hints.get(ExpressionHintKey.DataType) as string;
+      if (multivariateDataTypeRef) {
         if (this.dataTypeHandling === MultivariateDataTypeHandling.Multivariate) {
           // Any declared data type must be Multivariate
           if (multivariateDataTypeRef === StandardDataType.Unknown) {
@@ -117,7 +75,7 @@ export abstract class MultivariateParser extends ExpressionParser {
 
       // Iterate till we find the end of the set.
       const stackParser: ExpressionStackParser = scope.get(ExpressionScope.ExpressionStackParser);
-      const candidates: {near: string, parseResult: [string, ExpressionReference] | Promise<[string, ExpressionReference]>}[] = [];
+      const candidates: { near: string, parseResult: [string, ExpressionReference] }[] = [];
       do {
         // Verify that a possible end of set exits.  Simply look for a closing bracket.  While this may be part of another expression
         // it wil  avoid an infinite loop to always look for that.
@@ -143,53 +101,59 @@ export abstract class MultivariateParser extends ExpressionParser {
           } else {
             context = {allowUndefinedDataType: true};
           }
-          const candidate: { near: string, parseResult: [string, ExpressionReference] | Promise<[string, ExpressionReference]> } = {
+          const candidate: { near: string, parseResult: [string, ExpressionReference] } = {
             near: innerRemaining,
-            parseResult: stackParser.parse(innerRemaining, scope, context, ec)
+            parseResult: stackParser.parse(moduleResolver, innerRemaining, scope, context, ec)
           };
           candidates.push(candidate);
           // Move to next part of the text
           innerRemaining = candidate.parseResult[0];
         }
-      } while (!endOfSet)
-      // Check there are async values
-      let asyncResults = false;
-      const promises: Promise<[string, ExpressionReference]>[] = [];
+      } while (!endOfSet);
+
+      //return this._parseMultivariatePostProcessing(remaining, innerRemaining, multivariateDataTypeRef, candidates, ec);
+      let innerExpressions: ExpressionReference [] = [];
       candidates.forEach(candidate => {
-        if(isPromise(candidate.parseResult)) {
-          asyncResults = true;
-          promises.push(candidate.parseResult);
+        const innerExpression = candidate.parseResult[1];
+        if (!innerExpression) {
+          const err = new Error(`Unable to parse inner expression: ${candidate.near} around ${remaining}`);
+          logErrorAndThrow(err, log, ec);
         } else {
-          promises.push(Promise.resolve(candidate.parseResult));
-        }
-        // Ok even if not a promise, ultimately as long as there is one promise.
-       // promises.push(candidate.parseResult);
-      })
-      // Post process using promises
-      if (asyncResults) {
-        return Promise.allSettled(promises)
-          .then(parseResults => {
-            const syncCandidates: { near: string, parseResult: [string, ExpressionReference] }[] = [];
-            let failures = false;
-            parseResults.forEach((result, ndx) => {
-              if(result.status === 'fulfilled') {
-                syncCandidates.push({near: candidates[ndx].near, parseResult: result.value});
-              } else {
-                failures = true;
-                log.warn(`Could not parse expression within multivariate expression near ${candidates[ndx].near}:  ${result.reason}`);
-              }
-            });
-            if(failures) {
-              const err = new Error(`Failures processing inner expressions near ${remaining}`);
+          if (this.dataTypeHandling === MultivariateDataTypeHandling.Multivariate) {
+            if (innerExpression.dataTypeRef === StandardDataType.Unknown) {
+              const err = new Error(`Inner expression data type must be determinable multivariate expressions with data type handling set to ${this.dataTypeHandling} near ${candidate.near}`);
               logErrorAndThrow(err, log, ec);
             }
-            return this._parseMultivariatePostProcessing(remaining, innerRemaining, multivariateDataTypeRef, syncCandidates, ec);
-          })
-      } else {
-        // Sync guaranteed.
-        const syncCandidates: { near: string, parseResult: [string, ExpressionReference] }[] = candidates as unknown as { near: string, parseResult: [string, ExpressionReference]}[];
-        return this._parseMultivariatePostProcessing(remaining, innerRemaining, multivariateDataTypeRef, syncCandidates, ec);
+          } else if (this.dataTypeHandling === MultivariateDataTypeHandling.Consistent) {
+            if (multivariateDataTypeRef === StandardDataType.Unknown) {
+              if (innerExpression.dataTypeRef !== StandardDataType.Unknown) {
+                multivariateDataTypeRef = innerExpression.dataTypeRef;
+              }
+            } else {
+              if (innerExpression.dataTypeRef === StandardDataType.Unknown) {
+                innerExpression.dataTypeRef = multivariateDataTypeRef;
+              } else if (innerExpression.dataTypeRef !== multivariateDataTypeRef) {
+                const err = new Error(`Determined inner expression data type ${innerExpression.dataTypeRef} must match determined multivariate data type ${multivariateDataTypeRef} near ${candidate.near}`);
+                logErrorAndThrow(err, log, ec);
+              }
+            }
+          }
+        }
+        innerExpressions.push(innerExpression);
+      });
+      if (this.dataTypeHandling === MultivariateDataTypeHandling.Consistent) {
+        // By now, the multivariate data type was either known or determined
+        if (multivariateDataTypeRef === StandardDataType.Unknown) {
+          const err = new Error(`Indeterminate data type for multivariate expression near ${remaining}`);
+          logErrorAndThrow(err, log, ec);
+        }
+        innerExpressions.every(expression => expression.dataTypeRef = multivariateDataTypeRef);
       }
+      return [innerRemaining.trim(), {
+        type: this.refName,
+        dataTypeRef: multivariateDataTypeRef,
+        multivariate: true
+      }, innerExpressions];
     } else {
       // Help the inference engine by indicating it is not a set
       return [remaining, undefined, undefined];

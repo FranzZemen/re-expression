@@ -1,15 +1,32 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {StandardDataType} from '@franzzemen/re-data-type';
-import {AttributeExpressionReference} from '../standard/attribute-expression.js';
 import {ExpressionType} from '../expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
+import {AttributeExpressionReference} from '../standard/attribute-expression.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
+
+export type AttributeExpressionParserResult = [remaining: string, reference: AttributeExpressionReference];
 
 export class AttributeExpressionParser extends ExpressionParser {
   constructor() {
     super(ExpressionType.Attribute);
   }
-  parse(remaining: string, scope: Map<string, any>, hints: Hints, allowUnknownDataType?:boolean, execContext?: ExecutionContextI): [string, AttributeExpressionReference] {
+
+  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): AttributeExpressionParserResult {
+    const moduleResolver = new ModuleResolver();
+    const result = this.parse(moduleResolver,remaining,scope,hints, allowUnknownDataType,ec);
+    if(moduleResolver.hasPendingResolutions()) {
+      const log = new LoggerAdapter(ec, 're-expression', 'attribute-expression-parser', 'parseAndResolve');
+      logErrorAndThrow(new EnhancedError('Value Expression parsing does not require resolutions'),log, ec);
+    }
+    return result;
+  }
+
+
+
+  parse(moduleResolver: ModuleResolver, remaining: string, scope: Map<string, any>, hints: Hints, allowUnknownDataType?:boolean, execContext?: ExecutionContextI): AttributeExpressionParserResult {
     // Formats:
     // someAttributeName.anotherAttributeName
     // [1].someAttributeName.anotherAttributeName[5].yetAnother[4]
@@ -21,7 +38,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     // invocation expression
 
     const log = new LoggerAdapter(execContext, 're-expression', 'attribute-expression-parser', 'parse');
-    const typeHint = hints.get(ExpressionHintKey.ExpressionType);
+    const typeHint = hints.get(ExpressionHintKey.Type);
     if(typeHint && typeHint !== ExpressionType.Attribute) {
       log.debug(`Type hint ${typeHint} conflicts with ${ExpressionType.Attribute}, not parsing`);
       return [remaining, undefined];
