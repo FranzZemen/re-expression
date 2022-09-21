@@ -15,11 +15,6 @@ export class FunctionExpressionParser extends MultivariateParser {
   constructor() {
     super(ExpressionType.Function, MultivariateDataTypeHandling.Multivariate);
   }
-
-  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ResolvedExpressionParserResult {
-    return super.parseAndResolveBase(this, remaining, scope, hints, allowUnknownDataType, ec);
-  }
-
   parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;

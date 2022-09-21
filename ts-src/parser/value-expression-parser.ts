@@ -43,8 +43,4 @@ export class ValueExpressionParser extends ExpressionParser {
       }];
     }
   }
-
-  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
-    return super.parseAndResolveBase(this, remaining, scope, hints, allowUnknownDataType, ec) as ValueExpressionParserResult;
-  }
 }

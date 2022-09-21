@@ -13,12 +13,6 @@ export class AttributeExpressionParser extends ExpressionParser {
     super(ExpressionType.Attribute);
   }
 
-  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): AttributeExpressionParserResult {
-    return super.parseAndResolveBase(this, remaining, scope, hints,allowUnknownDataType, ec) as AttributeExpressionParserResult;
-  }
-
-
-
   parse(moduleResolver: ModuleResolver, remaining: string, scope: Map<string, any>, hints: Hints, allowUnknownDataType?:boolean, execContext?: ExecutionContextI): AttributeExpressionParserResult {
     // Formats:
     // someAttributeName.anotherAttributeName

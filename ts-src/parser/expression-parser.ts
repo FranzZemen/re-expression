@@ -14,7 +14,6 @@ export abstract class ExpressionParser {
   }
 
 
-  abstract parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ResolvedExpressionParserResult;
 
   /**
    * Attempt to parse the remaining text for the expression reference given the hints and any inference logic for type
@@ -30,10 +29,10 @@ export abstract class ExpressionParser {
    */
   abstract parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ExpressionParserResult;
 
-  parseAndResolveBase(parser: ExpressionParser, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI) : ResolvedExpressionParserResult {
+  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI) : ResolvedExpressionParserResult {
     const moduleResolver = new ModuleResolver();
     let expressionRef: ExpressionReference;
-    [remaining, expressionRef] = parser.parse(moduleResolver, remaining, scope, hints, allowUnknownDataType, ec);
+    [remaining, expressionRef] = this.parse(moduleResolver, remaining, scope, hints, allowUnknownDataType, ec);
     if (moduleResolver.hasPendingResolutions()) {
       const resultsOrPromises = moduleResolver.resolve(ec);
       if (isPromise(resultsOrPromises)) {
