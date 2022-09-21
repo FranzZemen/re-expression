@@ -11,7 +11,7 @@ export class SetExpressionParser extends MultivariateParser {
 
   constructor() {
     super(ExpressionType.Set, MultivariateDataTypeHandling.Consistent);
-  } 
+  }
 
   parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): SetExpressionParserResult {
     let expRef: ExpressionReference, set: ExpressionReference[];

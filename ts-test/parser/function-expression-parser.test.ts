@@ -1,7 +1,16 @@
-import {Hints} from '@franzzemen/app-utility';
+import {Hints, ModuleResolution} from '@franzzemen/app-utility';
+import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
-import {ExpressionScope, FunctionExpressionParser} from '../../publish/index.js';
+import {isPromise} from 'util/types';
+import {FunctionExpressionReference} from '../../build/index.js';
+import {
+  AwaitEvaluationFactory,
+  ExpressionHintKey,
+  ExpressionScope, ExpressionType,
+  FunctionExpressionParser, isFunctionExpressionReference,
+  ResolvedExpressionParserResult
+} from '../../publish/index.js';
 
 
 const expect = chai.expect;
@@ -21,21 +30,20 @@ describe('Rules Engine Tests', () => {
         expect(ref).to.be.undefined;
         done();
       });
-      /*
-      it('should fail to parse for no registered AwaitEvaluation', done => {
+      it('should fail to parse for no registered AwaitEvaluation', () => {
         const hints = new Hints('');
-        hints.loadAndInitialize();
+        hints.loadAndResolve('');
         hints.set(ExpressionHintKey.DataType, StandardDataType.Number);
         try {
-          const [remaining, ref] = parser.parse('@TestFunction', scope, hints) as ExpressionParseResult;
+          const [remaining, ref] = parser.parseAndResolve('@TestFunction', scope, hints) as ResolvedExpressionParserResult;
         } catch (err) {
           expect(err.message.startsWith('No AwaitEvaluation')).to.be.true;
         }
-        done();
       });
+
       it('should parse with registered AwaitEvaluation', () => {
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
-        const valorPromise = factory.register({
+        const valOrPromise = factory.register({
           refName: 'TestFunction',
           module: {
             moduleName: '../../../testing/parser/await-evaluation-factory-number-5.js',
@@ -43,19 +51,19 @@ describe('Rules Engine Tests', () => {
             moduleResolution: ModuleResolution.es
           }
         });
-        if (isPromise(valorPromise)) {
-          return valorPromise
+        if (isPromise(valOrPromise)) {
+          return valOrPromise
             .then(val => {
 
               const hints = new Hints('');
-              hints.loadAndInitialize();
+              hints.loadAndResolve();
               hints.set(ExpressionHintKey.DataType, StandardDataType.Number);
               try {
-                const value = parser.parse('@TestFunction', scope, hints) as Promise<ExpressionParseResult>;
+                const value = parser.parseAndResolve('@TestFunction', scope, hints);
                 if(isPromise(value)) {
                   unreachableCode.should.be.true; // Test function was loaded above, so parsing doesn't go async.
                 } else {
-                  const [remaining, ref] = value as [string, ExpressionReference];
+                  const [remaining, ref] = value as [string, FunctionExpressionReference];
                     if (isFunctionExpressionReference(ref)) {
                       ref.should.exist;
                       ref.type.should.equal(ExpressionType.Function);
@@ -80,17 +88,17 @@ describe('Rules Engine Tests', () => {
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
         //factory.register({refName:'TestFunction', module: {moduleName:'../../../testing/core/expression/parser/test.factory.function', functionName: 'testFactoryFunction'}});
         const hints = new Hints('');
-        hints.loadAndInitialize();
+        hints.loadAndResolve();
         hints.set(ExpressionHintKey.DataType, StandardDataType.Number);
         hints.set(ExpressionHintKey.ModuleName, '../../../testing/parser/await-evaluation-factory-number-5.js');
         hints.set(ExpressionHintKey.FunctionName, 'awaitEvaluationFactoryNumber5');
         hints.set(ExpressionHintKey.ModuleResolutionName, ModuleResolution.es);
         try {
-          const value = parser.parse('@TestFunction', scope, hints) as Promise<ExpressionParseResult>;
+          const value = parser.parseAndResolve('@TestFunction', scope, hints);
           if(isPromise(value)) {
             unreachableCode.should.be.true; // Test function was loaded above, so parsing doesn't go async.
           } else {
-            const [remaining, ref] = value as [string, ExpressionReference];
+            const [remaining, ref] = value;
             if (isFunctionExpressionReference(ref)) {
               ref.should.exist;
               ref.type.should.equal(ExpressionType.Function);
@@ -109,30 +117,35 @@ describe('Rules Engine Tests', () => {
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
         factory.unregister('TestFunction');
         const hints = new Hints('');
-        hints.loadAndInitialize();
+        hints.loadAndResolve();
         hints.set(ExpressionHintKey.DataType, StandardDataType.Number);
         hints.set(ExpressionHintKey.Module, `{
                 "moduleName": "../../../testing/parser/await-evaluation-factory-number-5.js", 
                 "functionName":"awaitEvaluationFactoryNumber5",
                 "moduleResolution": "es"}`);
         try {
-          const promise = parser.parse('@TestFunction', scope, hints) as Promise<ExpressionParseResult>;
-          promise.then(([remaining, ref]) => {
-            if (isFunctionExpressionReference(ref)) {
-              ref.should.exist;
-              ref.type.should.equal(ExpressionType.Function);
-              ref.refName.should.equal('TestFunction');
-              ref.dataTypeRef.should.equal(StandardDataType.Number);
-              (typeof factory.getRegistered('TestFunction')).should.equal('function');
-            } else {
-              unreachableCode.should.be.true;
-            }
-          });
+          const result = parser.parseAndResolve('@TestFunction', scope, hints);''
+          if(isPromise(result[1])) {
+            result[1].then(ref => {
+              if (isFunctionExpressionReference(ref)) {
+                ref.should.exist;
+                ref.type.should.equal(ExpressionType.Function);
+                ref.refName.should.equal('TestFunction');
+                ref.dataTypeRef.should.equal(StandardDataType.Number);
+                (typeof factory.getRegistered('TestFunction')).should.equal('function');
+              } else {
+                unreachableCode.should.be.true;
+              }
+            });
+          } else {
+            unreachableCode.should.be.true;
+          }
         } catch (err) {
           unreachableCode.should.be.true;
         }
         done();
       });
+      /*
       it('should parse with inline AwaitEvaluation as module for a params function expression ParamsFunction', done => {
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
         factory.unregister('ParamsFunction');
