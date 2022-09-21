@@ -1,4 +1,6 @@
-import {ExecutionContextI, Hints, ModuleResolver} from '@franzzemen/app-utility';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+import {EnhancedError, logErrorAndReturn} from '@franzzemen/app-utility/enhanced-error.js';
+import {isPromise} from 'util/types';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 
@@ -27,4 +29,32 @@ export abstract class ExpressionParser {
    * @return remaining after parsing as well as the reference parsed
    */
   abstract parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ExpressionParserResult;
+
+  parseAndResolveBase(parser: ExpressionParser, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI) : ResolvedExpressionParserResult {
+    const moduleResolver = new ModuleResolver();
+    let expressionRef: ExpressionReference;
+    [remaining, expressionRef] = parser.parse(moduleResolver, remaining, scope, hints, allowUnknownDataType, ec);
+    if (moduleResolver.hasPendingResolutions()) {
+      const resultsOrPromises = moduleResolver.resolve(ec);
+      if (isPromise(resultsOrPromises)) {
+        const expressionRefPromise = resultsOrPromises
+          .then(resolutions => {
+            const someErrors = ModuleResolver.resolutionsHaveErrors(resolutions);
+            if (someErrors) {
+              const log = new LoggerAdapter(ec, 're-expression', 'expression-parser', 'parseAndResolve');
+              log.warn(resolutions, 'Errors resolving modules');
+              throw logErrorAndReturn(new EnhancedError('Errors resolving modules'));
+            } else {
+              moduleResolver.clear();
+              return expressionRef;
+            }
+          });
+        return [remaining, expressionRefPromise];
+      } else {
+        return [remaining, expressionRef];
+      }
+    } else {
+      return [remaining, expressionRef];
+    }
+  }
 }

@@ -1,17 +1,7 @@
-import {Hints, ModuleResolution} from '@franzzemen/app-utility';
-import {StandardDataType} from '@franzzemen/re-data-type';
+import {Hints} from '@franzzemen/app-utility';
 import chai from 'chai';
 import 'mocha';
-import {isPromise} from 'util/types';
-import {
-  AwaitEvaluationFactory,
-  ExpressionHintKey,
-  ExpressionParseResult, ExpressionReference,
-  ExpressionScope,
-  ExpressionType,
-  FunctionExpressionParser,
-  isFunctionExpressionReference
-} from '../../publish/index.js';
+import {ExpressionScope, FunctionExpressionParser} from '../../publish/index.js';
 
 
 const expect = chai.expect;
@@ -26,11 +16,12 @@ describe('Rules Engine Tests', () => {
     describe('/core/expression/parser/function-expression-parser.test', () => {
       it('should return undefined ref for no data type', done => {
         const hints = new Hints('');
-        hints.loadAndInitialize();
-        const [remaining, ref] = parser.parse('@TestFunction', scope, hints) as ExpressionParseResult;
+        hints.loadAndResolve('') as Hints;
+        const [remaining, ref] = parser.parseAndResolve('@TestFunction', scope, hints);
         expect(ref).to.be.undefined;
         done();
       });
+      /*
       it('should fail to parse for no registered AwaitEvaluation', done => {
         const hints = new Hints('');
         hints.loadAndInitialize();
@@ -170,6 +161,8 @@ describe('Rules Engine Tests', () => {
         }
         done();
       });
+      */
     });
   });
 });
+

@@ -11,7 +11,7 @@ export class ExpressionFactory {
   constructor(ec?: ExecutionContextI) {
   }
 
-  createExpression(expressionRef: ExpressionReference | Expression, scope: ExpressionScope, ec?: ExecutionContextI): Expression | Promise<Expression> {
+  createExpression(expressionRef: ExpressionReference | Expression, scope: ExpressionScope, ec?: ExecutionContextI): Expression {
     let expressionReference: ExpressionReference;
     if (isExpression(expressionRef)) {
       expressionReference = expressionRef.to(ec);
@@ -32,7 +32,7 @@ export class ExpressionFactory {
       case ExpressionType.Set:
         expression = new SetExpression(expressionReference as SetExpressionReference, scope, ec);
         break;
-    }
-    return expression.initialize(scope, ec);
+    };
+    return expression;
   }
 }

@@ -30,11 +30,6 @@ export class AttributeExpression extends Expression {
   constructor(ref: AttributeExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
     super(ref, scope, ec);
     this.path = ref.path;
-    this.init = true;
-  }
-
-  protected initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): AttributeExpression | Promise<AttributeExpression> {
-    return this;
   }
 
   get path(): Path {

@@ -1,5 +1,4 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
@@ -15,13 +14,7 @@ export class AttributeExpressionParser extends ExpressionParser {
   }
 
   parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): AttributeExpressionParserResult {
-    const moduleResolver = new ModuleResolver();
-    const result = this.parse(moduleResolver,remaining,scope,hints, allowUnknownDataType,ec);
-    if(moduleResolver.hasPendingResolutions()) {
-      const log = new LoggerAdapter(ec, 're-expression', 'attribute-expression-parser', 'parseAndResolve');
-      logErrorAndThrow(new EnhancedError('Value Expression parsing does not require resolutions'),log, ec);
-    }
-    return result;
+    return super.parseAndResolveBase(this, remaining, scope, hints,allowUnknownDataType, ec) as AttributeExpressionParserResult;
   }
 
 

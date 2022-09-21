@@ -99,7 +99,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
   }
 
 
-  parseAndResolve(remaining: string, scope: ExpressionScope, context: ExpressionStackParserContext, ec?: ExecutionContextI): ResolvedExpressionParserResult {
+  parseAndResolve(remaining: string, scope: ExpressionScope, context?: ExpressionStackParserContext, ec?: ExecutionContextI): ResolvedExpressionParserResult {
     const moduleResolver = new ModuleResolver();
     let expressionRef: ExpressionReference;
     [remaining, expressionRef] = this.parse(moduleResolver, remaining, scope, context, ec);

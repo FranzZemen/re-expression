@@ -1,11 +1,11 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
-import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
+import {ValueExpressionReference} from '../standard/value-expression.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
-import {ValueExpressionReference} from '../standard/value-expression.js';
 
 export type ValueExpressionParserResult = [string, ValueExpressionReference];
 
@@ -45,12 +45,6 @@ export class ValueExpressionParser extends ExpressionParser {
   }
 
   parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
-    const moduleResolver = new ModuleResolver();
-    const result = this.parse(moduleResolver,remaining,scope,hints, allowUnknownDataType,ec);
-    if(moduleResolver.hasPendingResolutions()) {
-      const log = new LoggerAdapter(ec, 're-expression', 'value-expression-parser', 'parseAndResolve');
-      logErrorAndThrow(new EnhancedError('Value Expression parsing does not require resolutions'),log, ec);
-    }
-    return result;
+    return super.parseAndResolveBase(this, remaining, scope, hints, allowUnknownDataType, ec) as ValueExpressionParserResult;
   }
 }

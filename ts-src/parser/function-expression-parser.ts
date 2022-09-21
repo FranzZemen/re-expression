@@ -1,15 +1,7 @@
-import {
-  AwaitEvaluation,
-  ExecutionContextI,
-  Hints,
-  LoggerAdapter,
-  ModuleDefinition,
-  ModuleResolver
-} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition, ModuleResolver} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {loadModuleDefinitionFromHints, RuleElementModuleReference} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
-import {isPromise} from 'util/types';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {FunctionExpressionReference} from '../standard/function-expression.js';
@@ -25,7 +17,7 @@ export class FunctionExpressionParser extends MultivariateParser {
   }
 
   parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ResolvedExpressionParserResult {
-    throw new Error('Method not implemented.');
+    return super.parseAndResolveBase(this, remaining, scope, hints, allowUnknownDataType, ec);
   }
 
   parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] {

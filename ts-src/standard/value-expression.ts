@@ -32,12 +32,8 @@ export class ValueExpression extends Expression {
   constructor(expressionRef: ValueExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
     super(expressionRef, scope, ec);
     this.value = expressionRef.value;
-    this.init = true;
   }
 
-  initializeExpression(scope: ExpressionScope, ec?: ExecutionContextI): ValueExpression | Promise<ValueExpression> {
-    return this;
-  }
 
   to(ec?: ExecutionContextI): ValueExpressionReference {
     const ref: Partial<ValueExpressionReference> = {};

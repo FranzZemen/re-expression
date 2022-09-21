@@ -1,19 +1,19 @@
-import {ExecutionContextI, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+//import {ExecutionContextI, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
 import {logErrorAndReturn} from '@franzzemen/app-utility/enhanced-error.js';
 import {FragmentParser} from '@franzzemen/re-common';
 import {isPromise} from 'util/types';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {ArithmeticOperator, FormulaFragmentReference, OperationFragment} from '../standard/formula-expression.js';
 import {ExpressionStackParser} from './expression-stack-parser.js';
 
-export class FormulaFragmentParserAdapter implements FragmentParser<FormulaFragmentReference> {
-  constructor() {
-  }
+//export class FormulaFragmentParserAdapter implements FragmentParser<FormulaFragmentReference> {
+//  constructor() {
+//  }
 
-  private parseNext(candidateFragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, OperationFragment | Promise<OperationFragment>]  {
-    const candidateRegex = /^([*/+-])([\s\t\r\n\v\f\u2028\u2029]?[^]*$|$)/;
-    const result = candidateRegex.exec(candidateFragment);
-    if (result === null) {
+//  private parseNext(candidateFragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, OperationFragment | Promise<OperationFragment>]  {
+  //  const candidateRegex = /^([*/+-])([\s\t\r\n\v\f\u2028\u2029]?[^]*$|$)/;
+    //const result = candidateRegex.exec(candidateFragment);
+  /*
+  if (result === null) {
       return [candidateFragment, undefined];
     } else {
       const operator = result[1] as ArithmeticOperator;
@@ -106,5 +106,5 @@ export class FormulaFragmentParserAdapter implements FragmentParser<FormulaFragm
     }
   }
 
-
 }
+*/
