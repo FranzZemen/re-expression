@@ -1,4 +1,4 @@
-import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
@@ -14,7 +14,7 @@ export class ValueExpressionParser extends ExpressionParser {
     super(ExpressionType.Value);
   }
 
-  parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
+  parse (remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'value-expression-parser', 'parse');
     const near = remaining;
     const typeHint = hints.get(ExpressionHintKey.Type);
@@ -28,7 +28,7 @@ export class ValueExpressionParser extends ExpressionParser {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
     }
     let value: any;
-    [remaining, [value, dataTypeHint]] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(moduleResolver, remaining, scope, dataTypeRef, ec);
+    [remaining, [value, dataTypeHint]] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(remaining, scope, dataTypeRef, ec);
     if(value === undefined) {
       return [remaining, undefined];
     } else {

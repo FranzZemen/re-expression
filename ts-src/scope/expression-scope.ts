@@ -3,10 +3,16 @@ import {
   ExecutionContextI, LoggerAdapter,
   ModuleResolutionResult,
   ModuleResolutionSetter,
-  ModuleResolver
+  ModuleResolver,
+  ModuleResolutionAction
 } from '@franzzemen/app-utility';
 import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
-import {RuleElementInstanceReference, RuleElementModuleReference, Scope} from '@franzzemen/re-common';
+import {
+  RuleElementInstanceReference,
+  RuleElementModuleReference,
+  RuleElementReference,
+  Scope
+} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
 import {isPromise} from 'node:util/types';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser.js';
@@ -45,12 +51,11 @@ export class ExpressionScope extends DataTypeScope {
 
   }
 
-  addAwaitEvaluationFunctions(awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[], override: boolean, overrideDown: boolean, ec?: ExecutionContextI): AwaitEvaluation[] | Promise<AwaitEvaluation[]> {
-    return this.addScopedFactoryItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, override, overrideDown, ec);
+  addAwaitEvaluationFunction(awaitEvaluationRef: RuleElementReference<AwaitEvaluation>, action?: ModuleResolutionAction, ec?: ExecutionContextI) {
+    return this.addRuleElementReferenceItem(awaitEvaluationRef, ExpressionScope.AwaitEvaluationFactory, action, ec);
   }
-
-  addAwaitEvaluationFunctionsResolver(moduleResolver: ModuleResolver, awaitEvaluationRefs: (RuleElementInstanceReference<AwaitEvaluation> | RuleElementModuleReference)[], override: boolean, overrideDown: boolean, ec?: ExecutionContextI) {
-    return this.addScopedFactoryItemsResolver<AwaitEvaluation>(moduleResolver, awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, override, overrideDown, ec);
+  addAwaitEvaluationFunctions(awaitEvaluationRefs:RuleElementReference<AwaitEvaluation>[], actions?: ModuleResolutionAction[], ec?: ExecutionContextI) {
+    return this.addRuleElementReferenceItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, actions,ec);
   }
 
   getAwaitEvaluationFunction(refName: string, searchParent = true, ec?: ExecutionContextI): AwaitEvaluation {

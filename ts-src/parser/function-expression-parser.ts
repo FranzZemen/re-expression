@@ -1,6 +1,6 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition, ModuleResolver} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
-import {loadModuleDefinitionFromHints, RuleElementModuleReference} from '@franzzemen/re-common';
+import {loadModuleDefinitionFromHints, RuleElementModuleReference, Scope} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
@@ -15,7 +15,7 @@ export class FunctionExpressionParser extends MultivariateParser {
   constructor() {
     super(ExpressionType.Function, MultivariateDataTypeHandling.Multivariate);
   }
-  parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;
     let module: ModuleDefinition;
@@ -50,20 +50,15 @@ export class FunctionExpressionParser extends MultivariateParser {
       const refNameRegistered = scope.hasAwaitEvaluationFactory(scope, refName, ec);
       module = loadModuleDefinitionFromHints(hints, ec);
 
-      const multivariateHints = new Hints(`'${ExpressionHintKey.DataType}=${StandardDataType.Unknown} ${ExpressionHintKey.Multivariate} type=${ExpressionType.Function}`);
-      multivariateHints.load(moduleResolver, '', ec); // Nothing in the hints would cause a module resolver add, fyi
+      const hintStr = `<<ex ${ExpressionHintKey.DataType}=${StandardDataType.Unknown} ${ExpressionHintKey.Multivariate} ${ExpressionHintKey.Type}=${ExpressionType.Function}>>`;
+      const [textRemaining, multivariateHints] = scope.parseHints(hintStr, 'ex',ec);
       if (module && !refNameRegistered) {
-        // Load the awaitEvaluation
-        const ruleElementModuleReference: RuleElementModuleReference = {refName, module};
-        scope.addAwaitEvaluationFunctionsResolver(moduleResolver, [ruleElementModuleReference], false, false, ec);
-      } else if (!refNameRegistered) {
-        const err = new Error(`No AwaitEvaluation registered for refName ${refName}`);
-        logErrorAndThrow(err, log, ec);
+        scope.addAwaitEvaluationFunction({moduleRef: {refName, module}},undefined, ec);
       }
       let params: ExpressionReference[];
       if (remaining.startsWith('[')) {
         // allowUnknownDataTypes is false because the parameter list for a function expression must be determinate on data type even if that data type is Unknown (runtime determination)
-        const multivariateResult: MultivariateParserResult = this.parseMultivariate(moduleResolver, remaining, scope, multivariateHints, false, ec);
+        const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, multivariateHints, false, ec);
 
         [remaining, , params] = [...multivariateResult];
         return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference];

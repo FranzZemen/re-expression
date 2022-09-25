@@ -13,9 +13,9 @@ export class SetExpressionParser extends MultivariateParser {
     super(ExpressionType.Set, MultivariateDataTypeHandling.Consistent);
   }
 
-  parse(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): SetExpressionParserResult {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): SetExpressionParserResult {
     let expRef: ExpressionReference, set: ExpressionReference[];
-    const multivariateResult: MultivariateParserResult = this.parseMultivariate(moduleResolver, remaining, scope, hints, true, ec);
+    const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, hints, true, ec);
     [remaining, expRef, set] = [...multivariateResult];
     if (expRef) {
       return [remaining, {type: expRef.type, dataTypeRef: expRef.dataTypeRef, set, multivariate: true}];

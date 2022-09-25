@@ -1,4 +1,4 @@
-import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
+import {ExecutionContextI, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 

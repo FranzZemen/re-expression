@@ -1,4 +1,11 @@
-import {ExecutionContextI, LoggerAdapter, ModuleDefinition, reverseEnumerationToSet} from '@franzzemen/app-utility';
+import {
+  ExecutionContextI,
+  LoggerAdapter,
+  ModuleDefinition, ModuleResolutionActionInvocation,
+  ModuleResolver,
+  reverseEnumerationToSet
+} from '@franzzemen/app-utility';
+import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
 import {DataTypeFactory, DataTypeI} from '@franzzemen/re-data-type';
 import {isPromise} from 'node:util/types';
@@ -63,14 +70,28 @@ export abstract class Expression implements ExpressionReference {
     this.dataTypeRef = ref.dataTypeRef;
     const dataTypeFactory: DataTypeFactory = scope.get(ExpressionScope.DataTypeFactory);
     this.dataType = dataTypeFactory.getRegistered(this.dataTypeRef);
-    if (!this.dataType) {
-      throw new Error('Data types need to be loaded outside of Expression');
-    }
-    this.dataTypeModule = ref.dataTypeModule; // TODO: copy Module Definition
+    this.dataTypeModule = ref.dataTypeModule;
     if (ref.multivariate !== undefined) {
       this.multivariate = ref.multivariate;
     }
   }
+
+  customDataTypeRefLoadedAction: ModuleResolutionActionInvocation = (successfulResolution, scope: ExpressionScope, ec?: ExecutionContextI) => {
+    const log = new LoggerAdapter(ec, 're-expression', 'expression', 'customDataTypeRefLoadedAction');
+    if(this.dataType) {
+      log.warn(this, `Action to set data type "${this.dataTypeRef}" called, but its already set`);
+      logErrorAndThrow(new EnhancedError(`Action to set data type "${this.dataTypeRef}" called, but its already set`), log, ec);
+    } else {
+      this.dataType = scope.getDataType(this.dataTypeRef, true, ec);
+      if(!this.dataType) {
+        log.warn(this, `Action to set data type "${this.dataTypeRef}" called, but it still doesn't exist in the factory, this method should only be called when it is`);
+        logErrorAndThrow(new EnhancedError(`Action to set data type "${this.dataTypeRef}" called, but it still doesn't exist in the factory, this method should only be called when it is`), log, ec);
+      } else {
+        return true;
+      }
+    }
+  }
+
 
   /**
    * Contract to convert from internal representation to a reference

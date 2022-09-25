@@ -21,7 +21,7 @@ export abstract class MultivariateParser extends ExpressionParser {
     super(expressionType);
   }
 
-  parseMultivariate(moduleResolver: ModuleResolver, remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): MultivariateParserResult {
+  parseMultivariate(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): MultivariateParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'multivariate-parser', 'parse');
     // Exclude a misaligned expression type:
     const type = hints.get(ExpressionHintKey.Type) as string;
@@ -103,7 +103,7 @@ export abstract class MultivariateParser extends ExpressionParser {
           }
           const candidate: { near: string, parseResult: [string, ExpressionReference] } = {
             near: innerRemaining,
-            parseResult: stackParser.parse(moduleResolver, innerRemaining, scope, context, ec)
+            parseResult: stackParser.parse(innerRemaining, scope, context, ec)
           };
           candidates.push(candidate);
           // Move to next part of the text
