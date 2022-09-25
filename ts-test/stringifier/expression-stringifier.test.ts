@@ -215,7 +215,7 @@ describe('Rules Engine Tests - expression-stringifier.test', () => {
       const parser: ExpressionStackParser = scope.get(ExpressionScope.ExpressionStackParser);
       const result = parser.parse(`<<ex data-type=Number
                   module-name="../../../testing/parser/await-evaluation-factory-params.js" 
-                  function-name="awaitEvaluationFactoryParams module-resolution=es">> 
+                  function-name="awaitEvaluationFactoryParams" module-resolution=es>> 
                   @ParamsFunction[<<ex data-type=Text>> my.name, 5]`, scope);
       const trueValOrPromise = Scope.resolve(scope);
       if(isPromise(trueValOrPromise)) {
