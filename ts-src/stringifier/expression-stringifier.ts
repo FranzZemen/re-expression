@@ -2,10 +2,10 @@ import {ExecutionContextI} from '@franzzemen/app-utility';
 import {DataTypeLiteralStackStringifier} from '@franzzemen/re-data-type';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {isAttributeExpressionReference} from '../standard/attribute-expression.js';
-import {isFunctionExpressionReference} from '../standard/function-expression.js';
-import {isSetExpressionReference, SetExpressionReference} from '../standard/set-expression.js';
-import {isValueExpressionReference} from '../standard/value-expression.js';
+import {isAttributeExpressionReference} from '../expression/attribute-expression.js';
+import {isFunctionExpressionReference} from '../expression/function-expression.js';
+import {isSetExpressionReference, SetExpressionReference} from '../expression/set-expression.js';
+import {isValueExpressionReference} from '../expression/value-expression.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {StringifyExpressionOptions} from './stringify-expression-options.js';
 

@@ -2,7 +2,7 @@ import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzem
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {AttributeExpressionReference} from '../standard/attribute-expression.js';
+import {AttributeExpressionReference} from '../expression/attribute-expression.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
 

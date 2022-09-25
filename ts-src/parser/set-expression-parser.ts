@@ -1,7 +1,7 @@
 import {ExecutionContextI, Hints, ModuleResolver} from '@franzzemen/app-utility';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {SetExpressionReference} from '../standard/set-expression.js';
+import {SetExpressionReference} from '../expression/set-expression.js';
 import {ResolvedExpressionParserResult} from './expression-parser.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
 

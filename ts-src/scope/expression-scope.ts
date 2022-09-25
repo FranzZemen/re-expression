@@ -1,29 +1,15 @@
-import {
-  AwaitEvaluation,
-  ExecutionContextI, LoggerAdapter,
-  ModuleResolutionResult,
-  ModuleResolutionSetter,
-  ModuleResolver,
-  ModuleResolutionAction
-} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
-import {
-  RuleElementInstanceReference,
-  RuleElementModuleReference,
-  RuleElementReference,
-  Scope
-} from '@franzzemen/re-common';
+import {AwaitEvaluation, ExecutionContextI, ModuleResolutionAction} from '@franzzemen/app-utility';
+import {RuleElementReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
-import {isPromise} from 'node:util/types';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser.js';
+import {ExpressionStackParser} from '../parser/expression-stack-parser.js';
 import {FunctionExpressionParser} from '../parser/function-expression-parser.js';
 import {SetExpressionParser} from '../parser/set-expression-parser.js';
 import {ValueExpressionParser} from '../parser/value-expression-parser.js';
-import {ExpressionOptions} from './expression-options.js';
-import {ExpressionFactory} from '../standard/expression-factory.js';
-import {ExpressionStackParser} from '../parser/expression-stack-parser.js';
 import {ExpressionStringifier} from '../stringifier/expression-stringifier.js';
-import {AwaitEvaluationFactory} from '../await-evaluation/await-evaluation-factory.js';
+import {ExpressionOptions} from './expression-options.js';
+import {ExpressionFactory} from '../factory/expression-factory.js';
+import {AwaitEvaluationFactory} from '../factory/await-evaluation-factory.js';
 
 export class ExpressionScope extends DataTypeScope {
   public static ExpressionFactory = 'ExpressionFactory';

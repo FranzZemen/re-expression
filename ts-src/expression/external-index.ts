@@ -1,4 +1,3 @@
-export * from './expression-factory.js';
 export * from './attribute-expression.js';
 export * from './value-expression.js';
 export * from './function-expression.js';

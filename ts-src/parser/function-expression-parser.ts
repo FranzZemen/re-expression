@@ -4,7 +4,7 @@ import {loadModuleDefinitionFromHints, RuleElementModuleReference, Scope} from '
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {FunctionExpressionReference} from '../standard/function-expression.js';
+import {FunctionExpressionReference} from '../expression/function-expression.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ResolvedExpressionParserResult} from './expression-parser.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';

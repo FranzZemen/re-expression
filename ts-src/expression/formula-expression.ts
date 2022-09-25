@@ -1,26 +1,33 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
-import {Expression, ExpressionReference} from '../expression.js';
-import {ExpressionScope} from '../scope/expression-scope.js';
-
+import {RecursiveGrouping} from '@franzzemen/re-common';
+import {ExpressionReference, ExpressionType} from '../expression.js';
 
 
 export enum Operator {
   Add = '+',
   Subtract = '-',
   Multiply = '*',
-  Divide = '/',
-  Modulus = '%',
-  AbsoluteValue = '|'
+  Divide = '/'
 }
 
-export type UnaryOperator = Operator.Add | Operator.Subtract | Operator.AbsoluteValue;
+export function isFormulaExpressionReference(ref: any | FormulaExpressionReference): ref is FormulaExpressionReference {
+  return ref['type'] === ExpressionType.Logical && 'operator' in ref && 'group' in ref;
+}
+
+export interface FormulaExpressionReference extends RecursiveGrouping<Operator, ExpressionReference>, ExpressionReference {
+}
+
+
+
+
+/*
+
+
+
 export type BinaryOperator = Operator.Add | Operator.Subtract | Operator.Multiply | Operator.Divide;
 
-export const unaryOperators = [Operator.Add, Operator.Subtract, Operator.AbsoluteValue];
 export const binaryOperators = [Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide];
 
 export interface OperationFragment {
-  unaryOperator?: UnaryOperator;
   binaryOperator?: BinaryOperator;
   expressionRef: ExpressionReference;
 }
@@ -47,3 +54,4 @@ export class FormulaExpression extends Expression {
   }
 
 }
+*/

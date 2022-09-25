@@ -3,7 +3,7 @@ import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {ValueExpressionReference} from '../standard/value-expression.js';
+import {ValueExpressionReference} from '../expression/value-expression.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
 

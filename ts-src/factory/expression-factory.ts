@@ -1,14 +1,16 @@
 import {ExecutionContextI, LoggerAdapter, ModuleResolutionAction} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeFactory, DataTypeScope} from '@franzzemen/re-data-type';
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {AttributeExpression, AttributeExpressionReference} from './attribute-expression.js';
-import {FunctionExpression, FunctionExpressionReference} from './function-expression.js';
-import {SetExpression, SetExpressionReference} from './set-expression.js';
-import {ValueExpression, ValueExpressionReference} from './value-expression.js';
+import {AttributeExpression, AttributeExpressionReference} from '../expression/attribute-expression.js';
+import {FunctionExpression, FunctionExpressionReference} from '../expression/function-expression.js';
+import {SetExpression, SetExpressionReference} from '../expression/set-expression.js';
+import {ValueExpression, ValueExpressionReference} from '../expression/value-expression.js';
 
 export class ExpressionFactory {
+
+
+
   constructor(ec?: ExecutionContextI) {
   }
 

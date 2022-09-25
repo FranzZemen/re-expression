@@ -2,8 +2,8 @@ import {
   AwaitEvaluation,
   ExecutionContextI,
   LoggerAdapter,
-  ModuleDefinition, ModuleResolutionAction, ModuleResolutionActionInvocation,
-  ModuleResolver
+  ModuleDefinition,
+  ModuleResolutionActionInvocation
 } from '@franzzemen/app-utility';
 import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {HasRefName} from '@franzzemen/re-common';
@@ -12,7 +12,7 @@ import {isPromise} from 'util/types';
 
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {ExpressionFactory} from './expression-factory.js';
+import {ExpressionFactory} from '../factory/expression-factory.js';
 
 
 export interface FunctionExpressionReference extends ExpressionReference, HasRefName {
