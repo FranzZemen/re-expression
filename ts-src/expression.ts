@@ -7,7 +7,7 @@ import {
 } from '@franzzemen/app-utility';
 import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
-import {DataTypeFactory, DataTypeI} from '@franzzemen/re-data-type';
+import {DataTypeFactory, DataTypeI, StandardDataType} from '@franzzemen/re-data-type';
 import {isPromise} from 'node:util/types';
 import {ExpressionScope} from './scope/expression-scope.js';
 

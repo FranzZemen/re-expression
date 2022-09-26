@@ -1,3 +1,4 @@
+import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
 import {Scope} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
@@ -9,6 +10,16 @@ import {
   ExpressionStackParser,
   ExpressionStringifier, isAttributeExpressionReference, isFunctionExpressionReference, isValueExpressionReference
 } from '../../publish/index.js';
+
+import {createRequire} from 'node:module';
+const require = createRequire(import.meta.url);
+
+const json = require('../../package.json');
+const version = json.version;
+const packageName = json.name;
+const repo = `${packageName} v.${version}`;
+
+const filename = import.meta.url;
 
 const expect = chai.expect;
 const should = chai.should();
@@ -253,5 +264,38 @@ describe('Rules Engine Tests - expression-stringifier.test', () => {
         unreachableCode.should.be.true;
       }
     });
+    it('is an annotation test', () => {
+
+      // Function factory version
+      const loggerAdapter = () => {
+        function logimpl(target: any, propertyKey: any, descriptor: PropertyDescriptor): PropertyDescriptor {
+          const original = descriptor.value;
+          let replace = false;
+          descriptor.value = function (...args) {
+            this.logger = new LoggerAdapter(args[args.length-1], repo, filename, propertyKey);
+            //this.logger = new LoggerAdapter(args[args.length-1], repo, filename, propertyKey);
+            original.call(this, ...args);
+          }
+            return descriptor;
+        }
+        return logimpl;
+      }
+
+
+      const ec: ExecutionContextI = {config:{log:{logAttributes: {hideMethod: false}}}};
+      class LogMethodAnnotation {
+        constructor() {
+        }
+
+        @loggerAdapter()
+        logSomething(ec?: ExecutionContextI) {
+          let b = 5+4;
+          const a = 5;
+          this['logger'].trace('Hello World');  // Works but contrived
+        }
+      }
+      const a = new LogMethodAnnotation();
+      a.logSomething(ec);
+    })
   });
 });

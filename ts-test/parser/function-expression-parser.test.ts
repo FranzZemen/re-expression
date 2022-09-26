@@ -83,7 +83,7 @@ describe('Rules Engine Tests', () => {
 
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
         const remaining = `<<ex ${ExpressionHintKey.DataType}=${StandardDataType.Number} ${ExpressionHintKey.ModuleName}="../../../testing/parser/await-evaluation-factory-number-5.js" 
-          ${ExpressionHintKey.FunctionName}=awaitEvaluationFactoryNumber5 ${ExpressionHintKey.ModuleResolutionName}= ${ModuleResolution.es}>> @TestFunction`;
+          ${ExpressionHintKey.FunctionName}=awaitEvaluationFactoryNumber5 ${ExpressionHintKey.ModuleResolution}= ${ModuleResolution.es}>> @TestFunction`;
         try {
           let [remainingAfterHints, hints] = scope.parseHints(remaining, 'ex');
           let [, refOrPromise] = parser.parseAndResolve(remainingAfterHints, scope, hints);
@@ -113,7 +113,7 @@ describe('Rules Engine Tests', () => {
 
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
         const remaining = `<<ex ${ExpressionHintKey.DataType}=${StandardDataType.Number} ${ExpressionHintKey.ModuleName}="../../../testing/parser/await-evaluation-factory-number-5.js" 
-          ${ExpressionHintKey.FunctionName}=awaitEvaluationFactoryNumber5 ${ExpressionHintKey.ModuleResolutionName}= ${ModuleResolution.es}>> @TestFunction`;
+          ${ExpressionHintKey.FunctionName}=awaitEvaluationFactoryNumber5 ${ExpressionHintKey.ModuleResolution}= ${ModuleResolution.es}>> @TestFunction`;
         try {
           let [remainingAfterHints, hints] = scope.parseHints(remaining, 'ex');
           let [, refOrPromise] = parser.parseAndResolve(remainingAfterHints, scope, hints);
@@ -144,7 +144,7 @@ describe('Rules Engine Tests', () => {
 
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
         const remaining = `<<ex ${ExpressionHintKey.DataType}=${StandardDataType.Number} ${ExpressionHintKey.ModuleName}="../../../testing/parser/await-evaluation-factory-number-5.js" 
-          ${ExpressionHintKey.FunctionName}=awaitEvaluationFactoryNumber5 ${ExpressionHintKey.ModuleResolutionName}= ${ModuleResolution.es}>> @ParamsFunction`;
+          ${ExpressionHintKey.FunctionName}=awaitEvaluationFactoryNumber5 ${ExpressionHintKey.ModuleResolution}= ${ModuleResolution.es}>> @ParamsFunction`;
         try {
           let [remainingAfterHints, hints] = scope.parseHints(remaining, 'ex');
           let [, refOrPromise] = parser.parseAndResolve(remainingAfterHints, scope, hints);

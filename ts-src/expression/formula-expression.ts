@@ -1,8 +1,9 @@
+import {ModuleDefinition} from '@franzzemen/app-utility';
 import {RecursiveGrouping} from '@franzzemen/re-common';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 
 
-export enum Operator {
+export enum FormulaOperator {
   Add = '+',
   Subtract = '-',
   Multiply = '*',
@@ -10,13 +11,16 @@ export enum Operator {
 }
 
 export function isFormulaExpressionReference(ref: any | FormulaExpressionReference): ref is FormulaExpressionReference {
-  return ref['type'] === ExpressionType.Logical && 'operator' in ref && 'group' in ref;
+  return ref['type'] === ExpressionType.Formula && 'operator' in ref && 'group' in ref;
 }
 
-export interface FormulaExpressionReference extends RecursiveGrouping<Operator, ExpressionReference>, ExpressionReference {
+export interface FormulaExpressionReference extends RecursiveGrouping<FormulaOperator, ExpressionReference>, ExpressionReference {
+  refName?: string;
+  // module?: ModuleDefinition;
 }
 
 
+``
 
 
 /*

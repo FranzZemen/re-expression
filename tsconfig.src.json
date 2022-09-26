@@ -8,7 +8,9 @@
     "outDir": "build",
     "removeComments": true,
     "declaration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true
   },
   "include": ["ts-src/**/*.ts","ts-src/**/*.cts", "ts-src/**/*.mts"],
   "exclude": [

@@ -1,6 +1,8 @@
 import {AwaitEvaluation, ExecutionContextI, ModuleResolutionAction} from '@franzzemen/app-utility';
 import {RuleElementReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
+import {FormulaExpressionReference} from '../expression/formula-expression.js';
+import {FormulaExpressionFactory} from '../factory/formula-expression-factory.js';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser.js';
 import {ExpressionStackParser} from '../parser/expression-stack-parser.js';
 import {FunctionExpressionParser} from '../parser/function-expression-parser.js';
@@ -17,6 +19,7 @@ export class ExpressionScope extends DataTypeScope {
   public static AwaitEvaluationFactory = 'AwaitEvaluationFactory';
   public static DataTypeLiteralStackStringifier = 'DataTypeLiteralStackStringifier';
   public static ExpressionStringifier = 'ExpressionStringifier';
+  public static FormulaExpressionFactory = 'FormulaExpressionFactory';
 
 
   constructor(options?: ExpressionOptions, parentScope?: Scope, ec?: ExecutionContextI) {
@@ -31,9 +34,9 @@ export class ExpressionScope extends DataTypeScope {
     expressionStackParser.addParser(new AttributeExpressionParser(), true, ec);
     expressionStackParser.addParser(new FunctionExpressionParser(), true, ec);
     expressionStackParser.addParser(new SetExpressionParser(), true, ec);
-
     this.set(ExpressionScope.ExpressionStringifier, new ExpressionStringifier());
     this.set(ExpressionScope.AwaitEvaluationFactory, new AwaitEvaluationFactory());
+    this.set(ExpressionScope.FormulaExpressionFactory, new FormulaExpressionFactory());
 
   }
 
