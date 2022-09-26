@@ -25,7 +25,7 @@ class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
   parse(fragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, ExpressionReference] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FragmentParserAdapter.name}.parse`);
     const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
-    let [remaining, expression] = parser.parse(fragment, scope, undefined, ec);
+    let [remaining, expression] = parser.parse(fragment, scope, {allowUndefinedDataType: true}, ec);
     // TODO:  Allow Unknown data types?
     if (expression.dataTypeRef && !(StandardDataType.Number || StandardDataType.Float)) {
       logErrorAndThrow(`A fragment expression in a Logical Expression needs to be of type Boolean, not ${expression.dataTypeRef}`, log, ec);

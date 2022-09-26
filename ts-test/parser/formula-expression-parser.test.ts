@@ -1,13 +1,19 @@
-import 'mocha';
-import {Hints} from '@franzzemen/app-utility';
-import {isFragment, isRecursiveGrouping} from '@franzzemen/re-common';
-import {DataType, StandardDataType} from '@franzzemen/re-data-type';
+import {AwaitEvaluation, ExecutionContextI, Hints} from '@franzzemen/app-utility';
+import {isFragment, isRecursiveGrouping, Scope} from '@franzzemen/re-common';
+import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
+import 'mocha';
+import {isPromise} from 'util/types';
 import {
-  ExpressionScope, ExpressionType,
+  AttributeExpressionReference, AwaitEvaluationFactory,
+  ExpressionScope,
+  ExpressionType,
   FormulaExpressionParser,
-  FormulaOperator, isAttributeExpressionReference,
-  isFormulaExpressionReference, isValueExpressionReference
+  FormulaOperator,
+  FunctionExpressionReference, isAttributeExpression,
+  isAttributeExpressionReference, isFunctionExpression, isFunctionExpressionReference,
+  isValueExpressionReference,
+  ValueExpressionReference
 } from '../../publish/index.js';
 
 const should = chai.should();
@@ -297,40 +303,7 @@ describe('re-expression tests', () => {
         let [remaining, formulaExpRef] = parser.parse('formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints, false);
         remaining.should.equal('formula1[ 1 - <<ex data-type=Float>> attribute ] 123');
         expect(formulaExpRef).to.be.undefined;
-        /*
-        expect(formulaExpRef).to.exist;
-        formulaExpRef.refName.should.equal('formula1');
-        formulaExpRef.dataTypeRef.should.equal(StandardDataType.Float);
-        formulaExpRef.operator.should.equal(FormulaOperator.Add);
-        formulaExpRef.group.length.should.equal(2);
-        if(isFragment(formulaExpRef.group[0])) {
-          formulaExpRef.group[0].operator.should.equal(FormulaOperator.Add);
-          let ref = formulaExpRef.group[0].reference;
-          if (isValueExpressionReference(ref)) {
-            ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
-            ref.value.should.equal(1);
-          } else {
-            unreachableCode.should.be.true;
-          }
-        } else {
-          unreachableCode.should.be.true;
-        }
-        if(isFragment(formulaExpRef.group[1])) {
-          let ref = formulaExpRef.group[1].reference;
-          formulaExpRef.group[1].operator.should.equal(FormulaOperator.Subtract);
-          if(isAttributeExpressionReference(ref)) {
-            ref.dataTypeRef.should.equal(StandardDataType.Float);
-            ref.type.should.equal(ExpressionType.Attribute);
-            ref.path.should.equal('attribute');
-          } else {
-            unreachableCode.should.be.true;
-          }
-        } else {
-          unreachableCode.should.be.true;
-        }
-      })
-      */
+
       })
 
 
@@ -414,6 +387,154 @@ describe('re-expression tests', () => {
           unreachableCode.should.be.true;
         }
       })
+      it('should parse  #[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * 1 - <<ex data-type=Number>> attribute ] 123', () => {
+        const scope = new ExpressionScope();
+        const parser = new FormulaExpressionParser();
+
+
+
+        const numberFunction: AwaitEvaluation = (dataDomain: any, scope: ExpressionScope, ec?:ExecutionContextI, ...params) => {
+          return 14;
+        }
+        const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
+        factory.register({instanceRef: {refName:'NumberFunction', instance: numberFunction}});
+
+
+        const hints = new Hints('data-type=Number');
+        hints.loadAndResolve() as Hints;
+
+        let [remaining, formulaExpRef] = parser.parse('#[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * 1 - <<ex data-type=Number>> attribute ] 123', scope, hints, false);
+        const trueOrPromiseTrue = Scope.resolve(scope);
+        if(isPromise(trueOrPromiseTrue)) {
+          unreachableCode.should.be.true;
+        } else {
+          remaining.should.equal(' 123');
+          expect(formulaExpRef).to.exist;
+          expect(formulaExpRef.refName).to.not.exist;
+          formulaExpRef.dataTypeRef.should.equal(StandardDataType.Number);
+          formulaExpRef.operator.should.equal(FormulaOperator.Add);
+          formulaExpRef.group.length.should.equal(3);
+          if (isFragment(formulaExpRef.group[0])) {
+            formulaExpRef.group[0].operator.should.equal(FormulaOperator.Add);
+            let ref = formulaExpRef.group[0].reference;
+            if (isFunctionExpressionReference(ref)) {
+              ref.refName.should.equal('NumberFunction');
+              ref.dataTypeRef.should.equal(StandardDataType.Number);
+              ref.params.length.should.equal(2);
+              ref.params[0].type.should.equal(ExpressionType.Value);
+              ref.params[1].type.should.equal(ExpressionType.Attribute);
+            } else {
+              unreachableCode.should.be.true;
+            }
+          } else {
+            unreachableCode.should.be.true;
+          }
+          if (isFragment(formulaExpRef.group[1])) {
+            formulaExpRef.group[1].operator.should.equal(FormulaOperator.Multiply);
+            let ref = formulaExpRef.group[1].reference;
+            if (isValueExpressionReference(ref)) {
+              ref.dataTypeRef.should.equal(StandardDataType.Number);
+              ref.type.should.equal(ExpressionType.Value);
+              ref.value.should.equal(1);
+            } else {
+              unreachableCode.should.be.true;
+            }
+          } else {
+            unreachableCode.should.be.true;
+          }
+          if (isFragment(formulaExpRef.group[2])) {
+            let ref = formulaExpRef.group[2].reference;
+            formulaExpRef.group[2].operator.should.equal(FormulaOperator.Subtract);
+            if (isAttributeExpressionReference(ref)) {
+              ref.dataTypeRef.should.equal(StandardDataType.Number);
+              ref.type.should.equal(ExpressionType.Attribute);
+              ref.path.should.equal('attribute');
+            } else {
+              unreachableCode.should.be.true;
+            }
+          } else {
+            unreachableCode.should.be.true;
+          }
+        }
+      });
+      it('should parse  #[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * 1 - <<ex data-type=Number>> attribute ] 123', () => {
+        const scope = new ExpressionScope();
+        const parser = new FormulaExpressionParser();
+
+
+
+        const numberFunction: AwaitEvaluation = (dataDomain: any, scope: ExpressionScope, ec?:ExecutionContextI, ...params) => {
+          return 14;
+        }
+        const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
+        factory.register({instanceRef: {refName:'NumberFunction', instance: numberFunction}});
+
+
+        const hints = new Hints('data-type=Number');
+        hints.loadAndResolve() as Hints;
+
+        let [remaining, formulaExpRef] = parser.parse('#[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * (1 - <<ex data-type=Number>> attribute) ] 123', scope, hints, false);
+        const trueOrPromiseTrue = Scope.resolve(scope);
+        if(isPromise(trueOrPromiseTrue)) {
+          unreachableCode.should.be.true;
+        } else {
+          remaining.should.equal(' 123');
+          expect(formulaExpRef).to.exist;
+          expect(formulaExpRef.refName).to.not.exist;
+          formulaExpRef.dataTypeRef.should.equal(StandardDataType.Number);
+          formulaExpRef.operator.should.equal(FormulaOperator.Add);
+          formulaExpRef.group.length.should.equal(2);
+          if (isFragment(formulaExpRef.group[0])) {
+            formulaExpRef.group[0].operator.should.equal(FormulaOperator.Add);
+            let ref = formulaExpRef.group[0].reference;
+            if (isFunctionExpressionReference(ref)) {
+              ref.refName.should.equal('NumberFunction');
+              ref.dataTypeRef.should.equal(StandardDataType.Number);
+              ref.params.length.should.equal(2);
+              ref.params[0].type.should.equal(ExpressionType.Value);
+              ref.params[1].type.should.equal(ExpressionType.Attribute);
+            } else {
+              unreachableCode.should.be.true;
+            }
+          } else {
+            unreachableCode.should.be.true;
+          }
+          const subGroup = formulaExpRef.group[1];
+          if (isRecursiveGrouping(subGroup)) {
+            subGroup.operator.should.equal(FormulaOperator.Multiply);
+            subGroup.group.length.should.equal(2);
+
+            let ref = subGroup.group[0];
+            if (isFragment(ref)) {
+              ref.operator.should.equal(FormulaOperator.Add);
+              if (isValueExpressionReference(ref.reference)) {
+                ref.reference.dataTypeRef.should.equal(StandardDataType.Number);
+                ref.reference.type.should.equal(ExpressionType.Value);
+                ref.reference.value.should.equal(1);
+              } else {
+                unreachableCode.should.be.true;
+              }
+            } else {
+              unreachableCode.should.be.true;
+            }
+            ref = subGroup.group[1];
+            if(isFragment(ref)) {
+              ref.operator.should.equal(FormulaOperator.Subtract);
+              if (isAttributeExpressionReference(ref.reference)) {
+                ref.reference.dataTypeRef.should.equal(StandardDataType.Number);
+                ref.reference.type.should.equal(ExpressionType.Attribute);
+                ref.reference.path.should.equal('attribute');
+              } else {
+                unreachableCode.should.be.true;
+              }
+            } else {
+              unreachableCode.should.be.true;
+            }
+          } else {
+            unreachableCode.should.be.true;
+          }
+        }
+      });
     })
   })
 })
