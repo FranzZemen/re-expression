@@ -82,10 +82,16 @@ export class FunctionExpression extends Expression implements HasRefName {
     super.toBase(ref, ec);
     ref.refName = this.refName;
     ref.module = this.module;
+    ref.params = [];
+    if(this.params) {
+      this.params.forEach(param => {
+        ref.params.push(param.to(ec));
+      })
+    }
     return ref as FunctionExpressionReference;
   }
 
-  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
+  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): any | Promise<any> {
     if (this.params && this.params.length) {
       const paramResults: any[] = [];
       let hasPromise = false;
@@ -105,7 +111,7 @@ export class FunctionExpression extends Expression implements HasRefName {
         return this.awaitEvaluationFunction(dataDomain, scope, ec, paramResults);
       }
     } else {
-      return this.awaitEvaluationFunction(dataDomain, scope, ec);
+      return this.awaitEval(this.awaitEvaluationFunction(dataDomain, scope, ec), scope, ec);
     }
   }
 }

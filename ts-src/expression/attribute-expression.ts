@@ -11,7 +11,8 @@ export function isAttributeExpressionReference(ref: any | AttributeExpressionRef
 }
 
 export function isAttributeExpression(ref: any | AttributeExpression): ref is AttributeExpression {
-  return 'path' in ref;
+  return ref instanceof AttributeExpression;
+ // return 'path' in ref;
 }
 
 
@@ -77,7 +78,7 @@ export class AttributeExpression extends Expression {
     return ref as AttributeExpressionReference;
   }
 
-  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
+  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): any | Promise<any> {
     const log = new LoggerAdapter(ec, 're-expression', 'attribute-expression', 'awaitEvaluation');
     if (!dataDomain) {
       return undefined;

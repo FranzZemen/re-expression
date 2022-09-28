@@ -130,6 +130,7 @@ export abstract class Expression implements ExpressionReference {
    * @param scope
    * @param ec
    */
+  /*
   evaluateAsync(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): Promise<any> {
     const result = this.awaitEvaluation(dataDomain, scope, ec);
     if (isPromise(result)) {
@@ -137,6 +138,7 @@ export abstract class Expression implements ExpressionReference {
     }
     return Promise.resolve(result);
   }
+   */
 
   /**
    * Create an ExpressionReference from itself
@@ -161,12 +163,18 @@ export abstract class Expression implements ExpressionReference {
    * @param ec
    * @protected
    */
-  protected awaitEval(data: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
+  protected awaitEval(data: any, scope: ExpressionScope, ec?: ExecutionContextI): any | Promise<any> {
     if (!this.dataType) {
       const dataTypeFactory: DataTypeFactory = scope.get(ExpressionScope.DataTypeFactory);
       this.dataType = dataTypeFactory.getRegistered(this.dataTypeRef);
     }
-    return this.dataType.eval(data);
+    if(isPromise(data)) {
+      return data.then(_data => {
+        return this.dataType.eval(_data);
+      })
+    } else {
+      return this.dataType.eval(data);
+    }
   }
 }
 

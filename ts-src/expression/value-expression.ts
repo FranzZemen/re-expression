@@ -16,12 +16,16 @@ export function isValueExpressionReference(val: ValueExpressionReference | any):
 }
 
 export function isValueExpression(expression: ValueExpression | any): expression is ValueExpression {
+  return expression instanceof ValueExpression;
+  /*
   return expression !== undefined
     && expression.type !== undefined
     && expression.type === ExpressionType.Value
     && (expression as ValueExpressionReference).value !== undefined
     && (expression as ValueExpressionReference).dataTypeRef !== undefined
     && 'evaluate' in expression;
+
+   */
 }
 
 
@@ -42,7 +46,7 @@ export class ValueExpression extends Expression {
     return ref as ValueExpressionReference;
   }
 
-  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
+  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): any | Promise<any> {
     return this.awaitEval(this.value, scope);
   }
 }

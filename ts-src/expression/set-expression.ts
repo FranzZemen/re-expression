@@ -1,9 +1,8 @@
-import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-import {logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {ExecutionContextI} from '@franzzemen/app-utility';
 import {isPromise} from 'util/types';
-import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
-import {ExpressionScope} from '../scope/expression-scope.js';
+import {Expression, ExpressionType} from '../expression.js';
 import {ExpressionFactory} from '../factory/expression-factory.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 import {MultivariateExpression} from './multivariate-expression.js';
 
 export function isSetExpressionReference(ref: any | SetExpressionReference): ref is SetExpressionReference {
