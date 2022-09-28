@@ -55,7 +55,7 @@ export interface FormulaExpressionReference extends RecursiveGrouping<FormulaOpe
 }
 
 
-class FormulaExpression extends Expression {
+export class FormulaExpression extends Expression {
   refName?: string;
   formula: Formula = new Formula();
 
@@ -104,15 +104,16 @@ class FormulaExpression extends Expression {
    * @param ec
    */
   awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): number | Promise<number> {
-    const stringContainer: {evalText: string} = {evalText: `${this.sanitizeOperator(this.formula.operator, ec)} (`};
     const stringsOrPromises: (string | Promise<string>)[] = [];
     const hasAsync = this.recurseInnerEval(stringsOrPromises, this.formula.elements, dataDomain, scope, ec);
     if(!hasAsync) {
       let strings: string[] = stringsOrPromises as string[];
+      strings.splice(0,0, `${this.sanitizeOperator(this.formula.operator, ec)} (`);
       return this.concatStringsAndReturn(strings, scope, ec);
     } else {
       return Promise.all(stringsOrPromises)
         .then(strings => {
+          strings.splice(0,0, `${this.sanitizeOperator(this.formula.operator, ec)} (`);
           return this.concatStringsAndReturn(strings, scope, ec);
         })
     }
