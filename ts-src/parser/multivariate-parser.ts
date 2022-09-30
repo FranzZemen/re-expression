@@ -171,6 +171,8 @@ export abstract class MultivariateParser extends ExpressionParser {
                 innerDataType = innerExpression.dataTypeRef;
                 return true;
               }
+            } else {
+              return true;
             }
           });
           if (same) {
@@ -182,10 +184,10 @@ export abstract class MultivariateParser extends ExpressionParser {
             }
 
             // Set those inner data type that are u or i
-            innerExpressions.filter(innerExpression => {
-              innerExpression.dataTypeRef === StandardDataType.Indeterminate || StandardDataType.Unknown
-            })
-              .every(inner => inner.dataTypeRef === innerDataType);
+            innerExpressions.filter(innerExpression =>
+              innerExpression.dataTypeRef === StandardDataType.Indeterminate || innerExpression.dataTypeRef === StandardDataType.Unknown
+            )
+              .forEach(inner => inner.dataTypeRef = innerDataType);
           }
           /*
           At this point, for Consistent data type handling we have:
