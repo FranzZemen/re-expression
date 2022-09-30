@@ -112,7 +112,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#formula1[1]', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#formula1[1]', scope, hints);
         remaining.should.equal('');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -139,7 +139,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#formula1[1]', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#formula1[1]', scope, hints);
         remaining.should.equal('');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -166,7 +166,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#formula1[1] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#formula1[1] 123', scope, hints);
         remaining.should.equal(' 123');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -193,7 +193,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#formula1[<<ex data-type=Float>> attribute] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#formula1[<<ex data-type=Float>> attribute] 123', scope, hints);
         remaining.should.equal(' 123');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -220,7 +220,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#formula1[1 * <<ex data-type=Float>> attribute] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#formula1[1 * <<ex data-type=Float>> attribute] 123', scope, hints);
         remaining.should.equal(' 123');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -259,7 +259,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints);
         remaining.should.equal(' 123');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -300,7 +300,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints);
         remaining.should.equal('formula1[ 1 - <<ex data-type=Float>> attribute ] 123');
         expect(formulaExpRef).to.be.undefined;
 
@@ -313,7 +313,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('type=Formula');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('formula1[ 1 - <<ex data-type=Float>> attribute ] 123', scope, hints);
         remaining.should.equal(' 123');
         expect(formulaExpRef).to.exist;
         formulaExpRef.refName.should.equal('formula1');
@@ -353,7 +353,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('type=Formula');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#[ 1 - <<ex data-type=Number>> attribute ] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#[ 1 - <<ex data-type=Number>> attribute ] 123', scope, hints);
         remaining.should.equal(' 123');
         expect(formulaExpRef).to.exist;
         expect(formulaExpRef.refName).to.not.exist;
@@ -403,7 +403,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('data-type=Number');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * 1 - <<ex data-type=Number>> attribute ] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * 1 - <<ex data-type=Number>> attribute ] 123', scope, hints);
         const trueOrPromiseTrue = Scope.resolve(scope);
         if(isPromise(trueOrPromiseTrue)) {
           unreachableCode.should.be.true;
@@ -473,7 +473,7 @@ describe('re-expression tests', () => {
         const hints = new Hints('data-type=Number');
         hints.loadAndResolve() as Hints;
 
-        let [remaining, formulaExpRef] = parser.parse('#[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * (1 - <<ex data-type=Number>> attribute) ] 123', scope, hints, false);
+        let [remaining, formulaExpRef] = parser.parse('#[<<ex data-type=Number>> @NumberFunction[5, <<ex data-type=Number>> price] * (1 - <<ex data-type=Number>> attribute) ] 123', scope, hints);
         const trueOrPromiseTrue = Scope.resolve(scope);
         if(isPromise(trueOrPromiseTrue)) {
           unreachableCode.should.be.true;

@@ -1,8 +1,8 @@
-import {ExecutionContextI, Hints, ModuleResolver} from '@franzzemen/app-utility';
+import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
 import {ExpressionReference, ExpressionType} from '../expression.js';
-import {ExpressionScope} from '../scope/expression-scope.js';
 import {SetExpressionReference} from '../expression/set-expression.js';
-import {ResolvedExpressionParserResult} from './expression-parser.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
+import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
 
 export type SetExpressionParserResult = [remaining: string, reference: SetExpressionReference];
@@ -10,12 +10,19 @@ export type SetExpressionParserResult = [remaining: string, reference: SetExpres
 export class SetExpressionParser extends MultivariateParser {
 
   constructor() {
-    super(ExpressionType.Set, MultivariateDataTypeHandling.Consistent);
+    super(ExpressionType.Set);
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): SetExpressionParserResult {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): SetExpressionParserResult {
     let expRef: ExpressionReference, set: ExpressionReference[];
-    const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, hints, true, ec);
+    // Default to consistent data type if not otherwise set
+    if(hints) {
+      let dataTypeHandling = hints.get(ExpressionHintKey.MultivariateDataTypeHandling);
+      if(!dataTypeHandling) {
+        hints.set(ExpressionHintKey.MultivariateDataTypeHandling, MultivariateDataTypeHandling.Consistent);
+      }
+    }
+    const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, hints, ec);
     [remaining, expRef, set] = [...multivariateResult];
     if (expRef) {
       return [remaining, {type: expRef.type, dataTypeRef: expRef.dataTypeRef, set, multivariate: true}];

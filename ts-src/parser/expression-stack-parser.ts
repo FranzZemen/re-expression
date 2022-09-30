@@ -12,7 +12,6 @@ import {ExpressionParser, ExpressionParserResult, ResolvedExpressionParserResult
 
 export interface ExpressionStackParserContext {
   inferredDataType?: string;
-  allowUndefinedDataType?: boolean;
 }
 
 
@@ -123,7 +122,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
     if (typeStr) {
       // If expression type is provided, go directly to the parser in the stack and parse
       const expressionParser = this.parserMap.get(typeStr);
-      const parserResult: ExpressionParserResult = expressionParser.instanceRef.instance.parse(remaining, scope, expressionHints, context?.allowUndefinedDataType, ec);
+      const parserResult: ExpressionParserResult = expressionParser.instanceRef.instance.parse(remaining, scope, expressionHints, ec);
 
 
       [remaining, expressionReference] = [...parserResult];
@@ -140,7 +139,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
       for (let i = 0; i < this.parserInferenceStack.length; i++) {
         const inference = this.parserInferenceStack[i];
         const expressionParser = this.parserMap.get(inference);
-        const parseResult: ExpressionParserResult = expressionParser.instanceRef.instance.parse(remaining, scope, expressionHints, context?.allowUndefinedDataType, ec);
+        const parseResult: ExpressionParserResult = expressionParser.instanceRef.instance.parse(remaining, scope, expressionHints, ec);
         parseResults.push(parseResult);
       }
       // The first expression is the result.

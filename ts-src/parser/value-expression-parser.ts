@@ -14,7 +14,7 @@ export class ValueExpressionParser extends ExpressionParser {
     super(ExpressionType.Value);
   }
 
-  parse (remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): ValueExpressionParserResult {
+  parse (remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): ValueExpressionParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'value-expression-parser', 'parse');
     const near = remaining;
     const typeHint = hints.get(ExpressionHintKey.Type);

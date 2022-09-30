@@ -20,10 +20,12 @@ export class ExpressionScope extends DataTypeScope {
   public static DataTypeLiteralStackStringifier = 'DataTypeLiteralStackStringifier';
   public static ExpressionStringifier = 'ExpressionStringifier';
   public static FormulaExpressionFactory = 'FormulaExpressionFactory';
+  public static AllowUnknownDataType = 'AllowUnknownDataType';
 
 
   constructor(options?: ExpressionOptions, parentScope?: Scope, ec?: ExecutionContextI) {
     super(options, parentScope, ec);
+    this.set(ExpressionScope.AllowUnknownDataType, options?.allowUnknownDataType === true);
     this.set(ExpressionScope.ExpressionFactory, new ExpressionFactory(ec));
     const expressionStackParser = new ExpressionStackParser();
     this.set(ExpressionScope.ExpressionStackParser, expressionStackParser);

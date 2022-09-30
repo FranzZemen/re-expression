@@ -1,11 +1,12 @@
 import {ExecutionContextI, LoggerAdapter, ModuleResolutionAction} from '@franzzemen/app-utility';
 import {DataTypeFactory, DataTypeScope} from '@franzzemen/re-data-type';
 import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
-import {ExpressionScope} from '../scope/expression-scope.js';
 import {AttributeExpression, AttributeExpressionReference} from '../expression/attribute-expression.js';
+import {FormulaExpression, FormulaExpressionReference} from '../expression/formula-expression.js';
 import {FunctionExpression, FunctionExpressionReference} from '../expression/function-expression.js';
 import {SetExpression, SetExpressionReference} from '../expression/set-expression.js';
 import {ValueExpression, ValueExpressionReference} from '../expression/value-expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 
 export class ExpressionFactory {
 
@@ -30,11 +31,13 @@ export class ExpressionFactory {
       case ExpressionType.Function:
         expression = new FunctionExpression(expressionRef as FunctionExpressionReference, scope, ec);
         break;
+      case ExpressionType.Formula:
+        expression = new FormulaExpression(expressionRef as FormulaExpressionReference, scope, ec);
+        break;
       case ExpressionType.Set:
         expression = new SetExpression(expressionRef as SetExpressionReference, scope, ec);
         break;
     }
-
     this.loadDataType(expression, scope, ec);
     this.loadAwaitEvaluationFunctions(expression, scope, ec);
     return expression;

@@ -84,7 +84,6 @@ describe('re-expression tests', () => {
         const [, ref] = parser.parse(`
                   <<ex
                     data-type=Number
-                    multivariate
                     module= {
                               "moduleName": "../../../testing/parser/await-evaluation-factory-params.js",
                               "functionName":"awaitEvaluationFactoryParams",

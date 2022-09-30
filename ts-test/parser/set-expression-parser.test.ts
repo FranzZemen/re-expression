@@ -17,9 +17,9 @@ const should = chai.should();
 
 const unreachableCode = false;
 
-describe('Rules Engine Tests', () => {
-  describe('Set Expression Parser Tests', () => {
-    describe('/core/expression/parser/set-expression-parser.test', () => {
+describe('re-expression', () => {
+  describe('set expression parser tests', () => {
+    describe('parser/set-expression-parser.test', () => {
       it('should not parse empty string', () => {
         const scope = new ExpressionScope();
         const parser = new SetExpressionParser();
@@ -42,7 +42,7 @@ describe('Rules Engine Tests', () => {
           let [remaining, expRef] = parser.parseAndResolve('[]', scope,  hints) as [string, SetExpressionReference | Promise<SetExpressionReference>]
           unreachableCode.should.be.true;
         } catch (err) {
-          expect(err.message.startsWith('Indeterminate data type')).to.be.true;
+          expect(err.message.startsWith('Empty multivariate with indeterminate data type')).to.be.true;
         }
       })
       it('should parse empty contents with data type hint <<ex data-type=Number>> []', () => {

@@ -1,4 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
@@ -13,7 +14,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     super(ExpressionType.Attribute);
   }
 
-  parse(remaining: string, scope: Map<string, any>, hints: Hints, allowUnknownDataType?:boolean, execContext?: ExecutionContextI): AttributeExpressionParserResult {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, execContext?: ExecutionContextI): AttributeExpressionParserResult {
     // Formats:
     // someAttributeName.anotherAttributeName
     // [1].someAttributeName.anotherAttributeName[5].yetAnother[4]
@@ -34,14 +35,16 @@ export class AttributeExpressionParser extends ExpressionParser {
     let dataTypeRef: string;
     if(dataTypeHint) {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
-    }
-    if(!dataTypeRef) {
-      if(!allowUnknownDataType) {
-        return [remaining, undefined]; // No expression found
-      } else {
-        dataTypeRef = StandardDataType.Unknown;
+      if(dataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
+        logErrorAndThrow('Unknown data type with option allowUnknownDataType set to false');
       }
+    } else if(scope.get(ExpressionScope.AllowUnknownDataType) === true) {
+      dataTypeRef = StandardDataType.Unknown;
+    } else {
+      dataTypeRef = StandardDataType.Indeterminate;
     }
+
+
     let multivariate: boolean;
     const multivariateRef = hints.get(ExpressionHintKey.Multivariate);
     if(multivariateRef) {

@@ -5,7 +5,6 @@ import {
   FragmentOrGrouping,
   FragmentParser,
   isFragment,
-  isRecursiveGrouping,
   RecursiveGrouping,
   RecursiveGroupingParser
 } from '@franzzemen/re-common';
@@ -19,13 +18,11 @@ import {ExpressionParser} from './expression-parser.js';
 import {ExpressionStackParser} from './expression-stack-parser.js';
 
 
-
-
 class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
   parse(fragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, ExpressionReference] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FragmentParserAdapter.name}.parse`);
     const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
-    let [remaining, expression] = parser.parse(fragment, scope, {allowUndefinedDataType: true}, ec);
+    let [remaining, expression] = parser.parse(fragment, scope, {}, ec);
     // TODO:  Allow Unknown data types?
     if (expression.dataTypeRef && !(StandardDataType.Number || StandardDataType.Float)) {
       logErrorAndThrow(`A fragment expression in a Logical Expression needs to be of type Boolean, not ${expression.dataTypeRef}`, log, ec);
@@ -40,34 +37,39 @@ export class FormulaExpressionParser extends ExpressionParser {
     super(ExpressionType.Formula);
   }
 
-  private static determineDataType(grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>, ec?: ExecutionContextI): StandardDataType.Float | StandardDataType.Number {
+  private static determineDataType(grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>, scope: ExpressionScope, ec?: ExecutionContextI): StandardDataType.Float | StandardDataType.Number | StandardDataType.Unknown {
     // let currDataTypeRef: StandardDataType.Number | StandardDataType.Float = StandardDataType.Number;
     if (isFragment(grouping)) {
       if (grouping.reference.dataTypeRef === StandardDataType.Float || grouping.reference.dataTypeRef === StandardDataType.Number) {
         return grouping.reference.dataTypeRef;
+      } else if (grouping.reference.dataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) === true) {
+        return grouping.reference.dataTypeRef;
       } else {
         const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', 'determineDataType');
-        logErrorAndThrow(`Data type ${grouping.reference.dataTypeRef} is not ${StandardDataType.Float} or ${StandardDataType.Number}`);
+        logErrorAndThrow(`Data type ${grouping.reference.dataTypeRef} is not ${StandardDataType.Float} or ${StandardDataType.Number}, nor is it both ${StandardDataType.Unknown} and allowUnknownDataType option set`);
       }
     } else {
-      // Stop when you find a float
+      // Stop when you find an Unknown
+      const hasUnknownDataType = grouping.group.some(groupItem => isFragment(groupItem) && groupItem.reference.dataTypeRef === StandardDataType.Unknown);
+      if (hasUnknownDataType) {
+        return StandardDataType.Unknown;
+      }
       const hasFloatDataType = grouping.group.some(groupItem => isFragment(groupItem) && groupItem.reference.dataTypeRef === StandardDataType.Float);
       if (hasFloatDataType) {
         return StandardDataType.Float;
-      } else {
-        for (let subGroup of grouping.group) {
-          const subGroupDataType = this.determineDataType(subGroup, ec);
-          if (subGroupDataType === StandardDataType.Float) {
-            return subGroupDataType;
-          }
-        }
-        // No floats found
-        return StandardDataType.Number;
       }
+      for (let subGroup of grouping.group) {
+        const subGroupDataType = this.determineDataType(subGroup, scope, ec);
+        if (subGroupDataType === StandardDataType.Float) {
+          return subGroupDataType;
+        }
+      }
+      // No floats found
+      return StandardDataType.Number;
     }
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUndefinedDataType?: boolean, ec?: ExecutionContextI): [string, FormulaExpressionReference] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FormulaExpressionReference] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FormulaExpressionParser.name}.parse`);
     remaining = remaining.trim();
     let type = hints.get(ExpressionHintKey.Type) as string;
@@ -75,11 +77,18 @@ export class FormulaExpressionParser extends ExpressionParser {
       return [remaining, undefined];
     }
     let dataTypeRef = hints.get(ExpressionHintKey.DataType) as string;
-    if (dataTypeRef && !(dataTypeRef === StandardDataType.Number || dataTypeRef === StandardDataType.Float)) {
-      // Can't be a Formula Expression as the Data Type resulting must be a number
-      // TODO:  Allow other data types like TIME, DATE, TIMESTAMP or even custom?
-      return [remaining, undefined];
+    if(dataTypeRef) {
+      if (dataTypeRef === StandardDataType.Unknown) {
+        if (scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
+          return [remaining, undefined];
+        }
+      } else if (dataTypeRef !== StandardDataType.Number && dataTypeRef !== StandardDataType.Float) {
+        return [remaining, undefined];
+      }
+    } else {
+      dataTypeRef = StandardDataType.Indeterminate;
     }
+
     let nameMayBePresent = false;
 
     let result;
@@ -90,7 +99,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         // # optional due to type, name present, at least one space, anything but an opening bracket
         result = /^#?([a-zA-Z]+[a-zA-Z0-9]*)([\s\t\r\n\v\f\u2028\u2029]+[^]*$|$)/.exec(remaining);
       }
-      if(result) {
+      if (result) {
         nameMayBePresent = true;
       } else {
         // # optional due to type, no name, spaces optional, opening and closing brackets (closing is not guaranteed)
@@ -103,7 +112,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         // #require, name present, at least one space, anything but an opening bracket.
         result = /^#([a-zA-Z]+[a-zA-Z0-9]*)([\s\t\r\n\v\f\u2028\u2029]+[^]*$|$)/.exec(remaining);
       }
-      if(result) {
+      if (result) {
         nameMayBePresent = true;
       } else {
         // #required, spaces optional, opening and maybe closing bracket
@@ -123,7 +132,7 @@ export class FormulaExpressionParser extends ExpressionParser {
     } else {
       return [remaining, undefined];
     }
-    if(remaining.startsWith('[')) {
+    if (remaining.startsWith('[')) {
       remaining = remaining.substring(1);
     } else {
       return [remaining, undefined];
@@ -141,8 +150,18 @@ export class FormulaExpressionParser extends ExpressionParser {
     if (!type) {
       type = ExpressionType.Formula;
     }
-    if (!dataTypeRef) {
-      dataTypeRef = FormulaExpressionParser.determineDataType(grouping, ec);
+    // Even though Unknown was set, inner expressions might be determined for data type and we'll take those
+    if(dataTypeRef === StandardDataType.Indeterminate || dataTypeRef === StandardDataType.Unknown) {
+      const determinedDataTypeRef = FormulaExpressionParser.determineDataType(grouping, scope, ec);
+      if (determinedDataTypeRef === StandardDataType.Unknown) {
+        if(scope.get(ExpressionScope.AllowUnknownDataType) === true) {
+          dataTypeRef = StandardDataType.Unknown;
+        } else {
+          logErrorAndThrow('Unknown data type not allowed');
+        }
+      } else {
+        dataTypeRef = determinedDataTypeRef;
+      }
     }
     if (grouping) {
       const instance: FormulaExpressionReference = {
@@ -153,7 +172,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         operator: grouping.operator,
         group: grouping.group
       };
-      if(refName) {
+      if (refName) {
         const factory: FormulaExpressionFactory = scope.get(ExpressionScope.FormulaExpressionFactory);
         factory.register({instanceRef: {refName, instance}}, ec);
       }

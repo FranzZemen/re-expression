@@ -24,7 +24,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[+ 1]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[+ 1]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -41,7 +41,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[(1)]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[(1)]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -58,7 +58,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[1 + 1]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[1 + 1]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -75,7 +75,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[(1 + 1)]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[(1 + 1)]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -92,7 +92,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[1 - (1 + 1)]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[1 - (1 + 1)]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -109,7 +109,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[1 * (1 + 1) - 5]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[1 * (1 + 1) - 5]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -126,7 +126,7 @@ describe('re-expression tests', () => {
           let hints = new Hints('');
           hints = hints.loadAndResolve('') as Hints; // We know it is not a promise.
           const parser = new FormulaExpressionParser();
-          let [remaining, ref] = parser.parse('#[1 * (1 + 1) - 5 + (8 / (1 * 2))]', scope, hints, false);
+          let [remaining, ref] = parser.parse('#[1 * (1 + 1) - 5 + (8 / (1 * 2))]', scope, hints);
           if(isPromise(ref)) {
             unreachableCode.should.be.true;
           } else {
@@ -157,7 +157,7 @@ describe('re-expression tests', () => {
           let remaining: string, result: FormulaExpressionReference;
           try {
             // TODO - need to infer data type for funciton expressions, also allow Unknown
-            [remaining, result] = parser.parse('#[1 * (<<ex data-type=Number>> @Trick + 1) - 5]', scope, hints, false);
+            [remaining, result] = parser.parse('#[1 * (<<ex data-type=Number>> @Trick + 1) - 5]', scope, hints);
             const formulaExpression: FormulaExpression = new FormulaExpression(result, scope);
             // Don't need to resolve scope as we know there aren't any promises.
             const shouldNotResult = formulaExpression.evaluate({}, scope);

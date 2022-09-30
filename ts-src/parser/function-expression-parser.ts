@@ -13,26 +13,38 @@ export class FunctionExpressionParser extends MultivariateParser {
 
 
   constructor() {
-    super(ExpressionType.Function, MultivariateDataTypeHandling.Multivariate);
+    super(ExpressionType.Function);
   }
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;
     let module: ModuleDefinition;
+
+    // Indicates the return time could be an array(multivariate)
+    const multivariateRef = hints.get(ExpressionHintKey.Multivariate);
+    let multivariate: boolean;
+    let dataTypeHandling: MultivariateDataTypeHandling;
+    if (multivariateRef) {
+      multivariate = multivariateRef === 'true' || multivariateRef === ExpressionHintKey.Multivariate;
+      // If the return type is a set, are the elements of a consistent data type or different?
+      dataTypeHandling = hints.get(ExpressionHintKey.MultivariateDataTypeHandling) as MultivariateDataTypeHandling;
+      if (!dataTypeHandling) {
+        hints.set(ExpressionHintKey.MultivariateDataTypeHandling, MultivariateDataTypeHandling.Consistent);
+      }
+    }
+
     let dataTypeRef = hints.get('data-type') as string;
     if (!dataTypeRef) {
-      if (!allowUnknownDataType) {
+      if(multivariate) {
+        dataTypeRef = StandardDataType.Multivariate;
+      } else if (!scope.get(ExpressionScope.AllowUnknownDataType) as boolean) {
         return [remaining, undefined]; // No expression found
       } else {
         dataTypeRef = StandardDataType.Unknown;
       }
     }
 
-    const multivariateRef = hints.get(ExpressionHintKey.Multivariate);
-    let multivariate: boolean;
-    if (multivariateRef) {
-      multivariate = multivariateRef === 'true' || multivariateRef === ExpressionHintKey.Multivariate;
-    }
+
     let type = hints.get(ExpressionHintKey.Type) as string;
     let result;
     if (type === ExpressionType.Function) {
@@ -50,7 +62,13 @@ export class FunctionExpressionParser extends MultivariateParser {
       const refNameRegistered = scope.hasAwaitEvaluationFactory(scope, refName, ec);
       module = loadModuleDefinitionFromHints(hints, ec);
 
-      const hintStr = `<<ex ${ExpressionHintKey.DataType}=${StandardDataType.Unknown} ${ExpressionHintKey.Multivariate} ${ExpressionHintKey.Type}=${ExpressionType.Function}>>`;
+      const hintStr = `<<ex 
+                            ${ExpressionHintKey.DataType}=${StandardDataType.Unknown} 
+                            ${ExpressionHintKey.Multivariate} 
+                            ${ExpressionHintKey.MultivariateDataTypeHandling}=Multivariate 
+                            ${ExpressionHintKey.Type}=${ExpressionType.Function}
+                       >>`;
+
       const [textRemaining, multivariateHints] = scope.parseHints(hintStr, 'ex',ec);
       if (module && !refNameRegistered) {
         scope.addAwaitEvaluationFunction({moduleRef: {refName, module}},undefined, ec);
@@ -58,7 +76,7 @@ export class FunctionExpressionParser extends MultivariateParser {
       let params: ExpressionReference[];
       if (remaining.startsWith('[')) {
         // allowUnknownDataTypes is false because the parameter list for a function expression must be determinate on data type even if that data type is Unknown (runtime determination)
-        const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, multivariateHints, false, ec);
+        const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, multivariateHints, ec);
 
         [remaining, , params] = [...multivariateResult];
         return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference];

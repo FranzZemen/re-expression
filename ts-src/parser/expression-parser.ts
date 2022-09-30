@@ -28,11 +28,11 @@ export abstract class ExpressionParser {
    * @param ec
    * @return remaining after parsing as well as the reference parsed
    */
-  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI): ExpressionParserResult;
+  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): ExpressionParserResult;
 
-  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, allowUnknownDataType?: boolean, ec?: ExecutionContextI) : ResolvedExpressionParserResult {
+  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI) : ResolvedExpressionParserResult {
     let expressionRef: ExpressionReference;
-    [remaining, expressionRef] = this.parse(remaining, scope, hints, allowUnknownDataType, ec);
+    [remaining, expressionRef] = this.parse(remaining, scope, hints, ec);
     let resultOrPromise = Scope.resolve(scope,ec);
     if(isPromise(resultOrPromise)) {
       const promise = resultOrPromise

@@ -73,6 +73,8 @@ export abstract class Expression implements ExpressionReference {
     this.dataTypeModule = ref.dataTypeModule;
     if (ref.multivariate !== undefined) {
       this.multivariate = ref.multivariate;
+    } else {
+      this.multivariate = false;
     }
   }
 
