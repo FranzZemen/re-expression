@@ -1,13 +1,12 @@
-import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition, ModuleResolver} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
-import {loadModuleDefinitionFromHints, RuleElementModuleReference, Scope} from '@franzzemen/re-common';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {loadModuleDefinitionFromHints} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, ExpressionType} from '../expression.js';
-import {ExpressionScope} from '../scope/expression-scope.js';
 import {FunctionExpressionReference} from '../expression/function-expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
-import {ResolvedExpressionParserResult} from './expression-parser.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
+import {ParserMessages} from './parser-messages.js';
 
 export class FunctionExpressionParser extends MultivariateParser {
 
@@ -15,7 +14,7 @@ export class FunctionExpressionParser extends MultivariateParser {
   constructor() {
     super(ExpressionType.Function);
   }
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FunctionExpressionReference] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FunctionExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;
     let module: ModuleDefinition;
@@ -38,7 +37,7 @@ export class FunctionExpressionParser extends MultivariateParser {
       if(multivariate) {
         dataTypeRef = StandardDataType.Multivariate;
       } else if (!scope.get(ExpressionScope.AllowUnknownDataType) as boolean) {
-        return [remaining, undefined]; // No expression found
+        return [remaining, undefined, undefined]; // No expression found
       } else {
         dataTypeRef = StandardDataType.Unknown;
       }
@@ -79,12 +78,12 @@ export class FunctionExpressionParser extends MultivariateParser {
         const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, multivariateHints, ec);
 
         [remaining, , params] = [...multivariateResult];
-        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference];
+        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference, undefined];
       } else {
-        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference];
+        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference, undefined];
       }
     } else {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
   }
 }

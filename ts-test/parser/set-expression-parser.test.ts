@@ -8,10 +8,11 @@ import {
   ExpressionScope,
   isAttributeExpressionReference,
   isSetExpressionReference,
-  isValueExpressionReference, MultivariateDataTypeHandling,
+  isValueExpressionReference, MultivariateDataTypeHandling, ParserMessages, ResolvedExpressionParserResult,
   SetExpressionParser,
   SetExpressionReference
 } from '../../publish/index.js';
+import qunit = Mocha.interfaces.qunit;
 
 
 const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('re-expression', () => {
           const parser = new SetExpressionParser();
           const hints = new Hints('');
           hints.loadAndResolve();
-          let [remaining, expRef] = parser.parseAndResolve('', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+          let [remaining, expRef, messages] = parser.parseAndResolve('', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
           if (isPromise(expRef)) {
             unreachableCode.should.be.true;
           } else {
@@ -43,10 +44,10 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
-            unreachableCode.should.be.true;
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[]', scope, hints) as ResolvedExpressionParserResult;
+            expect(parserMessages).to.be.undefined;
           } catch (err) {
-            expect(err.message.startsWith('Empty multivariate with indeterminate data type')).to.be.true;
+            unreachableCode.should.be.true;
           }
         });
         it('should parse empty contents with data type hint <<ex data-type=Number>> []', () => {
@@ -55,7 +56,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('data-type=Number');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
             } else {
@@ -73,7 +74,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('data-type=Number');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             remaining.should.equal('');
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
@@ -96,7 +97,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             remaining.should.equal('');
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
@@ -119,7 +120,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[6 7]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, paraserMessages] = parser.parseAndResolve('[6 7]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             remaining.should.equal('');
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
@@ -143,7 +144,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[6 myAttribute]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[6 myAttribute]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             remaining.should.equal('');
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
@@ -167,7 +168,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[6, myAttribute]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[6, myAttribute]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             remaining.should.equal('');
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
@@ -190,7 +191,7 @@ describe('re-expression', () => {
           const parser = new SetExpressionParser();
           const hints = new Hints('');
           hints.loadAndResolve();
-          let [remaining, expRef] = parser.parseAndResolve('[myAttribute, 6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+          let [remaining, expRef, parserMessages] = parser.parseAndResolve('[myAttribute, 6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
           remaining.should.equal('');
           if (isPromise(expRef)) {
             unreachableCode.should.be.true;
@@ -211,7 +212,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[<<ex type=Attribute data-type=Number>> myAttribute, 6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[<<ex type=Attribute data-type=Number>> myAttribute, 6]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
             } else {
@@ -237,7 +238,7 @@ describe('re-expression', () => {
             const parser = new SetExpressionParser();
             const hints = new Hints('');
             hints.loadAndResolve();
-            let [remaining, expRef] = parser.parseAndResolve('[<<ex type=Attribute data-type=Number>> myAttribute, 6 18]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>];
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[<<ex type=Attribute data-type=Number>> myAttribute, 6 18]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
             if (isPromise(expRef)) {
               unreachableCode.should.be.true;
             } else {
@@ -268,7 +269,7 @@ describe('re-expression', () => {
           const hints = new Hints(`${ExpressionHintKey.Multivariate} ${ExpressionHintKey.MultivariateDataTypeHandling}=${MultivariateDataTypeHandling.Consistent}`);
           hints.loadAndResolve();
           const parsStr = '[myAttribute, 6 18]';
-          let [remaining, expRef] = parser.parseAndResolve(parsStr, scope, hints) as [string, SetExpressionReference]; // We know there are no promises
+          let [remaining, expRef, parserMessages] = parser.parseAndResolve(parsStr, scope, hints) as [string, SetExpressionReference, ParserMessages]; // We know there are no promises
           expect(expRef).to.exist;
           expRef.dataTypeRef.should.equal(StandardDataType.Number);
           expRef.set[0].dataTypeRef.should.equal(StandardDataType.Number);

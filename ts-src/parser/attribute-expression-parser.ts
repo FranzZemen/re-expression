@@ -6,8 +6,9 @@ import {AttributeExpressionReference} from '../expression/attribute-expression.j
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
+import {ParserMessages, ParserMessageType, StandardParserMessages} from './parser-messages.js';
 
-export type AttributeExpressionParserResult = [remaining: string, reference: AttributeExpressionReference];
+export type AttributeExpressionParserResult = [remaining: string, reference: AttributeExpressionReference, messages: ParserMessages];
 
 export class AttributeExpressionParser extends ExpressionParser {
   constructor() {
@@ -28,15 +29,14 @@ export class AttributeExpressionParser extends ExpressionParser {
     const log = new LoggerAdapter(execContext, 're-expression', 'attribute-expression-parser', 'parse');
     const typeHint = hints.get(ExpressionHintKey.Type);
     if (typeHint && typeHint !== ExpressionType.Attribute) {
-      log.debug(`Type hint ${typeHint} conflicts with ${ExpressionType.Attribute}, not parsing`);
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
     let dataTypeHint = hints.get(ExpressionHintKey.DataType);
     let dataTypeRef: string;
     if (dataTypeHint) {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
       if (dataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
-        logErrorAndThrow('Unknown data type with option allowUnknownDataType set to false');
+        return [remaining,undefined, [{message: StandardParserMessages.ImproperUsageOfUnknown, type: ParserMessageType.Error}]]
       }
     } else if (scope.get(ExpressionScope.AllowUnknownDataType) === true) {
       dataTypeRef = StandardDataType.Unknown;
@@ -64,33 +64,33 @@ export class AttributeExpressionParser extends ExpressionParser {
       const closingSquareBrackets = path.match(/]/g)?.length;
       if (openingSquareBrackets) {
         if (closingSquareBrackets && closingSquareBrackets === openingSquareBrackets) {
-          return [result[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}];
+          return [result[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
         } else if (closingSquareBrackets && closingSquareBrackets > openingSquareBrackets) {
           // This can happen if this is the last attribute in a set for example:  [1, 2, path, offset[5]]....where offset[5]] would be picked up by our result.
           // There is a more general case which may never happen...for now handle where the last ] is at the end of our result.
           if (path[path.length - 1] === ']') {
             path = path.substring(0, path.length - 1);
-            return [`]${result[2].trim()}`, {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}];
+            return [`]${result[2].trim()}`, {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
           } else {
-            return [remaining, undefined];
+            return [remaining, undefined, undefined];
           }
         } else {
-          return [remaining, undefined];
+          return [remaining, undefined, undefined];
         }
       } else if (closingSquareBrackets) {
         // Closing square brackets without opening...retry parsing without closing square bracket
         const result2 = /^([a-zA-Z0-9.]+)([\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining);
         if (result2) {
           path = result2[1];
-          return [result2[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}];
+          return [result2[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
         } else {
-          return [remaining, undefined];
+          return [remaining, undefined, undefined];
         }
       } else {
-        return [result[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}];
+        return [result[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate},undefined];
       }
     } else {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
   }
 }

@@ -16,6 +16,7 @@ import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
 import {ExpressionStackParser} from './expression-stack-parser.js';
+import {ParserMessages, ParserMessageType, StandardParserMessages} from './parser-messages.js';
 
 
 class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
@@ -69,21 +70,21 @@ export class FormulaExpressionParser extends ExpressionParser {
     }
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FormulaExpressionReference] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FormulaExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FormulaExpressionParser.name}.parse`);
     remaining = remaining.trim();
     let type = hints.get(ExpressionHintKey.Type) as string;
     if (type && type !== ExpressionType.Formula) {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
     let dataTypeRef = hints.get(ExpressionHintKey.DataType) as string;
     if(dataTypeRef) {
       if (dataTypeRef === StandardDataType.Unknown) {
         if (scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
-          return [remaining, undefined];
+          return [remaining, undefined, undefined];
         }
       } else if (dataTypeRef !== StandardDataType.Number && dataTypeRef !== StandardDataType.Float) {
-        return [remaining, undefined];
+        return [remaining, undefined, undefined];
       }
     } else {
       dataTypeRef = StandardDataType.Indeterminate;
@@ -130,12 +131,12 @@ export class FormulaExpressionParser extends ExpressionParser {
         remaining = (result[1] + result[2]).trim();
       }
     } else {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
     if (remaining.startsWith('[')) {
       remaining = remaining.substring(1);
     } else {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
     // const module: ModuleDefinition = loadModuleDefinitionFromHints(hints, ec, ExpressionHintKey.Module, ExpressionHintKey.ModuleName, ExpressionHintKey.FunctionName, ExpressionHintKey.ConstructorName, ExpressionHintKey.ModuleResolution, ExpressionHintKey.LoadSchema);
     const recursiveParser = new RecursiveGroupingParser<FormulaOperator, ExpressionReference>(new FragmentParserAdapter());
@@ -145,7 +146,7 @@ export class FormulaExpressionParser extends ExpressionParser {
     if (endCondition === EndConditionType.GroupingEnd) {
       remaining = remaining.substring(1);
     } else {
-      return [near, undefined];
+      return [near, undefined, undefined];
     }
     if (!type) {
       type = ExpressionType.Formula;
@@ -157,7 +158,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         if(scope.get(ExpressionScope.AllowUnknownDataType) === true) {
           dataTypeRef = StandardDataType.Unknown;
         } else {
-          logErrorAndThrow('Unknown data type not allowed');
+          return [near, undefined, [{message: StandardParserMessages.ImproperUsageOfUnknown, type: ParserMessageType.Error}]];
         }
       } else {
         dataTypeRef = determinedDataTypeRef;
@@ -176,9 +177,9 @@ export class FormulaExpressionParser extends ExpressionParser {
         const factory: FormulaExpressionFactory = scope.get(ExpressionScope.FormulaExpressionFactory);
         factory.register({instanceRef: {refName, instance}}, ec);
       }
-      return [remaining, instance];
+      return [remaining, instance, undefined];
     } else {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
   }
 }

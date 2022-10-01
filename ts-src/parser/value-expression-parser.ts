@@ -2,12 +2,13 @@ import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
-import {ExpressionScope} from '../scope/expression-scope.js';
 import {ValueExpressionReference} from '../expression/value-expression.js';
+import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
+import {ParserMessages, ParserMessageType, StandardParserMessages} from './parser-messages.js';
 
-export type ValueExpressionParserResult = [string, ValueExpressionReference];
+export type ValueExpressionParserResult = [string, ValueExpressionReference, ParserMessages];
 
 export class ValueExpressionParser extends ExpressionParser {
   constructor() {
@@ -19,8 +20,7 @@ export class ValueExpressionParser extends ExpressionParser {
     const near = remaining;
     const typeHint = hints.get(ExpressionHintKey.Type);
     if(typeHint && typeHint !== ExpressionType.Value) {
-      log.debug(`Type hint ${typeHint} conflicts with ${ExpressionType.Value}, not parsing`);
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
     let dataTypeHint = hints.get(ExpressionHintKey.DataType);
     let dataTypeRef: string;
@@ -30,17 +30,16 @@ export class ValueExpressionParser extends ExpressionParser {
     let value: any;
     [remaining, [value, dataTypeHint]] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(remaining, scope, dataTypeRef, ec);
     if(value === undefined) {
-      return [remaining, undefined];
+      return [near, undefined, undefined];
     } else {
       if(!dataTypeHint) {
-        const err = new Error(`Undefined data type for Value Expression.  Value Expressions must always have a data type defined by their value; near: ${near}`);
-        logErrorAndThrow(err, log, ec);
+        return [near, undefined, [{message: `${StandardParserMessages.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: ParserMessageType.Error}]]
       }
       return [remaining, {
         type: ExpressionType.Value,
         dataTypeRef: dataTypeHint as string,
         value
-      }];
+      }, undefined];
     }
   }
 }

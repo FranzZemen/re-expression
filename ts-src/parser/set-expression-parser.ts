@@ -4,30 +4,40 @@ import {SetExpressionReference} from '../expression/set-expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
+import {ParserMessages} from './parser-messages.js';
 
-export type SetExpressionParserResult = [remaining: string, reference: SetExpressionReference];
+export type SetExpressionParserResult = [remaining: string, reference: SetExpressionReference, messages: ParserMessages];
 
+/**
+ * Used to parse expressions contained in the form [A, B C] either delimited with commas or not, bounded by square brackets
+ * and resulting in a Set Expression.  Essentially a decorator around the Multivariate Parser
+ *
+ * It's a decorator of MultivariateParser, because MultivariateParser is also used anywhere we have a multivariate form [A, B C]
+ * such as Function Expression Reference parameters.
+ */
 export class SetExpressionParser extends MultivariateParser {
 
   constructor() {
     super(ExpressionType.Set);
   }
 
+  /**
+   * Parses the set, if it exists.  The scope remains unresolved afterwards.
+   * @param remaining
+   * @param scope
+   * @param hints
+   * @param ec
+   */
   parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): SetExpressionParserResult {
-    let expRef: ExpressionReference, set: ExpressionReference[];
-    // Default to consistent data type if not otherwise set
-    if(hints) {
-      let dataTypeHandling = hints.get(ExpressionHintKey.MultivariateDataTypeHandling);
-      if(!dataTypeHandling) {
-        hints.set(ExpressionHintKey.MultivariateDataTypeHandling, MultivariateDataTypeHandling.Consistent);
-      }
-    }
+    let expRef: ExpressionReference, set: ExpressionReference[], parserMessages: ParserMessages;
+    // Simply delegates to the
     const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, hints, ec);
-    [remaining, expRef, set] = [...multivariateResult];
+    // If it does not resolve to a Set, remaining should be unchanged.
+    [remaining, expRef, set, parserMessages] = [...multivariateResult];
     if (expRef) {
-      return [remaining, {type: expRef.type, dataTypeRef: expRef.dataTypeRef, set, multivariate: true}];
+      return [remaining, {type: expRef.type, dataTypeRef: expRef.dataTypeRef, set, multivariate: true}, undefined];
     } else {
-      return [remaining, undefined];
+      return [remaining, undefined, undefined];
     }
   }
 }

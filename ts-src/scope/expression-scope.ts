@@ -1,17 +1,17 @@
 import {AwaitEvaluation, ExecutionContextI, ModuleResolutionAction} from '@franzzemen/app-utility';
 import {RuleElementReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
-import {FormulaExpressionReference} from '../expression/formula-expression.js';
+import {AwaitEvaluationFactory} from '../factory/await-evaluation-factory.js';
+import {ExpressionFactory} from '../factory/expression-factory.js';
 import {FormulaExpressionFactory} from '../factory/formula-expression-factory.js';
 import {AttributeExpressionParser} from '../parser/attribute-expression-parser.js';
 import {ExpressionStackParser} from '../parser/expression-stack-parser.js';
+import {FormulaExpressionParser} from '../parser/formula-expression-parser.js';
 import {FunctionExpressionParser} from '../parser/function-expression-parser.js';
 import {SetExpressionParser} from '../parser/set-expression-parser.js';
 import {ValueExpressionParser} from '../parser/value-expression-parser.js';
 import {ExpressionStringifier} from '../stringifier/expression-stringifier.js';
 import {ExpressionOptions} from './expression-options.js';
-import {ExpressionFactory} from '../factory/expression-factory.js';
-import {AwaitEvaluationFactory} from '../factory/await-evaluation-factory.js';
 
 export class ExpressionScope extends DataTypeScope {
   public static ExpressionFactory = 'ExpressionFactory';
@@ -36,6 +36,7 @@ export class ExpressionScope extends DataTypeScope {
     expressionStackParser.addParser(new AttributeExpressionParser(), true, ec);
     expressionStackParser.addParser(new FunctionExpressionParser(), true, ec);
     expressionStackParser.addParser(new SetExpressionParser(), true, ec);
+    expressionStackParser.addParser(new FormulaExpressionParser(), true, ec);
     this.set(ExpressionScope.ExpressionStringifier, new ExpressionStringifier());
     this.set(ExpressionScope.AwaitEvaluationFactory, new AwaitEvaluationFactory());
     this.set(ExpressionScope.FormulaExpressionFactory, new FormulaExpressionFactory());

@@ -61,7 +61,11 @@ export abstract class Expression implements ExpressionReference {
   dataTypeRef: string;
   dataType: DataTypeI;
   dataTypeModule?: ModuleDefinition;
-  multivariate?: boolean;
+  /**
+   * If true, indicates that the ==> evaluated run time <== value could be multivariate (more than one element) (as of
+   * this comment, an array)
+   */
+  multivariate: boolean = false;
 
   // TODO: ref, scope probably should not be optional????
   constructor(ref: ExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {

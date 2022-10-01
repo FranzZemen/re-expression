@@ -1,13 +1,14 @@
-import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition, ModuleResolver} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
 import {InferenceStackParser, loadModuleDefinitionFromHints, Scope} from '@franzzemen/re-common';
-import {DataTypeHintKey, isStandardDataType, StandardDataType} from '@franzzemen/re-data-type';
+import {isStandardDataType, StandardDataType} from '@franzzemen/re-data-type';
 import {isPromise} from 'util/types';
 import {ExpressionReference, isExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser, ExpressionParserResult, ResolvedExpressionParserResult} from './expression-parser.js';
+import {ParserMessageType} from './parser-messages.js';
 
 
 export interface ExpressionStackParserContext {
@@ -23,6 +24,8 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
   constructor() {
     super();
   }
+
+
 
   /**
    *
@@ -53,7 +56,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
         }
       }
       dataTypeRefName = expressionHints.get(ExpressionHintKey.DataType) as string;
-      if (dataTypeHint && dataTypeRefName && dataTypeHint !== dataTypeRefName) {
+      if (dataTypeHint && dataTypeHint !== StandardDataType.Indeterminate && dataTypeRefName && dataTypeHint !== dataTypeRefName) {
         const err = new Error(`Inconsistent suggested data type ${dataTypeHint} and hinted data type ${dataTypeHint}`);
         logErrorAndThrow(err, log, ec);
       }
@@ -103,9 +106,9 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
         .then(truVal => {
           return expressionRef;
         })
-      return [remaining, promise];
+      return [remaining, promise, undefined];
     } else {
-      return [remaining, expressionRef];
+      return [remaining, expressionRef, undefined];
     }
   }
 
@@ -131,7 +134,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
       if (module) {
         expressionReference.dataTypeModule = module;
       }
-      return [remaining, expressionReference];
+      return [remaining, expressionReference, undefined];
     } else {
       // Otherwise, iterate through the stack to the first positive inference parse
       const parseResults: ExpressionParserResult[] = [];
@@ -151,11 +154,9 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
         if (module) {
           expressionReference.dataTypeModule = module;
         }
-        return [remaining, expressionReference];
+        return [remaining, expressionReference, undefined];
       } else {
-        // If you reached this point, there is no valid parser for the expression
-        const err = new Error(`No valid parser near ${near}`);
-        logErrorAndThrow(err, log, ec);
+        return [undefined, undefined, [{message: `No valid parser near ${near}`, type: ParserMessageType.Error}]]
       }
     }
   }
