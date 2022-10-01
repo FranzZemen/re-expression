@@ -37,7 +37,6 @@ export class ExpressionScope extends DataTypeScope {
     expressionStackParser.addParser(new FunctionExpressionParser(), false, ec);
     expressionStackParser.addParser(new SetExpressionParser(), false, ec);
     expressionStackParser.addParser(new FormulaExpressionParser(), false, ec);
-    expressionStackParser.addParser(new SetExpressionParser(), false, ec);
 
     this.set(ExpressionScope.ExpressionStringifier, new ExpressionStringifier());
     this.set(ExpressionScope.AwaitEvaluationFactory, new AwaitEvaluationFactory());
