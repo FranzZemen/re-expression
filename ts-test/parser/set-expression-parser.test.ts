@@ -274,6 +274,17 @@ describe('re-expression', () => {
           expRef.dataTypeRef.should.equal(StandardDataType.Number);
           expRef.set[0].dataTypeRef.should.equal(StandardDataType.Number);
         });
+        it('Should infer Multivariate Data Type Multivariate Handling also for attribute element in [<<ex data-type=Number>> myAttribute, 6 18]', () => {
+          const scope = new ExpressionScope();
+          const parser = new SetExpressionParser();
+          const hints = new Hints(`${ExpressionHintKey.Multivariate} ${ExpressionHintKey.MultivariateDataTypeHandling}=${MultivariateDataTypeHandling.Multivariate}`);
+          hints.loadAndResolve();
+          const parseStr = '[<<ex data-type=Number>> myAttribute, 6 18]';
+          let [remaining, expRef, parserMessages] = parser.parseAndResolve(parseStr, scope, hints) as [string, SetExpressionReference, ParserMessages]; // We know there are no promises
+          expect(expRef).to.exist;
+          expRef.dataTypeRef.should.equal(StandardDataType.Multivariate);
+          expRef.set[0].dataTypeRef.should.equal(StandardDataType.Number);
+        });
       });
     });
   });
