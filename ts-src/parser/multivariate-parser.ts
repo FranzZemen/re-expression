@@ -1,13 +1,14 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {ParserMessages, PsMsgType, pushMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 
 import {ExpressionReference, ExpressionType} from '../expression';
+import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
 import {ExpressionStackParser} from './expression-stack-parser.js';
-import {ParserMessages, ParserMessageType, pushMessages, StandardParserMessages} from './parser-messages.js';
 
 /**
  * How do we handle the data types in the multivariate expression?  If Consistent, all the expressions need to be of
@@ -66,25 +67,25 @@ export abstract class MultivariateParser extends ExpressionParser {
           // Override and data type based on the handling
           if (multivariateDataTypeRef !== StandardDataType.Multivariate) {
             parseMessages.push({
-              message: `${StandardParserMessages.MultivariateInconsistentDataType} near "${original}"`,
+              message: `${ExPsStdMsg.MultivariateInconsistentDataType} near "${original}"`,
               contextObject: {multivariateDataTypeRef, dataTypeHandling},
-              type: ParserMessageType.Warn
+              type: PsMsgType.Warn
             });
             multivariateDataTypeRef = StandardDataType.Multivariate;
           }
         } else { // Consistent
           if (multivariateDataTypeRef === StandardDataType.Multivariate) {
             parseMessages.push({
-              message: `${StandardParserMessages.MultivariateInconsistentHandling} near "${original}"`,
+              message: `${ExPsStdMsg.MultivariateInconsistentHandling} near "${original}"`,
               contextObject: {multivariateDataTypeRef, dataTypeHandling},
-              type: ParserMessageType.Warn
+              type: PsMsgType.Warn
             });
             multivariateDataTypeRef = StandardDataType.Indeterminate;
           } else if (multivariateDataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
             // Always consider usage of Unknown when option not set an error
             return [original, undefined, undefined, pushMessages(parseMessages, {
-              message: `${StandardParserMessages.ImproperUsageOfUnknown} near "${original}"`,
-              type: ParserMessageType.Error
+              message: `${ExPsStdMsg.ImproperUsageOfUnknown} near "${original}"`,
+              type: PsMsgType.Error
             })];
           }
         }
@@ -110,8 +111,8 @@ export abstract class MultivariateParser extends ExpressionParser {
         if (innerRemaining.indexOf(']') < 0) {
           // This is a true error condition.
           return [original, undefined, undefined, pushMessages(parseMessages, {
-            message: `${StandardParserMessages.NoEndOfMultivariateDetected} near "${innerRemaining}"`,
-            type: ParserMessageType.Error
+            message: `${ExPsStdMsg.NoEndOfMultivariateDetected} near "${innerRemaining}"`,
+            type: PsMsgType.Error
           })];
         }
         // Next expression
@@ -142,13 +143,13 @@ export abstract class MultivariateParser extends ExpressionParser {
       if (candidates.length === 0) {
         if (multivariateDataTypeRef === StandardDataType.Indeterminate) {
           return [original, undefined, undefined, pushMessages(parseMessages, {
-            message: `${StandardParserMessages.IndeterminateDataType} for empty multivariate`,
-            type: ParserMessageType.Error
+            message: `${ExPsStdMsg.IndeterminateDataType} for empty multivariate`,
+            type: PsMsgType.Error
           })];
         } else if (multivariateDataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
           return [original, undefined, undefined, pushMessages(parseMessages, {
-            message: `${StandardParserMessages.ImproperUsageOfUnknown} near "${original}"`,
-            type: ParserMessageType.Error
+            message: `${ExPsStdMsg.ImproperUsageOfUnknown} near "${original}"`,
+            type: PsMsgType.Error
           })];
         } else {
           return [innerRemaining.trim(), {
@@ -165,7 +166,7 @@ export abstract class MultivariateParser extends ExpressionParser {
           if (!innerExpression) {
             parseMessages.push({
               message: `Unable to parse inner expression near ${candidate.near}`,
-              type: ParserMessageType.Error
+              type: PsMsgType.Error
             });
             const inner: ParserMessages = candidate.parseResult[2];
             if (inner) {
@@ -211,8 +212,8 @@ export abstract class MultivariateParser extends ExpressionParser {
               multivariateDataTypeRef = innerDataType;
             } else if (innerDataType && innerDataType !== multivariateDataTypeRef) {
               return [original, undefined, undefined, pushMessages(parseMessages, {
-                message: `${StandardParserMessages.MultivariateInconsistentInnerDataType} near "${original}"`,
-                type: ParserMessageType.Error
+                message: `${ExPsStdMsg.MultivariateInconsistentInnerDataType} near "${original}"`,
+                type: PsMsgType.Error
               })];
             }
             // Set those inner data type that are u or i
@@ -234,13 +235,13 @@ export abstract class MultivariateParser extends ExpressionParser {
           innerExpressions.every(innerExpression => {
             if (innerExpression.dataTypeRef === StandardDataType.Indeterminate) {
               return [original, undefined, undefined, pushMessages(parseMessages, {
-                message: `${StandardParserMessages.IndeterminateDataType} for inner expression data type near ${original}`,
-                type: ParserMessageType.Error
+                message: `${ExPsStdMsg.IndeterminateDataType} for inner expression data type near ${original}`,
+                type: PsMsgType.Error
               })];
             } else if (innerExpression.dataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
               return [original, undefined, undefined, pushMessages(parseMessages, {
-                message: `${StandardParserMessages.ImproperUsageOfUnknown} for inner expressoin data type near ${original}`,
-                type: ParserMessageType.Error
+                message: `${ExPsStdMsg.ImproperUsageOfUnknown} for inner expressoin data type near ${original}`,
+                type: PsMsgType.Error
               })];
             }
           });

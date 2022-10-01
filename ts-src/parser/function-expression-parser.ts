@@ -1,12 +1,11 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
-import {loadModuleDefinitionFromHints} from '@franzzemen/re-common';
+import {loadModuleDefinitionFromHints, ParserMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {FunctionExpressionReference} from '../expression/function-expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
-import {ParserMessages} from './parser-messages.js';
 
 export class FunctionExpressionParser extends MultivariateParser {
 

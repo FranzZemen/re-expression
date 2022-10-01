@@ -1,14 +1,13 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
-import {InferenceStackParser, loadModuleDefinitionFromHints, Scope} from '@franzzemen/re-common';
+import {InferenceStackParser, loadModuleDefinitionFromHints, PsMsgType, Scope} from '@franzzemen/re-common';
 import {isStandardDataType, StandardDataType} from '@franzzemen/re-data-type';
 import {isPromise} from 'util/types';
 import {ExpressionReference, isExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser, ExpressionParserResult, ResolvedExpressionParserResult} from './expression-parser.js';
-import {ParserMessageType} from './parser-messages.js';
 
 
 export interface ExpressionStackParserContext {
@@ -156,7 +155,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
         }
         return [remaining, expressionReference, undefined];
       } else {
-        return [undefined, undefined, [{message: `No valid parser near ${near}`, type: ParserMessageType.Error}]]
+        return [undefined, undefined, [{message: `No valid parser near ${near}`, type: PsMsgType.Error}]]
       }
     }
   }

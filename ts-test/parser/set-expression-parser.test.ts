@@ -1,4 +1,5 @@
 import {Hints} from '@franzzemen/app-utility';
+import {ParserMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
@@ -10,7 +11,6 @@ import {
   isSetExpressionReference,
   isValueExpressionReference,
   MultivariateDataTypeHandling,
-  ParserMessages,
   ResolvedExpressionParserResult,
   SetExpressionParser,
   SetExpressionReference

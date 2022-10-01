@@ -4,7 +4,7 @@ import {
   EndConditionType,
   FragmentOrGrouping,
   FragmentParser,
-  isFragment,
+  isFragment, ParserMessages, PsMsgType,
   RecursiveGrouping,
   RecursiveGroupingParser
 } from '@franzzemen/re-common';
@@ -12,11 +12,11 @@ import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, ExpressionType} from '../expression.js';
 import {FormulaExpressionReference, FormulaOperator, formulaOperators} from '../expression/formula-expression.js';
 import {FormulaExpressionFactory} from '../factory/formula-expression-factory.js';
+import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
 import {ExpressionStackParser} from './expression-stack-parser.js';
-import {ParserMessages, ParserMessageType, StandardParserMessages} from './parser-messages.js';
 
 
 class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
@@ -158,7 +158,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         if(scope.get(ExpressionScope.AllowUnknownDataType) === true) {
           dataTypeRef = StandardDataType.Unknown;
         } else {
-          return [near, undefined, [{message: StandardParserMessages.ImproperUsageOfUnknown, type: ParserMessageType.Error}]];
+          return [near, undefined, [{message: ExPsStdMsg.ImproperUsageOfUnknown, type: PsMsgType.Error}]];
         }
       } else {
         dataTypeRef = determinedDataTypeRef;

@@ -1,12 +1,13 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {ParserMessages, PsMsgType} from '@franzzemen/re-common';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {ExpressionType} from '../expression.js';
 import {ValueExpressionReference} from '../expression/value-expression.js';
+import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
-import {ParserMessages, ParserMessageType, StandardParserMessages} from './parser-messages.js';
 
 export type ValueExpressionParserResult = [string, ValueExpressionReference, ParserMessages];
 
@@ -33,7 +34,7 @@ export class ValueExpressionParser extends ExpressionParser {
       return [near, undefined, undefined];
     } else {
       if(!dataTypeHint) {
-        return [near, undefined, [{message: `${StandardParserMessages.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: ParserMessageType.Error}]]
+        return [near, undefined, [{message: `${ExPsStdMsg.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: PsMsgType.Error}]]
       }
       return [remaining, {
         type: ExpressionType.Value,

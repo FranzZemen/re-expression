@@ -59,3 +59,4 @@ export class ExpressionScope extends DataTypeScope {
     return this.hasScopedFactoryItem<AwaitEvaluation>(refName, ExpressionScope.AwaitEvaluationFactory, ec);
   }
 }
+
