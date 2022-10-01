@@ -8,11 +8,13 @@ import {
   ExpressionScope,
   isAttributeExpressionReference,
   isSetExpressionReference,
-  isValueExpressionReference, MultivariateDataTypeHandling, ParserMessages, ResolvedExpressionParserResult,
+  isValueExpressionReference,
+  MultivariateDataTypeHandling,
+  ParserMessages,
+  ResolvedExpressionParserResult,
   SetExpressionParser,
   SetExpressionReference
 } from '../../publish/index.js';
-import qunit = Mocha.interfaces.qunit;
 
 
 const expect = chai.expect;
@@ -255,6 +257,41 @@ describe('re-expression', () => {
                 if (isValueExpressionReference(expRef.set[2])) {
                   expRef.set[2].value.should.equal(18);
                 } else unreachableCode.should.be.true;
+              }
+            }
+          } catch (err) {
+            unreachableCode.should.be.true;
+          }
+        });
+        it('should parse a set containing a set [1, 2, 3 [<<ex type=Attribute data-type=Number>> myAttribute, 6] 18]', () => {
+          try {
+            const scope = new ExpressionScope();
+            const parser = new SetExpressionParser();
+            const hints = new Hints(`${ExpressionHintKey.Multivariate} ${ExpressionHintKey.MultivariateDataTypeHandling}=${ExpressionHintKey.MultivariateDataTypeHandling}=${MultivariateDataTypeHandling.Consistent}`);
+            hints.loadAndResolve();
+            let [remaining, expRef, parserMessages] = parser.parseAndResolve('[1, 2, 3 [<<ex type=Attribute data-type=Number>> myAttribute, 6] 18]', scope, hints) as [string, SetExpressionReference | Promise<SetExpressionReference>, ParserMessages];
+            if (isPromise(expRef)) {
+              unreachableCode.should.be.true;
+            } else {
+              if (isSetExpressionReference(expRef)) {
+                remaining.should.equal('');
+                expRef.set.length.should.equal(5);
+                if (isValueExpressionReference(expRef.set[1])) {
+                  expRef.set[1].value.should.equal(2);
+                  expRef.set[1].dataTypeRef.should.equal(StandardDataType.Number);
+                } else {
+                  unreachableCode.should.be.true;
+                }
+                if(isSetExpressionReference(expRef.set[3])) {
+                  const setRef = expRef.set[3];
+                  if (isAttributeExpressionReference(setRef.set[0])) {
+                    setRef.set[0].path.should.equal('myAttribute');
+                  } else {
+                    unreachableCode.should.be.true;
+                  }
+                } else {
+                  unreachableCode.should.be.true;
+                }
               }
             }
           } catch (err) {

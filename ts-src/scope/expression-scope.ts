@@ -32,11 +32,13 @@ export class ExpressionScope extends DataTypeScope {
 
     // Condition parser should be at the top of the stack prior to individual expression parsers  once validated
     // expressionStackParser.addParser(new ConditionExpressionParser(), true, ec);
-    expressionStackParser.addParser(new ValueExpressionParser(), true, ec);
-    expressionStackParser.addParser(new AttributeExpressionParser(), true, ec);
-    expressionStackParser.addParser(new FunctionExpressionParser(), true, ec);
-    expressionStackParser.addParser(new SetExpressionParser(), true, ec);
-    expressionStackParser.addParser(new FormulaExpressionParser(), true, ec);
+    expressionStackParser.addParser(new ValueExpressionParser(), false, ec);
+    expressionStackParser.addParser(new AttributeExpressionParser(), false, ec);
+    expressionStackParser.addParser(new FunctionExpressionParser(), false, ec);
+    expressionStackParser.addParser(new SetExpressionParser(), false, ec);
+    expressionStackParser.addParser(new FormulaExpressionParser(), false, ec);
+    expressionStackParser.addParser(new SetExpressionParser(), false, ec);
+
     this.set(ExpressionScope.ExpressionStringifier, new ExpressionStringifier());
     this.set(ExpressionScope.AwaitEvaluationFactory, new AwaitEvaluationFactory());
     this.set(ExpressionScope.FormulaExpressionFactory, new FormulaExpressionFactory());
