@@ -30,7 +30,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(1);
@@ -47,7 +47,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(1);
@@ -64,7 +64,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(2);
@@ -81,7 +81,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(2);
@@ -98,7 +98,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(3);
@@ -115,7 +115,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(-1);
@@ -132,7 +132,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(-3);
@@ -149,7 +149,7 @@ describe('re-expression tests', () => {
           } else {
             const formulaExpression: FormulaExpression = new FormulaExpression(ref, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const result = formulaExpression.evaluate({}, scope);
+            const result = formulaExpression.awaitEvaluation({}, scope);
             expect(result).to.exist;
             expect(typeof result).to.equal('number');
             result.should.equal(1);
@@ -177,7 +177,7 @@ describe('re-expression tests', () => {
             [remaining, result] = parser.parse('#[1 * (<<ex data-type=Number>> @Trick + 1) - 5]', scope, hints);
             const formulaExpression: FormulaExpression = new FormulaExpression(result, scope);
             // Don't need to resolve scope as we know there aren't any promises.
-            const shouldNotResult = formulaExpression.evaluate({}, scope);
+            const shouldNotResult = formulaExpression.awaitEvaluation({}, scope);
           } catch (err) {
             expect(err.message.startsWith('Potential security violation')).to.be.true;
             return;

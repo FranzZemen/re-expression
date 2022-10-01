@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/re-expression",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Expressions",
   "type": "module",
   "main": "index.js",
@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/FranzZemen/re-expression#readme",
   "devDependencies": {
-    "@franzzemen/gulp-base": "^10.1.8",
-    "@franzzemen/npmu": "^2.0.0",
+    "@franzzemen/gulp-base": "^10.1.10",
+    "@franzzemen/npmu": "^2.0.1",
     "@franzzemen/safe-config": "^2.0.45",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
@@ -32,9 +32,9 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@franzzemen/app-utility": "5.0.12",
-    "@franzzemen/re-common": "7.0.13",
-    "@franzzemen/re-data-type": "4.0.16",
+    "@franzzemen/app-utility": "5.0.13",
+    "@franzzemen/re-common": "7.0.15",
+    "@franzzemen/re-data-type": "4.0.17",
     "fastest-validator": "^1.15.0",
     "moment": "^2.29.4",
     "object-path": "^0.11.8",

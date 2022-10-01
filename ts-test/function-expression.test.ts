@@ -44,8 +44,12 @@ describe('re-expression tests', () => {
           return resultOrPromise.then(trueVal => {
             // We already know this custom function doesn't return a promise.
             expression.awaitEvaluationFunction.should.exist;
-            const result = expression.evaluate({}, scope);
-            result.should.equal(5);
+            const result = expression.awaitEvaluation({}, scope);
+            if(isPromise(result)) {
+              unreachableCode.should.be.true;
+            } else {
+              result.should.equal(5);
+            }
           });
         } else {
           unreachableCode.should.be.true;
@@ -97,7 +101,7 @@ describe('re-expression tests', () => {
           return trueValOrPromise
             .then(truVal => {
               functionExpression.awaitEvaluationFunction.should.exist;
-              const resultOrPromise = functionExpression.evaluate({}, scope);
+              const resultOrPromise = functionExpression.awaitEvaluation({}, scope);
               if (isPromise(resultOrPromise)) {
                 // Function doesn't return a promise
                 unreachableCode.should.be.true;

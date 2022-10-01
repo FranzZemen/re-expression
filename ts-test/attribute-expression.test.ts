@@ -133,7 +133,7 @@ describe('re-expression tests', () => {
         } else {
           const [remaining, expressionRef] = [...parseResult];
           const expression = new AttributeExpression(expressionRef as AttributeExpressionReference, scope);
-          const result = expression.evaluate(dataDomain, scope);
+          const result = expression.awaitEvaluation(dataDomain, scope);
           result.should.equal('world');
         }
       });
@@ -142,7 +142,7 @@ describe('re-expression tests', () => {
         const dataDomain = [[0,1], [2,3,4]];
         const ref = defaultExpressionStackParser.parseAndResolve('<<ex type=Attribute data-type=Number>> [1][2]', scope);
         const expression = new AttributeExpression(ref[1] as AttributeExpressionReference, scope);
-        const result = expression.evaluate(dataDomain, scope);result.should.equal(4);
+        const result = expression.awaitEvaluation(dataDomain, scope);result.should.equal(4);
       })
     });
   });

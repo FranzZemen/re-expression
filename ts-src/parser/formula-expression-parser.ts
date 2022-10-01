@@ -20,7 +20,7 @@ import {ExpressionStackParser} from './expression-stack-parser.js';
 
 
 class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
-  parse(fragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, ExpressionReference] {
+  parse(fragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, ExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FragmentParserAdapter.name}.parse`);
     const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
     let [remaining, expression] = parser.parse(fragment, scope, {}, ec);
@@ -28,7 +28,7 @@ class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
     if (expression.dataTypeRef && !(StandardDataType.Number || StandardDataType.Float)) {
       logErrorAndThrow(`A fragment expression in a Logical Expression needs to be of type Boolean, not ${expression.dataTypeRef}`, log, ec);
     }
-    return [remaining, expression];
+    return [remaining, expression, undefined];
   }
 }
 

@@ -4,12 +4,11 @@ import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
 import {isPromise} from 'util/types';
-import {FunctionExpressionReference} from '../../build/index.js';
 import {
   AwaitEvaluationFactory,
   ExpressionHintKey, ExpressionParserResult, ExpressionReference,
   ExpressionScope, ExpressionType,
-  FunctionExpressionParser, isFunctionExpressionReference,
+  FunctionExpressionParser, FunctionExpressionReference, isFunctionExpressionReference,
   ResolvedExpressionParserResult
 } from '../../publish/index.js';
 

@@ -122,6 +122,7 @@ export abstract class Expression implements ExpressionReference {
    * @param scope
    * @param ec
    */
+  /*
   evaluate(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
     const result = this.awaitEvaluation(dataDomain, scope, ec);
     if (isPromise(result)) {
@@ -129,6 +130,8 @@ export abstract class Expression implements ExpressionReference {
     }
     return result;
   }
+
+   */
 
   /**
    * Async version - always returns a Promise
