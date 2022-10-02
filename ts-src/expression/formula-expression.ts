@@ -71,7 +71,7 @@ export class FormulaExpression extends Expression {
   private static recurseFromFormulaReference(currentFormula: Formula, grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>[], scope: ExpressionScope, ec?: ExecutionContextI) {
     grouping.forEach(groupItem => {
       if (isFragment(groupItem)) {
-        const expressionFactory: ExpressionFactory = new ExpressionFactory();
+        const expressionFactory: ExpressionFactory = scope.get(ExpressionScope.ExpressionFactory);
         let formulaElement = new FormulaElement();
         formulaElement.operator = groupItem.operator;
         formulaElement.expression = expressionFactory.createExpression(groupItem.reference, scope, ec);
