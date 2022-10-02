@@ -54,7 +54,7 @@ export class ExpressionFactory {
           const action: ModuleResolutionAction = {
             ownerIsObject: true,
             objectRef: expression,
-            actionFunction: 'customDataTypeRefLoadedAction',
+            _function: 'customDataTypeRefLoadedAction',
             paramsArray: [scope, ec]
           }
           scope.addDataType({moduleRef: {refName: expression.dataTypeRef, module: expression.dataTypeModule}}, action, ec);
@@ -75,7 +75,7 @@ export class ExpressionFactory {
           const action: ModuleResolutionAction = {
             ownerIsObject: true,
             objectRef: functionExpression,
-            actionFunction: 'awaitEvaluationFunctionLoadedAction',
+            _function: 'awaitEvaluationFunctionLoadedAction',
             paramsArray: [scope, ec]
           }
           scope.addAwaitEvaluationFunction({moduleRef: { refName: functionExpression.refName, module: functionExpression.module}},action, ec);
