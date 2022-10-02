@@ -38,6 +38,10 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
   static processHints(remaining: string, scope: ExpressionScope, dataTypeHint?: string, ec?: ExecutionContextI): [string, Hints] {
     const log = new LoggerAdapter(ec, 're-expression', 'expression-stack-parser', ExpressionStackParser.name + '.processHints');
 
+    if(dataTypeHint === StandardDataType.Unknown || dataTypeHint === StandardDataType.Indeterminate) {
+      dataTypeHint = undefined;
+    }
+
     let expressionHints: Hints;
     [remaining, expressionHints] = scope.parseHints(remaining, 'ex', ec);
 
@@ -55,39 +59,29 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
         }
       }
       dataTypeRefName = expressionHints.get(ExpressionHintKey.DataType) as string;
-      if (dataTypeHint && dataTypeHint !== StandardDataType.Indeterminate && dataTypeRefName && dataTypeHint !== dataTypeRefName) {
-        const err = new Error(`Inconsistent suggested data type ${dataTypeHint} and hinted data type ${dataTypeHint}`);
-        logErrorAndThrow(err, log, ec);
-      }
-      if (!dataTypeRefName && dataTypeHint) {
-        log.debug(`No data type hint provided, but suggested data type passed in ${dataTypeHint}, so using that as hint`);
+      if(dataTypeRefName) {
+        if (dataTypeHint && dataTypeHint !== dataTypeRefName) {
+          const err = new Error(`Inconsistent suggested data type ${dataTypeHint} and hinted data type ${dataTypeHint}`);
+          logErrorAndThrow(err, log, ec);
+        }
+      } else if (dataTypeHint) {
         dataTypeRefName = dataTypeHint;
-        // Although no hints were formally provided in the hints clause itself, the fact that we have a dataTypeHint is
-        // considered a hint and we are setting back into the hints map for later use by parsers.
         expressionHints.set(ExpressionHintKey.DataType, dataTypeHint);
-      }
-      if (!dataTypeRefName) {
-        // TODO Create this data type and how to handle it
-        dataTypeRefName = StandardDataType.Unknown;
+      } else {
+        dataTypeRefName = StandardDataType.Indeterminate;
       }
       if (isStandardDataType(dataTypeRefName)) {
         return [remaining, expressionHints];
       } else {
-        // TODO...inline loading
         if (scope.hasDataType(dataTypeRefName, ec)) {
-          // -----
-          log.trace('Found and validated expression hint data-type=' + dataTypeRefName + ' (Custom data type)');
           return [remaining, expressionHints];
-          // -----
         } else {
           // Check if data type is dynamically defined in-line
           const module: ModuleDefinition = loadModuleDefinitionFromHints(expressionHints, ec, ExpressionHintKey.DataTypeModule, ExpressionHintKey.DataTypeModuleName, ExpressionHintKey.DataTypeFunctionName, ExpressionHintKey.DataTypeConstructorName, ExpressionHintKey.DataTypeModuleResolution, ExpressionHintKey.DataTypeLoadSchema);
           if (module) {
-            //const override: boolean = expressionHints.has(DataTypeHintKey.DataTypeModuleOverride);
-            //const overrideDown: boolean = expressionHints.has(DataTypeHintKey.DataTypeModuleOverrideDown);
             scope.addDataType({moduleRef: {refName: dataTypeRefName, module}});
           } else {
-            logErrorAndThrow(new EnhancedError( `No module for `))
+            logErrorAndThrow(new EnhancedError( `No module for ${dataTypeRefName}`))
           }
           return [remaining, expressionHints];
         }
