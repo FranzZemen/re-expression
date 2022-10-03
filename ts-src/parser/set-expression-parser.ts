@@ -1,6 +1,6 @@
 import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
 import {ParserMessages} from '@franzzemen/re-common';
-import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {SetExpressionReference} from '../expression/set-expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
@@ -18,7 +18,7 @@ export type SetExpressionParserResult = [remaining: string, reference: SetExpres
 export class SetExpressionParser extends MultivariateParser {
 
   constructor() {
-    super(ExpressionType.Set);
+    super(StandardExpressionType.Set);
   }
 
   /**

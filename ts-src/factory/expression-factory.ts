@@ -2,7 +2,7 @@ import {ExecutionContextI, LoggerAdapter, ModuleResolutionAction} from '@franzze
 import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {RuleElementFactory} from '@franzzemen/re-common';
 import {DataTypeFactory, DataTypeScope} from '@franzzemen/re-data-type';
-import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
+import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
 import {FunctionExpression} from '../expression/function-expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 
@@ -23,7 +23,7 @@ export class ExpressionFactory extends RuleElementFactory<ExpressionConstructor>
     super();
   }
 
-  addConstructor (refName: ExpressionType | string, _constructor: ExpressionConstructor) {
+  addConstructor (refName: string, _constructor: ExpressionConstructor) {
     this.register({instanceRef: {refName, instance: _constructor}});
   }
 
@@ -92,7 +92,7 @@ export class ExpressionFactory extends RuleElementFactory<ExpressionConstructor>
   loadAwaitEvaluationFunctions(expression: Expression, scope: ExpressionScope, ec?: ExecutionContextI) {
     const log = new LoggerAdapter(ec, 're-expression-factory', 'expression-factory', 'loadAwaitEvaluationFunctions');
     switch (expression.type) {
-      case ExpressionType.Function:
+      case StandardExpressionType.Function:
         const functionExpression: FunctionExpression = expression as FunctionExpression;
         if (functionExpression.awaitEvaluation) {
           const action: ModuleResolutionAction = {

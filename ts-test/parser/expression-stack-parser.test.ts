@@ -6,7 +6,7 @@ import {isPromise} from 'util/types';
 import {
   AttributeExpressionReference,
   ExpressionScope,
-  ExpressionStackParser, ExpressionType, isAttributeExpressionReference,
+  ExpressionStackParser, StandardExpressionType, isAttributeExpressionReference,
   isValueExpressionReference,
   ValueExpressionParser, ValueExpressionReference
 } from '../../publish/index.js';
@@ -144,7 +144,7 @@ describe('re-expression tests', () => {
             unreachableCode.should.be.true;
           } else {
             remaining.length.should.equal(0);
-            expressionRef.type.should.equal(ExpressionType.Attribute);
+            expressionRef.type.should.equal(StandardExpressionType.Attribute);
             (expressionRef as AttributeExpressionReference).path.should.equal('hello');
           }
         });
@@ -172,7 +172,7 @@ describe('re-expression tests', () => {
           if (isPromise(refOrPromise)) {
             refOrPromise
               .then((expressionRef) => {
-                expressionRef.type.should.equal(ExpressionType.Attribute);
+                expressionRef.type.should.equal(StandardExpressionType.Attribute);
                 expressionRef.dataTypeRef.should.equal('Contrived Data Type');
                 if (isAttributeExpressionReference(expressionRef)) {
                   expressionRef.path.should.equal('myAttribute');
@@ -196,7 +196,7 @@ describe('re-expression tests', () => {
           if (isPromise(refOrPromise)) {
             refOrPromise
               .then((expressionRef) => {
-                expressionRef.type.should.equal(ExpressionType.Attribute);
+                expressionRef.type.should.equal(StandardExpressionType.Attribute);
                 expressionRef.dataTypeRef.should.equal('Contrived Data Type');
                 if (isAttributeExpressionReference(expressionRef)) {
                   expressionRef.path.should.equal('myAttribute');

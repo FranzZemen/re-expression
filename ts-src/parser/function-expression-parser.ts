@@ -1,7 +1,7 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
 import {loadModuleDefinitionFromHints, ParserMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
-import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {FunctionExpressionReference} from '../expression/function-expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
@@ -11,7 +11,7 @@ export class FunctionExpressionParser extends MultivariateParser {
 
 
   constructor() {
-    super(ExpressionType.Function);
+    super(StandardExpressionType.Function);
   }
   parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FunctionExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
@@ -45,7 +45,7 @@ export class FunctionExpressionParser extends MultivariateParser {
 
     let type = hints.get(ExpressionHintKey.Type) as string;
     let result;
-    if (type === ExpressionType.Function) {
+    if (type === StandardExpressionType.Function) {
       // Search for either the function ref name by itself, or preceded by the '@' symbol, which is reserved.
       result = /^@?([a-zA-Z]+[a-zA-Z0-9]*)([\[\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining); // Note the opening square bracket that might replace a following space...start of parameters
     } else {
@@ -53,7 +53,7 @@ export class FunctionExpressionParser extends MultivariateParser {
       result = /^@([a-zA-Z]+[a-zA-Z0-9]*)([\[\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining); // Note the opening square bracket that might replace a following space...start of parameters
     }
     if (result) {
-      type = ExpressionType.Function;
+      type = StandardExpressionType.Function;
       refName = result[1];
       remaining = result[2].trim();
 
@@ -64,7 +64,7 @@ export class FunctionExpressionParser extends MultivariateParser {
                             ${ExpressionHintKey.DataType}=${StandardDataType.Unknown} 
                             ${ExpressionHintKey.Multivariate} 
                             ${ExpressionHintKey.MultivariateDataTypeHandling}=Multivariate 
-                            ${ExpressionHintKey.Type}=${ExpressionType.Function}
+                            ${ExpressionHintKey.Type}=${StandardExpressionType.Function}
                        >>`;
 
       const [textRemaining, multivariateHints] = scope.parseHints(hintStr, 'ex',ec);

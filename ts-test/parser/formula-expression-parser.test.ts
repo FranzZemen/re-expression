@@ -5,15 +5,14 @@ import chai from 'chai';
 import 'mocha';
 import {isPromise} from 'util/types';
 import {
-  AttributeExpressionReference, AwaitEvaluationFactory,
+  AwaitEvaluationFactory,
   ExpressionScope,
-  ExpressionType,
   FormulaExpressionParser,
   FormulaOperator,
-  FunctionExpressionReference, isAttributeExpression,
-  isAttributeExpressionReference, isFunctionExpression, isFunctionExpressionReference,
+  isAttributeExpressionReference,
+  isFunctionExpressionReference,
   isValueExpressionReference,
-  ValueExpressionReference
+  StandardExpressionType
 } from '../../publish/index.js';
 
 const should = chai.should();
@@ -124,7 +123,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -151,7 +150,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -178,7 +177,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -205,7 +204,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isAttributeExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Float);
-            ref.type.should.equal(ExpressionType.Attribute);
+            ref.type.should.equal(StandardExpressionType.Attribute);
             ref.path.should.equal('attribute');
           } else {
             unreachableCode.should.be.true;
@@ -232,7 +231,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -244,7 +243,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[1].reference;
           if (isAttributeExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Float);
-            ref.type.should.equal(ExpressionType.Attribute);
+            ref.type.should.equal(StandardExpressionType.Attribute);
             ref.path.should.equal('attribute');
           } else {
             unreachableCode.should.be.true;
@@ -271,7 +270,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -284,7 +283,7 @@ describe('re-expression tests', () => {
           formulaExpRef.group[1].operator.should.equal(FormulaOperator.Subtract);
           if (isAttributeExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Float);
-            ref.type.should.equal(ExpressionType.Attribute);
+            ref.type.should.equal(StandardExpressionType.Attribute);
             ref.path.should.equal('attribute');
           } else {
             unreachableCode.should.be.true;
@@ -325,7 +324,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -338,7 +337,7 @@ describe('re-expression tests', () => {
           formulaExpRef.group[1].operator.should.equal(FormulaOperator.Subtract);
           if (isAttributeExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Float);
-            ref.type.should.equal(ExpressionType.Attribute);
+            ref.type.should.equal(StandardExpressionType.Attribute);
             ref.path.should.equal('attribute');
           } else {
             unreachableCode.should.be.true;
@@ -365,7 +364,7 @@ describe('re-expression tests', () => {
           let ref = formulaExpRef.group[0].reference;
           if (isValueExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Value);
+            ref.type.should.equal(StandardExpressionType.Value);
             ref.value.should.equal(1);
           } else {
             unreachableCode.should.be.true;
@@ -378,7 +377,7 @@ describe('re-expression tests', () => {
           formulaExpRef.group[1].operator.should.equal(FormulaOperator.Subtract);
           if (isAttributeExpressionReference(ref)) {
             ref.dataTypeRef.should.equal(StandardDataType.Number);
-            ref.type.should.equal(ExpressionType.Attribute);
+            ref.type.should.equal(StandardExpressionType.Attribute);
             ref.path.should.equal('attribute');
           } else {
             unreachableCode.should.be.true;
@@ -421,8 +420,8 @@ describe('re-expression tests', () => {
               ref.refName.should.equal('NumberFunction');
               ref.dataTypeRef.should.equal(StandardDataType.Number);
               ref.params.length.should.equal(2);
-              ref.params[0].type.should.equal(ExpressionType.Value);
-              ref.params[1].type.should.equal(ExpressionType.Attribute);
+              ref.params[0].type.should.equal(StandardExpressionType.Value);
+              ref.params[1].type.should.equal(StandardExpressionType.Attribute);
             } else {
               unreachableCode.should.be.true;
             }
@@ -434,7 +433,7 @@ describe('re-expression tests', () => {
             let ref = formulaExpRef.group[1].reference;
             if (isValueExpressionReference(ref)) {
               ref.dataTypeRef.should.equal(StandardDataType.Number);
-              ref.type.should.equal(ExpressionType.Value);
+              ref.type.should.equal(StandardExpressionType.Value);
               ref.value.should.equal(1);
             } else {
               unreachableCode.should.be.true;
@@ -447,7 +446,7 @@ describe('re-expression tests', () => {
             formulaExpRef.group[2].operator.should.equal(FormulaOperator.Subtract);
             if (isAttributeExpressionReference(ref)) {
               ref.dataTypeRef.should.equal(StandardDataType.Number);
-              ref.type.should.equal(ExpressionType.Attribute);
+              ref.type.should.equal(StandardExpressionType.Attribute);
               ref.path.should.equal('attribute');
             } else {
               unreachableCode.should.be.true;
@@ -491,8 +490,8 @@ describe('re-expression tests', () => {
               ref.refName.should.equal('NumberFunction');
               ref.dataTypeRef.should.equal(StandardDataType.Number);
               ref.params.length.should.equal(2);
-              ref.params[0].type.should.equal(ExpressionType.Value);
-              ref.params[1].type.should.equal(ExpressionType.Attribute);
+              ref.params[0].type.should.equal(StandardExpressionType.Value);
+              ref.params[1].type.should.equal(StandardExpressionType.Attribute);
             } else {
               unreachableCode.should.be.true;
             }
@@ -509,7 +508,7 @@ describe('re-expression tests', () => {
               ref.operator.should.equal(FormulaOperator.Add);
               if (isValueExpressionReference(ref.reference)) {
                 ref.reference.dataTypeRef.should.equal(StandardDataType.Number);
-                ref.reference.type.should.equal(ExpressionType.Value);
+                ref.reference.type.should.equal(StandardExpressionType.Value);
                 ref.reference.value.should.equal(1);
               } else {
                 unreachableCode.should.be.true;
@@ -522,7 +521,7 @@ describe('re-expression tests', () => {
               ref.operator.should.equal(FormulaOperator.Subtract);
               if (isAttributeExpressionReference(ref.reference)) {
                 ref.reference.dataTypeRef.should.equal(StandardDataType.Number);
-                ref.reference.type.should.equal(ExpressionType.Attribute);
+                ref.reference.type.should.equal(StandardExpressionType.Attribute);
                 ref.reference.path.should.equal('attribute');
               } else {
                 unreachableCode.should.be.true;

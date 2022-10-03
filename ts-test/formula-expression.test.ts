@@ -5,7 +5,7 @@ import 'mocha';
 import {isPromise} from 'util/types';
 import {
   ExpressionScope,
-  ExpressionType,
+  StandardExpressionType,
   FormulaExpression,
   FormulaExpressionParser, FormulaExpressionReference,
   FunctionExpressionReference
@@ -165,7 +165,7 @@ describe('re-expression tests', () => {
           }
           const factory = scope.addAwaitEvaluationFunction({instanceRef: {refName: 'Trick', instance: awaitFunction}});
           const ref: FunctionExpressionReference = {
-            type: ExpressionType.Function,
+            type: StandardExpressionType.Function,
             dataTypeRef: StandardDataType.Number,
             refName: 'Trick',
           }

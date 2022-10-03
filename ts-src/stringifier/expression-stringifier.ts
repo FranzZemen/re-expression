@@ -1,6 +1,6 @@
 import {ExecutionContextI} from '@franzzemen/app-utility';
 import {DataTypeLiteralStackStringifier} from '@franzzemen/re-data-type';
-import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {isAttributeExpressionReference} from '../expression/attribute-expression.js';
 import {isFunctionExpressionReference} from '../expression/function-expression.js';
@@ -16,17 +16,17 @@ function setDataTypeCanBeInferred(ref: SetExpressionReference) : boolean {
   for (let i = 0; i < ref.set.length; i++) {
     const expression = ref.set[i];
     switch (expression.type) {
-      case ExpressionType.Value:
+      case StandardExpressionType.Value:
         return true;
-      case ExpressionType.Set:
+      case StandardExpressionType.Set:
         if(setDataTypeCanBeInferred(expression as SetExpressionReference)) {
           return true;
         } else {
           continue;
         }
-      case ExpressionType.Attribute:
-      case ExpressionType.Function:
-      case ExpressionType.Formula:
+      case StandardExpressionType.Attribute:
+      case StandardExpressionType.Function:
+      case StandardExpressionType.Formula:
         continue;
       default:
         throw new Error('Unimplemented');
@@ -45,7 +45,7 @@ export class ExpressionStringifier {
     let stringifyDataTypeHint = false;
     // 1. Preprocess stringify hints
     switch (expressionRef.type) {
-      case ExpressionType.Value:
+      case StandardExpressionType.Value:
         if(options?.expressionHints?.value?.forceTypeHint !== undefined) {
           stringifyTypeHint = options.expressionHints.value.forceTypeHint;
         }
@@ -53,7 +53,7 @@ export class ExpressionStringifier {
           stringifyDataTypeHint = options.expressionHints.value.forceDataTypeHint;
         }
         break;
-      case ExpressionType.Attribute:
+      case StandardExpressionType.Attribute:
         if(options?.expressionHints?.attribute?.forceTypeHint !== undefined) {
           stringifyTypeHint = options.expressionHints.attribute.forceTypeHint;
         }
@@ -63,7 +63,7 @@ export class ExpressionStringifier {
         }
         stringifyDataTypeHint = alwaysStringifyAttributeDataType || !dataTypeInferableOnParsing;
         break;
-      case ExpressionType.Function:
+      case StandardExpressionType.Function:
         if(options?.expressionHints?.function?.forceTypeHint !== undefined) {
           stringifyTypeHint = options.expressionHints.function.forceTypeHint;
         }
@@ -73,7 +73,7 @@ export class ExpressionStringifier {
         }
         stringifyDataTypeHint = alwaysStringifyFunctionDataType || !dataTypeInferableOnParsing;
         break;
-      case ExpressionType.Set:
+      case StandardExpressionType.Set:
         if(options?.expressionHints?.set?.forceTypeHint !== undefined) {
           stringifyTypeHint = options.expressionHints.set.forceTypeHint;
         }
@@ -83,7 +83,7 @@ export class ExpressionStringifier {
         }
         stringifyDataTypeHint = alwaysStringifySetDataType || !setDataTypeCanBeInferred(expressionRef as SetExpressionReference);
         break;
-      case ExpressionType.Formula:
+      case StandardExpressionType.Formula:
         throw new Error('Unimplemented');
     }
     // 2. Stringify hints
@@ -109,7 +109,7 @@ export class ExpressionStringifier {
           stringified += ` ${ExpressionHintKey.DataTypeModule}=${JSON.stringify(expressionRef.dataTypeModule, undefined, 1)}`
         }
       }
-      const stringifyMultivariate = expressionRef.multivariate && (expressionRef.type !== ExpressionType.Set || options?.expressionHints?.set?.stringifyMultivariate);
+      const stringifyMultivariate = expressionRef.multivariate && (expressionRef.type !== StandardExpressionType.Set || options?.expressionHints?.set?.stringifyMultivariate);
       if(stringifyMultivariate) {
         if(expressionRef.multivariate === true) {
           stringified += ` ${ExpressionHintKey.Multivariate}`;

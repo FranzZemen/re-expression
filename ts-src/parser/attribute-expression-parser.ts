@@ -1,7 +1,7 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
 import {ParserMessages, PsMsgType} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
-import {ExpressionType} from '../expression.js';
+import {StandardExpressionType} from '../expression.js';
 import {AttributeExpressionReference} from '../expression/attribute-expression.js';
 import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
@@ -12,7 +12,7 @@ export type AttributeExpressionParserResult = [remaining: string, reference: Att
 
 export class AttributeExpressionParser extends ExpressionParser {
   constructor() {
-    super(ExpressionType.Attribute);
+    super(StandardExpressionType.Attribute);
   }
 
   parse(remaining: string, scope: ExpressionScope, hints: Hints, execContext?: ExecutionContextI): AttributeExpressionParserResult {
@@ -28,7 +28,7 @@ export class AttributeExpressionParser extends ExpressionParser {
 
     const log = new LoggerAdapter(execContext, 're-expression', 'attribute-expression-parser', 'parse');
     const typeHint = hints.get(ExpressionHintKey.Type);
-    if (typeHint && typeHint !== ExpressionType.Attribute) {
+    if (typeHint && typeHint !== StandardExpressionType.Attribute) {
       return [remaining, undefined, undefined];
     }
     let dataTypeHint = hints.get(ExpressionHintKey.DataType);
@@ -64,13 +64,13 @@ export class AttributeExpressionParser extends ExpressionParser {
       const closingSquareBrackets = path.match(/]/g)?.length;
       if (openingSquareBrackets) {
         if (closingSquareBrackets && closingSquareBrackets === openingSquareBrackets) {
-          return [result[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
+          return [result[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
         } else if (closingSquareBrackets && closingSquareBrackets > openingSquareBrackets) {
           // This can happen if this is the last attribute in a set for example:  [1, 2, path, offset[5]]....where offset[5]] would be picked up by our result.
           // There is a more general case which may never happen...for now handle where the last ] is at the end of our result.
           if (path[path.length - 1] === ']') {
             path = path.substring(0, path.length - 1);
-            return [`]${result[2].trim()}`, {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
+            return [`]${result[2].trim()}`, {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
           } else {
             return [remaining, undefined, undefined];
           }
@@ -82,12 +82,12 @@ export class AttributeExpressionParser extends ExpressionParser {
         const result2 = /^([a-zA-Z0-9.]+)([\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining);
         if (result2) {
           path = result2[1];
-          return [result2[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
+          return [result2[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
         } else {
           return [remaining, undefined, undefined];
         }
       } else {
-        return [result[2].trim(), {type: ExpressionType.Attribute, dataTypeRef, path, multivariate},undefined];
+        return [result[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate},undefined];
       }
     } else {
       return [remaining, undefined, undefined];

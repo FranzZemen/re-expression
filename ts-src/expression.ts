@@ -1,13 +1,13 @@
 import {
   ExecutionContextI,
   LoggerAdapter,
-  ModuleDefinition, ModuleResolutionActionInvocation,
-  ModuleResolver,
+  ModuleDefinition,
+  ModuleResolutionActionInvocation,
   reverseEnumerationToSet
 } from '@franzzemen/app-utility';
 import {EnhancedError, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 
-import {DataTypeFactory, DataTypeI, StandardDataType} from '@franzzemen/re-data-type';
+import {DataTypeFactory, DataTypeI} from '@franzzemen/re-data-type';
 import {isPromise} from 'node:util/types';
 import {ExpressionScope} from './scope/expression-scope.js';
 
@@ -15,27 +15,40 @@ import {ExpressionScope} from './scope/expression-scope.js';
 /**
  * Expression type identifying the type (and subclass) of Expression
  */
-export enum ExpressionType {
+
+
+export enum StandardExpressionType {
   Value = 'Value',
   Attribute = 'Attribute',
   Function = 'Function',
   Set = 'Set',
-  Formula = 'Formula',
+  Formula = 'Formula'/*,
   Condition = 'Condition',
   Logical = 'Logical'
+  */
 }
 
-export const expressionTypeReverseMapping = reverseEnumerationToSet(ExpressionType);
+export type ExpressionType = StandardExpressionType | string;
 
-export function isExpressionType(expressionType: any | ExpressionType): expressionType is ExpressionType {
-  return expressionType !== undefined && typeof expressionType === 'string' && expressionTypeReverseMapping.has(expressionType);
+
+
+export function createExpressionType(type: string) {
+  if(!expressionTypes.has(type)) {
+    expressionTypes.add(type);
+  }
+}
+
+export const expressionTypes:Set<string> = reverseEnumerationToSet(StandardExpressionType);
+
+export function isExpressionType(expressionType: any | StandardExpressionType): expressionType is StandardExpressionType {
+  return expressionType !== undefined && typeof expressionType === 'string' && expressionTypes.has(expressionType);
 }
 
 /**
  * The Reference Format shape for the base class
  */
 export interface ExpressionReference {
-  type: ExpressionType | string;
+  type: ExpressionType;
   dataTypeRef: string;
   dataTypeModule?: ModuleDefinition;
   multivariate?: boolean;
@@ -57,7 +70,7 @@ export function isExpression(exp: any | Expression): exp is Expression {
  * Internal representation - should not be persisted or transmitted
  */
 export abstract class Expression implements ExpressionReference {
-  type: ExpressionType | string;
+  type: ExpressionType;
   dataTypeRef: string;
   dataType: DataTypeI;
   dataTypeModule?: ModuleDefinition;
@@ -84,19 +97,19 @@ export abstract class Expression implements ExpressionReference {
 
   customDataTypeRefLoadedAction: ModuleResolutionActionInvocation = (successfulResolution, scope: ExpressionScope, ec?: ExecutionContextI) => {
     const log = new LoggerAdapter(ec, 're-expression', 'expression', 'customDataTypeRefLoadedAction');
-    if(this.dataType) {
+    if (this.dataType) {
       log.warn(this, `Action to set data type "${this.dataTypeRef}" called, but its already set`);
       logErrorAndThrow(new EnhancedError(`Action to set data type "${this.dataTypeRef}" called, but its already set`), log, ec);
     } else {
       this.dataType = scope.getDataType(this.dataTypeRef, true, ec);
-      if(!this.dataType) {
+      if (!this.dataType) {
         log.warn(this, `Action to set data type "${this.dataTypeRef}" called, but it still doesn't exist in the factory, this method should only be called when it is`);
         logErrorAndThrow(new EnhancedError(`Action to set data type "${this.dataTypeRef}" called, but it still doesn't exist in the factory, this method should only be called when it is`), log, ec);
       } else {
         return true;
       }
     }
-  }
+  };
 
 
   /**
@@ -139,6 +152,7 @@ export abstract class Expression implements ExpressionReference {
    * @param scope
    * @param ec
    */
+
   /*
   evaluateAsync(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): Promise<any> {
     const result = this.awaitEvaluation(dataDomain, scope, ec);
@@ -177,10 +191,10 @@ export abstract class Expression implements ExpressionReference {
       const dataTypeFactory: DataTypeFactory = scope.get(ExpressionScope.DataTypeFactory);
       this.dataType = dataTypeFactory.getRegistered(this.dataTypeRef);
     }
-    if(isPromise(data)) {
+    if (isPromise(data)) {
       return data.then(_data => {
         return this.dataType.eval(_data);
-      })
+      });
     } else {
       return this.dataType.eval(data);
     }

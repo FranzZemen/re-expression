@@ -6,11 +6,11 @@ import 'mocha';
 import {isPromise} from 'util/types';
 import {
   ExpressionFactory,
-  ExpressionHintKey,
-  ExpressionScope, ExpressionStackParser,
-  ExpressionType,
+  ExpressionScope,
+  ExpressionStackParser,
   FunctionExpression,
-  FunctionExpressionReference
+  FunctionExpressionReference,
+  StandardExpressionType
 } from '../publish/index.js';
 
 
@@ -26,7 +26,7 @@ describe('re-expression tests', () => {
       it('should evaluate to 5', () => {
         const ref: FunctionExpressionReference = {
           refName: 'EvaluatesTo5',
-          type: ExpressionType.Function,
+          type: StandardExpressionType.Function,
           dataTypeRef: StandardDataType.Number,
           module: {
             moduleName: '../../../testing/parser/await-evaluation-factory-number-5.js',

@@ -10,7 +10,7 @@ import {
   AttributeExpressionReference,
   ExpressionScope,
   ExpressionStackParser,
-  ExpressionType, ResolvedExpressionParserResult
+  StandardExpressionType, ResolvedExpressionParserResult
 } from '../publish/index.js';
 
 const isMoment = moment.isMoment;
@@ -29,7 +29,7 @@ describe('re-expression tests', () => {
       it('should evaluate an Attribute ExpressionBase simple object text property', () => {
         let item: any = {id: '12'};
         const attribExpressionShape: AttributeExpressionReference = {
-          type: ExpressionType.Attribute,
+          type: StandardExpressionType.Attribute,
           dataTypeRef: StandardDataType.Text,
           path: ['id']
         }
@@ -42,7 +42,7 @@ describe('re-expression tests', () => {
       it('should evaluate an Attribute ExpressionBase simple object number property as string', () => {
         let item: any = {id: '12'};
         const attribExpressionShape: AttributeExpressionReference = {
-          type: ExpressionType.Attribute,
+          type: StandardExpressionType.Attribute,
           dataTypeRef: StandardDataType.Number,
           path: ['id']
         }
@@ -55,7 +55,7 @@ describe('re-expression tests', () => {
       it('should evaluate an attribute ExpressionBase two items deep for date value', () => {
         let item: any = {foo: {bar: '2020-10-24T04:00:00.000Z'}};
         const attribExpressionShape: AttributeExpressionReference = {
-          type: ExpressionType.Attribute,
+          type: StandardExpressionType.Attribute,
           dataTypeRef: StandardDataType.Date,
           path: ['foo', 'bar']
         }
@@ -69,7 +69,7 @@ describe('re-expression tests', () => {
       it('should evaluate an Attribute ExpressionBase path to undefined', () => {
         let item: any = {foo: {bar: '2020-10-24T04:00:00.000Z'}};
         const attribExpressionShape: AttributeExpressionReference = {
-          type: ExpressionType.Attribute,
+          type: StandardExpressionType.Attribute,
           dataTypeRef: StandardDataType.Date,
           path: 'foo.notExist'
         }
@@ -86,7 +86,7 @@ describe('re-expression tests', () => {
           }
         };
         const attribExpressionShape: AttributeExpressionReference = {
-          type: ExpressionType.Attribute,
+          type: StandardExpressionType.Attribute,
           dataTypeRef: StandardDataType.Date,
           path: 'foo.bar.car'
         }
@@ -101,7 +101,7 @@ describe('re-expression tests', () => {
           }
         }
         const attribExpressionRef: AttributeExpressionReference = {
-          type: ExpressionType.Attribute,
+          type: StandardExpressionType.Attribute,
           dataTypeRef: StandardDataType.Text,
           path: 'foo.bar.1'
         }

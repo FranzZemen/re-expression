@@ -1,7 +1,7 @@
 import {AwaitEvaluation, ExecutionContextI, ModuleResolutionAction} from '@franzzemen/app-utility';
 import {RuleElementReference, Scope} from '@franzzemen/re-common';
 import {DataTypeScope} from '@franzzemen/re-data-type';
-import {ExpressionType} from '../expression.js';
+import {StandardExpressionType} from '../expression.js';
 import {AttributeExpression} from '../expression/attribute-expression.js';
 import {FormulaExpression} from '../expression/formula-expression.js';
 import {FunctionExpression} from '../expression/function-expression.js';
@@ -34,11 +34,11 @@ export class ExpressionScope extends DataTypeScope {
     this.set(ExpressionScope.AllowUnknownDataType, options?.allowUnknownDataType === true);
 
     const expressionFactory = new ExpressionFactory();
-    expressionFactory.addConstructor(ExpressionType.Value, ValueExpression);
-    expressionFactory.addConstructor(ExpressionType.Attribute, AttributeExpression);
-    expressionFactory.addConstructor(ExpressionType.Function, FunctionExpression);
-    expressionFactory.addConstructor(ExpressionType.Set, SetExpression);
-    expressionFactory.addConstructor(ExpressionType.Formula, FormulaExpression);
+    expressionFactory.addConstructor(StandardExpressionType.Value, ValueExpression);
+    expressionFactory.addConstructor(StandardExpressionType.Attribute, AttributeExpression);
+    expressionFactory.addConstructor(StandardExpressionType.Function, FunctionExpression);
+    expressionFactory.addConstructor(StandardExpressionType.Set, SetExpression);
+    expressionFactory.addConstructor(StandardExpressionType.Formula, FormulaExpression);
     this.set(ExpressionScope.ExpressionFactory, expressionFactory);
 
     const expressionStackParser = new ExpressionStackParser();

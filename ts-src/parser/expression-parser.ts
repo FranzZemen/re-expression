@@ -1,7 +1,7 @@
 import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
 import {ParserMessages, Scope} from '@franzzemen/re-common';
 import {isPromise} from 'util/types';
-import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 
 
@@ -10,7 +10,7 @@ export type ResolvedExpressionParserResult = [string, (ExpressionReference | Pro
 
 export abstract class ExpressionParser {
 
-  constructor(public refName: ExpressionType | string) {
+  constructor(public refName: StandardExpressionType | string) {
   }
 
 

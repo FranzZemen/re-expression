@@ -3,7 +3,7 @@ import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {ParserMessages, PsMsgType, pushMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 
-import {ExpressionReference, ExpressionType} from '../expression';
+import {ExpressionReference, StandardExpressionType} from '../expression';
 import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
@@ -27,7 +27,7 @@ export type MultivariateParserResult = [string, ExpressionReference, ExpressionR
 
 
 export abstract class MultivariateParser extends ExpressionParser {
-  constructor(expressionType: ExpressionType) {
+  constructor(expressionType: StandardExpressionType) {
     super(expressionType);
   }
 

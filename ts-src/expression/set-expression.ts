@@ -1,16 +1,16 @@
 import {ExecutionContextI} from '@franzzemen/app-utility';
 import {isPromise} from 'util/types';
-import {Expression, ExpressionType} from '../expression.js';
+import {Expression, StandardExpressionType} from '../expression.js';
 import {ExpressionFactory} from '../factory/expression-factory.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {MultivariateExpression} from './multivariate-expression.js';
 
 export function isSetExpressionReference(ref: any | SetExpressionReference): ref is SetExpressionReference {
-  return 'set' in ref && Array.isArray(ref.set) && !('awaitEvaluation' in ref) && ref['type'] === ExpressionType.Set;
+  return 'set' in ref && Array.isArray(ref.set) && !('awaitEvaluation' in ref) && ref['type'] === StandardExpressionType.Set;
 }
 
 export function isSetExpression(ref: any | SetExpression): ref is SetExpression {
-  return 'set' in ref && Array.isArray(ref.set) && ref['type'] === ExpressionType.Set && 'awaitEvaluation' in ref;
+  return 'set' in ref && Array.isArray(ref.set) && ref['type'] === StandardExpressionType.Set && 'awaitEvaluation' in ref;
 }
 
 export interface SetExpressionReference extends MultivariateExpression {

@@ -10,7 +10,7 @@ import {HasRefName} from '@franzzemen/re-common';
 import {isPromise} from 'util/types';
 
 
-import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
+import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionFactory} from '../factory/expression-factory.js';
 
@@ -22,11 +22,11 @@ export interface FunctionExpressionReference extends ExpressionReference, HasRef
 }
 
 export function isFunctionExpressionReference(ref: any | FunctionExpressionReference): ref is FunctionExpressionReference {
-  return 'type' in ref && ref['type'] === ExpressionType.Function && !('awaitEvaluation' in ref);
+  return 'type' in ref && ref['type'] === StandardExpressionType.Function && !('awaitEvaluation' in ref);
 }
 
 export function isFunctionExpression(ref: any | FunctionExpression): ref is FunctionExpression {
-  return 'type' in ref && ref['type'] === ExpressionType.Function && 'awaitEvaluation' in ref;
+  return 'type' in ref && ref['type'] === StandardExpressionType.Function && 'awaitEvaluation' in ref;
 }
 
 export class FunctionExpression extends Expression implements HasRefName {

@@ -7,7 +7,7 @@ import {isPromise} from 'util/types';
 import {
   AwaitEvaluationFactory,
   ExpressionHintKey, ExpressionParserResult, ExpressionReference,
-  ExpressionScope, ExpressionType,
+  ExpressionScope, StandardExpressionType,
   FunctionExpressionParser, FunctionExpressionReference, isFunctionExpressionReference,
   ResolvedExpressionParserResult
 } from '../../publish/index.js';
@@ -67,7 +67,7 @@ describe('Rules Engine Tests', () => {
           return trueValOrPromise
             .then(val => {
               functionExpressionRef.should.exist;
-              functionExpressionRef.type.should.equal(ExpressionType.Function);
+              functionExpressionRef.type.should.equal(StandardExpressionType.Function);
               functionExpressionRef.refName.should.equal('TestFunction');
               functionExpressionRef.dataTypeRef.should.equal(StandardDataType.Number);
               return;
@@ -91,7 +91,7 @@ describe('Rules Engine Tests', () => {
               .then((ref: FunctionExpressionReference) => {
                 if (isFunctionExpressionReference(ref)) {
                   ref.should.exist;
-                  ref.type.should.equal(ExpressionType.Function);
+                  ref.type.should.equal(StandardExpressionType.Function);
                   ref.refName.should.equal('TestFunction');
                   ref.dataTypeRef.should.equal(StandardDataType.Number);
                   (typeof factory.getRegistered('TestFunction')).should.equal('function');
@@ -121,7 +121,7 @@ describe('Rules Engine Tests', () => {
               .then((ref: FunctionExpressionReference) => {
                 if (isFunctionExpressionReference(ref)) {
                   ref.should.exist;
-                  ref.type.should.equal(ExpressionType.Function);
+                  ref.type.should.equal(StandardExpressionType.Function);
                   ref.refName.should.equal('TestFunction');
                   ref.dataTypeRef.should.equal(StandardDataType.Number);
                   (typeof factory.getRegistered('TestFunction')).should.equal('function');
@@ -152,7 +152,7 @@ describe('Rules Engine Tests', () => {
               .then((ref: FunctionExpressionReference) => {
                 if (isFunctionExpressionReference(ref)) {
                 ref.should.exist;
-                ref.type.should.equal(ExpressionType.Function);
+                ref.type.should.equal(StandardExpressionType.Function);
                 ref.refName.should.equal('ParamsFunction');
                 ref.dataTypeRef.should.equal(StandardDataType.Number);
                 (typeof factory.getRegistered('ParamsFunction')).should.equal('function');

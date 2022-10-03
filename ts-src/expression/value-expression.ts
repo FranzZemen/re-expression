@@ -1,6 +1,6 @@
-import {ExecutionContextI, LoggerAdapter, ModuleResolver} from '@franzzemen/app-utility';
+import {ExecutionContextI} from '@franzzemen/app-utility';
+import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
-import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
 
 export interface ValueExpressionReference extends ExpressionReference {
   value: any;
@@ -10,7 +10,7 @@ export interface ValueExpressionReference extends ExpressionReference {
 export function isValueExpressionReference(val: ValueExpressionReference | any): val is ValueExpressionReference {
   return val !== undefined
     && val.type !== undefined
-    && val.type === ExpressionType.Value
+    && val.type === StandardExpressionType.Value
     && (val as ValueExpressionReference).value !== undefined
     && (val as ValueExpressionReference).dataTypeRef !== undefined;
 }

@@ -2,7 +2,7 @@ import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
 import {EnhancedError, logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
 import {Fragment, FragmentOrGrouping, isFragment, RecursiveGrouping} from '@franzzemen/re-common';
 import {isPromise} from 'util/types';
-import {Expression, ExpressionReference, ExpressionType} from '../expression.js';
+import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionFactory} from '../factory/expression-factory.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 
@@ -20,7 +20,7 @@ export const formulaOperators: FormulaOperator[] = [FormulaOperator.Add, Formula
 
 
 export function isFormulaExpressionReference(ref: any | FormulaExpressionReference): ref is FormulaExpressionReference {
-  return ref['type'] === ExpressionType.Formula && 'operator' in ref && 'group' in ref;
+  return ref['type'] === StandardExpressionType.Formula && 'operator' in ref && 'group' in ref;
 }
 
 export function isFormulaElement(element: any | FormulaElement): element is FormulaElement {

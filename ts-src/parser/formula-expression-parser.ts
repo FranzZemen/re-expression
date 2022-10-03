@@ -9,7 +9,7 @@ import {
   RecursiveGroupingParser
 } from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
-import {ExpressionReference, ExpressionType} from '../expression.js';
+import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {FormulaExpressionReference, FormulaOperator, formulaOperators} from '../expression/formula-expression.js';
 import {FormulaExpressionFactory} from '../factory/formula-expression-factory.js';
 import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
@@ -35,7 +35,7 @@ class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
 
 export class FormulaExpressionParser extends ExpressionParser {
   constructor() {
-    super(ExpressionType.Formula);
+    super(StandardExpressionType.Formula);
   }
 
   private static determineDataType(grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>, scope: ExpressionScope, ec?: ExecutionContextI): StandardDataType.Float | StandardDataType.Number | StandardDataType.Unknown {
@@ -74,7 +74,7 @@ export class FormulaExpressionParser extends ExpressionParser {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FormulaExpressionParser.name}.parse`);
     remaining = remaining.trim();
     let type = hints.get(ExpressionHintKey.Type) as string;
-    if (type && type !== ExpressionType.Formula) {
+    if (type && type !== StandardExpressionType.Formula) {
       return [remaining, undefined, undefined];
     }
     let dataTypeRef = hints.get(ExpressionHintKey.DataType) as string;
@@ -149,7 +149,7 @@ export class FormulaExpressionParser extends ExpressionParser {
       return [near, undefined, undefined];
     }
     if (!type) {
-      type = ExpressionType.Formula;
+      type = StandardExpressionType.Formula;
     }
     // Even though Unknown was set, inner expressions might be determined for data type and we'll take those
     if(dataTypeRef === StandardDataType.Indeterminate || dataTypeRef === StandardDataType.Unknown) {

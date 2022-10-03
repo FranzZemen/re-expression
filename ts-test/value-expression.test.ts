@@ -2,7 +2,7 @@ import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
 import moment, {Moment} from 'moment';
-import {ExpressionScope, ExpressionType, ValueExpression, ValueExpressionReference} from '../publish/index.js';
+import {ExpressionScope, StandardExpressionType, ValueExpression, ValueExpressionReference} from '../publish/index.js';
 
 const isMoment = moment.isMoment;
 
@@ -16,7 +16,7 @@ describe('Rules Engine Tests', () => {
     describe('/core/expression/value-expression.test', () => {
       it('should evaluate Value ExpressionBase to Text \'12345\' from the same', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Text,
           value: '12345'
         };
@@ -29,7 +29,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to the Number 12345 from textual representation', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Number,
           value: '12345'
         };
@@ -43,7 +43,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to the Float 12345.50 from textual representation', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Float,
           value: '12345.50'
         };
@@ -56,7 +56,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to a Date (from number string "12345")', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Date,
           value: '12345'
         };
@@ -72,7 +72,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to a Date moment (from ISO string "2020-10-24T00:00:00-04:00") ', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Date,
           value: '2020-10-24T00:00:00-04:00'
         };
@@ -88,7 +88,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to Boolean false from a text value', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Boolean,
           value: '12345'
         };
@@ -102,7 +102,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to Boolean true from the text value', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Boolean,
           value: 'true'
         };
@@ -115,7 +115,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to Text \'12345\' from the number value', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Text,
           value: 12345
         };
@@ -128,7 +128,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to the Number 12345 from the number value', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Number,
           value: 12345
         };
@@ -141,7 +141,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to the Float 12345.50 from the number value', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Float,
           value: 12345.50
         };
@@ -154,7 +154,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to a moment Date (from number)', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Date,
           value: 12345
         };
@@ -170,7 +170,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to Boolean true from a number', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Boolean,
           value: 12345
         };
@@ -184,7 +184,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to Boolean false from the number 0', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Boolean,
           value: 0
         };
@@ -198,7 +198,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to \'true\' from the boolean true', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Boolean,
           value: true
         };
@@ -211,7 +211,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to an undefined number from boolean true', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Number,
           value: true
         };
@@ -223,7 +223,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to an undefined number float from boolean true', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Float,
           value: true
         };
@@ -236,7 +236,7 @@ describe('Rules Engine Tests', () => {
 
       it('should evaluate the Value ExpressionBase to an undefined date from boolean true', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Date,
           value: true
         };
@@ -247,7 +247,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to an ISO date string from an moment', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Text,
           value: moment('2020-10-24T00:00:00-04:00')
         };
@@ -260,7 +260,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value ExpressionBase to a moment from a moment', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Date,
           value: moment('2020-10-24T00:00:00-04:00')
         };
@@ -274,7 +274,7 @@ describe('Rules Engine Tests', () => {
       });
       it('should evaluate the Value Object to a number from a moment', done => {
         const data: ValueExpressionReference = {
-          type: ExpressionType.Value,
+          type: StandardExpressionType.Value,
           dataTypeRef: StandardDataType.Number,
           value: moment(12345)
         };
