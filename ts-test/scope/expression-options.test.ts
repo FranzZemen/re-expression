@@ -11,7 +11,7 @@ describe('re-expression tests',  () => {
       it('should merge into', () => {
         let source: ExpressionOptions = {name: 'Source', allowUnknownDataType: false};
         let target: ExpressionOptions = {name: 'Target', allowUnknownDataType: true};
-        const merged = _mergeExpressionOptions(target, source);
+        const merged = _mergeExpressionOptions(target, source, true);
         (merged === target).should.be.true;
         merged.name.should.equal('Source');
         merged.allowUnknownDataType.should.be.false;

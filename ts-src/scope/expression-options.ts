@@ -4,7 +4,7 @@ export interface ExpressionOptions extends DataTypeOptions {
   allowUnknownDataType?: boolean;
 }
 
-export function  _mergeExpressionOptions(target: ExpressionOptions, source: ExpressionOptions, mergeInto = true) : ExpressionOptions {
+export function  _mergeExpressionOptions(target: ExpressionOptions, source: ExpressionOptions, mergeInto = false) : ExpressionOptions {
   const _target: ExpressionOptions = _mergeDataTypeOptions(target, source, mergeInto);
   if(_target === target) {
     if (source.allowUnknownDataType !== undefined) {
