@@ -1,6 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
-import {ParserMessages, PsMsgType} from '@franzzemen/re-common';
+import {ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
 import {ValueExpressionReference} from '../expression/value-expression.js';
@@ -34,13 +33,13 @@ export class ValueExpressionParser extends ExpressionParser {
       return [near, undefined, undefined];
     } else {
       if(!dataTypeHint) {
-        return [near, undefined, [{message: `${ExpressionStandardParserMessages.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: PsMsgType.Error}]]
+        return [near, undefined, [{message: `${ExpressionStandardParserMessages.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: ParserMessageType.Error}]]
       }
       return [remaining, {
         type: StandardExpressionType.Value,
         dataTypeRef: dataTypeHint as string,
         value
-      }, undefined];
+      }, [{message: ExpressionStandardParserMessages.ValueExpressionParsed, type: ParserMessageType.Info}]];
     }
   }
 }

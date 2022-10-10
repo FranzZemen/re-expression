@@ -8,4 +8,15 @@ export class ExpressionStandardParserMessages extends DataTypeStandardParserMess
   static MultivariateInconsistentInnerDataType = 'Multivariate inner expression data type is inconsistent with multivariate data type under Consistent data type handling';
   static NoEndOfMultivariateDetected = 'Expected "]" to end multivariate, but none detected till end of input';
   static ValueExpressionsAlwaysResolveToDataType = 'Undefined Data Type.  Value expressions must always resolve a data type';
+  static ExpressionParsed = 'Expression parsed';
+  static ValueExpressionParsed = 'Value Expression parsed';
+  static AttributeExpressionParsed = 'Attribute Expression parsed';
+  static FunctionExpressionParsed = 'Function Expression parsed';
+  static FormulaExpressionParsed = 'Formula Expression parsed';
+  static SetExpressionParsed = 'Set Expression parsed';
+  static MultivariateParsed = 'Multivariate parsed';
+  static ExpressionTypeNotSupported = 'Expression type is not supported';
+  static NoModuleLoaded = 'No module loaded';
+  static NoValidExpression = 'No valid expression';
+  static MissingExpressionPrefix = 'Missing expression prefix "ex"';
 }

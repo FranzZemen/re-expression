@@ -1,47 +1,44 @@
 import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
+import {defaultCliFactory, execute, logParserMessages} from '@franzzemen/re-common/cli-common.js';
 import {ExpressionStackParser} from './parser/expression-stack-parser.js';
 import {ExpressionScope} from './scope/expression-scope.js';
 
+export const expressionExecutionKey = 're-expression';
 
-const ec: ExecutionContextI = {
-  config: {
-    log: {
+function executeExpressionCLI(args: string[], ec?: ExecutionContextI) {
+  const log = new LoggerAdapter(ec, 're-expression', 'cli', 'executeExpressionCLI');
+  try {
+    log.debug(args, 'arguments');
+    if (args.length !== 1) {
+      log.error(new Error(`Missing command line arguments: ${expressionExecutionKey} ["|']expression["|']`));
+      process.exit(1);
     }
-  }
-}
-
-export function execute() {
-  const log = new LoggerAdapter(ec, 're-expression', 'cli', 'execute');
-  log.info(process.argv, 'argv');
-  if(process.argv.length < 3) {
-    log.error(new Error (`Missing command line argument: data`));
-    process.exit(1);
-  }
-  const ruleRegex = /^exp=[\s\t\r\n\v\f\u2028\u2029]*([^]+)$/;
-  let result;
-  let attempt: string;
-  const found = process.argv.find(arg => (result = ruleRegex.exec(arg)) !== null);
-  if(found) {
-    attempt = result[1];
-  } else {
-    attempt = process.argv[2];
-  }
-  if(attempt) {
-    try {
-      const data = attempt;
-      log.info(`found: "${data}"`);
+    let expressionStr: string = args[0];
+    if (expressionStr) {
+      log.debug(`Expression text: \"${expressionStr}\"`);
       const scope: ExpressionScope = new ExpressionScope({}, undefined, ec);
       const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
-      let [remaining, ref, parserMessages] = parser.parse(data,scope, undefined, ec);
-      log.info(ref,`Expression: ${ref.type}`);
-      log.info(parserMessages, 'Parser Messages');
-      log.info(`Remaining: ${remaining}`);
-    } catch (err) {
-      log.error(err);
+      let [remaining, ref, parserMessages] = parser.parse(expressionStr, scope, undefined, ec);
+      logParserMessages(parserMessages, ec);
+      if (ref) {
+        log.info(ref, 'Expression Reference');
+      }
+      if (remaining && remaining.trim().length > 0) {
+        log.info(`Remaining: ${remaining}`);
+      }
     }
-  } else {
-    log.error(new Error (`Missing command line argument: data`));
+  } catch (err) {
+    log.error(err);
   }
 }
 
-execute();
+defaultCliFactory.register({
+  instanceRef: {
+    refName: expressionExecutionKey,
+    instance: {commandLineKey: expressionExecutionKey, cliFunction: executeExpressionCLI}
+  }
+});
+
+if (process.argv[2] === expressionExecutionKey) {
+  execute();
+}

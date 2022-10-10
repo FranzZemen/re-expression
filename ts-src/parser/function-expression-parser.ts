@@ -1,8 +1,9 @@
 import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
-import {loadModuleDefinitionFromHints, ParserMessages} from '@franzzemen/re-common';
+import {loadModuleDefinitionFromHints, ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {FunctionExpressionReference} from '../expression/function-expression.js';
+import {ExpressionStandardParserMessages} from '../parser-messages/expression-standard-parser-messages.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {MultivariateDataTypeHandling, MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
@@ -17,6 +18,7 @@ export class FunctionExpressionParser extends MultivariateParser {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;
     let module: ModuleDefinition;
+    let parserMessages: ParserMessages = [];
 
     // Indicates the return time could be an array(multivariate)
     const multivariateRef = hints.get(ExpressionHintKey.Multivariate);
@@ -72,14 +74,15 @@ export class FunctionExpressionParser extends MultivariateParser {
         scope.addAwaitEvaluationFunction({moduleRef: {refName, module}},undefined, ec);
       }
       let params: ExpressionReference[];
+      parserMessages.push({message: ExpressionStandardParserMessages.FunctionExpressionParsed, type: ParserMessageType.Info});
       if (remaining.startsWith('[')) {
         // allowUnknownDataTypes is false because the parameter list for a function expression must be determinate on data type even if that data type is Unknown (runtime determination)
         const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, multivariateHints, ec);
 
         [remaining, , params] = [...multivariateResult];
-        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference, undefined];
+        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference, parserMessages];
       } else {
-        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference, undefined];
+        return [remaining, {type, dataTypeRef, refName, module, multivariate, params} as FunctionExpressionReference, parserMessages];
       }
     } else {
       return [remaining, undefined, undefined];

@@ -6,3 +6,4 @@ export * from './factory/external-index.js';
 export * from './expression/external-index.js';
 export * from './parser/external-index.js';
 export * from './stringifier/external-index.js';
+export * from './cli.js';

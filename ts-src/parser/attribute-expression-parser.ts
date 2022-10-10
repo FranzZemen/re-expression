@@ -1,5 +1,5 @@
 import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
-import {ParserMessages, PsMsgType} from '@franzzemen/re-common';
+import {ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
 import {AttributeExpressionReference} from '../expression/attribute-expression.js';
@@ -36,7 +36,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     if (dataTypeHint) {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
       if (dataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
-        return [remaining,undefined, [{message: ExpressionStandardParserMessages.ImproperUsageOfUnknown, type: PsMsgType.Error}]]
+        return [remaining,undefined, [{message: ExpressionStandardParserMessages.ImproperUsageOfUnknown, type: ParserMessageType.Error}]]
       }
     } else if (scope.get(ExpressionScope.AllowUnknownDataType) === true) {
       dataTypeRef = StandardDataType.Unknown;
@@ -82,12 +82,12 @@ export class AttributeExpressionParser extends ExpressionParser {
         const result2 = /^([a-zA-Z0-9.]+)([\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining);
         if (result2) {
           path = result2[1];
-          return [result2[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate}, undefined];
+          return [result2[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate}, [{message: ExpressionStandardParserMessages.AttributeExpressionParsed, type: ParserMessageType.Info}]];
         } else {
           return [remaining, undefined, undefined];
         }
       } else {
-        return [result[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate},undefined];
+        return [result[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate},[{message: ExpressionStandardParserMessages.AttributeExpressionParsed, type: ParserMessageType.Info}]];
       }
     } else {
       return [remaining, undefined, undefined];

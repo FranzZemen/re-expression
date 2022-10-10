@@ -1,7 +1,8 @@
 import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
-import {ParserMessages} from '@franzzemen/re-common';
+import {ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {SetExpressionReference} from '../expression/set-expression.js';
+import {ExpressionStandardParserMessages} from '../parser-messages/expression-standard-parser-messages.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {MultivariateParser, MultivariateParserResult} from './multivariate-parser.js';
 
@@ -35,7 +36,7 @@ export class SetExpressionParser extends MultivariateParser {
     // If it does not resolve to a Set, remaining should be unchanged.
     [remaining, expRef, set, parserMessages] = [...multivariateResult];
     if (expRef) {
-      return [remaining, {type: expRef.type, dataTypeRef: expRef.dataTypeRef, set, multivariate: true}, undefined];
+      return [remaining, {type: expRef.type, dataTypeRef: expRef.dataTypeRef, set, multivariate: true}, [{message: ExpressionStandardParserMessages.SetExpressionParsed, type: ParserMessageType.Info}]];
     } else {
       return [remaining, undefined, undefined];
     }

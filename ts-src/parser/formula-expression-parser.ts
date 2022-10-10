@@ -4,7 +4,7 @@ import {
   EndConditionType,
   FragmentOrGrouping,
   FragmentParser,
-  isFragment, ParserMessages, PsMsgType,
+  isFragment, ParserMessages, ParserMessageType,
   RecursiveGrouping,
   RecursiveGroupingParser
 } from '@franzzemen/re-common';
@@ -72,6 +72,7 @@ export class FormulaExpressionParser extends ExpressionParser {
 
   parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FormulaExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FormulaExpressionParser.name}.parse`);
+    const parserMessages: ParserMessages = [];
     remaining = remaining.trim();
     let type = hints.get(ExpressionHintKey.Type) as string;
     if (type && type !== StandardExpressionType.Formula) {
@@ -158,7 +159,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         if(scope.get(ExpressionScope.AllowUnknownDataType) === true) {
           dataTypeRef = StandardDataType.Unknown;
         } else {
-          return [near, undefined, [{message: ExpressionStandardParserMessages.ImproperUsageOfUnknown, type: PsMsgType.Error}]];
+          return [near, undefined, [{message: ExpressionStandardParserMessages.ImproperUsageOfUnknown, type: ParserMessageType.Error}]];
         }
       } else {
         dataTypeRef = determinedDataTypeRef;
@@ -177,7 +178,8 @@ export class FormulaExpressionParser extends ExpressionParser {
         const factory: FormulaExpressionFactory = scope.get(ExpressionScope.FormulaExpressionFactory);
         factory.register({instanceRef: {refName, instance}}, ec);
       }
-      return [remaining, instance, undefined];
+      parserMessages.push({message: ExpressionStandardParserMessages.FormulaExpressionParsed, type: ParserMessageType.Info});
+      return [remaining, instance, parserMessages];
     } else {
       return [remaining, undefined, undefined];
     }
