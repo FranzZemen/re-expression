@@ -3,7 +3,7 @@ import {ParserMessages, PsMsgType} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
 import {AttributeExpressionReference} from '../expression/attribute-expression.js';
-import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
+import {ExpressionStandardParserMessages} from '../parser-messages/expression-standard-parser-messages.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
@@ -36,7 +36,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     if (dataTypeHint) {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
       if (dataTypeRef === StandardDataType.Unknown && scope.get(ExpressionScope.AllowUnknownDataType) !== true) {
-        return [remaining,undefined, [{message: ExPsStdMsg.ImproperUsageOfUnknown, type: PsMsgType.Error}]]
+        return [remaining,undefined, [{message: ExpressionStandardParserMessages.ImproperUsageOfUnknown, type: PsMsgType.Error}]]
       }
     } else if (scope.get(ExpressionScope.AllowUnknownDataType) === true) {
       dataTypeRef = StandardDataType.Unknown;

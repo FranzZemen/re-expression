@@ -12,7 +12,7 @@ import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {FormulaExpressionReference, FormulaOperator, formulaOperators} from '../expression/formula-expression.js';
 import {FormulaExpressionFactory} from '../factory/formula-expression-factory.js';
-import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
+import {ExpressionStandardParserMessages} from '../parser-messages/expression-standard-parser-messages.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
@@ -158,7 +158,7 @@ export class FormulaExpressionParser extends ExpressionParser {
         if(scope.get(ExpressionScope.AllowUnknownDataType) === true) {
           dataTypeRef = StandardDataType.Unknown;
         } else {
-          return [near, undefined, [{message: ExPsStdMsg.ImproperUsageOfUnknown, type: PsMsgType.Error}]];
+          return [near, undefined, [{message: ExpressionStandardParserMessages.ImproperUsageOfUnknown, type: PsMsgType.Error}]];
         }
       } else {
         dataTypeRef = determinedDataTypeRef;

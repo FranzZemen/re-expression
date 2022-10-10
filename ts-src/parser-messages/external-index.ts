@@ -1,1 +1,1 @@
-export * from './ex-ps-std-msg.js';
+export * from './expression-standard-parser-messages.js';

@@ -1,6 +1,6 @@
-import {DtPsStdMsg} from '@franzzemen/re-data-type';
+import {DataTypeStandardParserMessages} from '@franzzemen/re-data-type';
 
-export class ExPsStdMsg extends DtPsStdMsg {
+export class ExpressionStandardParserMessages extends DataTypeStandardParserMessages {
   static ImproperUsageOfUnknown = 'Unknown data type is not allowed when option allowUnknownDataType is false or not set';
   static IndeterminateDataType = 'Cannot determine datatype';
   static MultivariateInconsistentDataType = 'Multivariate data type not consistent with "Multivariate Data Type Handling = Multivariate".  Overriding data type to Multivariate';

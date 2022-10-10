@@ -4,7 +4,7 @@ import {ParserMessages, PsMsgType} from '@franzzemen/re-common';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
 import {ValueExpressionReference} from '../expression/value-expression.js';
-import {ExPsStdMsg} from '../parser-messages/ex-ps-std-msg.js';
+import {ExpressionStandardParserMessages} from '../parser-messages/expression-standard-parser-messages.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {ExpressionHintKey} from '../util/expression-hint-key.js';
 import {ExpressionParser} from './expression-parser.js';
@@ -34,7 +34,7 @@ export class ValueExpressionParser extends ExpressionParser {
       return [near, undefined, undefined];
     } else {
       if(!dataTypeHint) {
-        return [near, undefined, [{message: `${ExPsStdMsg.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: PsMsgType.Error}]]
+        return [near, undefined, [{message: `${ExpressionStandardParserMessages.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: PsMsgType.Error}]]
       }
       return [remaining, {
         type: StandardExpressionType.Value,
