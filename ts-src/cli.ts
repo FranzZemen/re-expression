@@ -39,6 +39,7 @@ defaultCliFactory.register({
   }
 });
 
+
 if (process.argv[2] === expressionExecutionKey) {
   execute();
 }
