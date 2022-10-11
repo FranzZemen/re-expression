@@ -1,0 +1,23 @@
+{
+  "log": {
+    "level": "info",
+    "overrides": [
+      {
+        "repo": "re-common",
+        "source": "cli-common",
+        "hideTimestamp": true,
+        "hideSeverityPrefix": true
+      }, {
+        "repo": "re-data-type",
+        "source": "cli",
+        "hideTimestamp": true,
+        "hideSeverityPrefix": true
+      }, {
+        "repo": "re-expression",
+        "source": "cli",
+        "hideTimestamp": true,
+        "hideSeverityPrefix": true
+      }
+    ]
+  }
+}

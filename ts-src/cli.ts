@@ -5,20 +5,13 @@ import {ExpressionScope} from './scope/expression-scope.js';
 
 export const expressionExecutionKey = 're-expression';
 
-function executeExpressionCLI(args: string[], ec?: ExecutionContextI) {
+function executeExpressionCLI(iteration: string, ec?: ExecutionContextI) {
   const log = new LoggerAdapter(ec, 're-expression', 'cli', 'executeExpressionCLI');
   try {
-    log.debug(args, 'arguments');
-    if (args.length !== 1) {
-      log.error(new Error(`Missing command line arguments: ${expressionExecutionKey} ["|']expression["|']`));
-      process.exit(1);
-    }
-    let expressionStr: string = args[0];
-    if (expressionStr) {
-      log.debug(`Expression text: \"${expressionStr}\"`);
+    if (iteration) {
       const scope: ExpressionScope = new ExpressionScope({}, undefined, ec);
       const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
-      let [remaining, ref, parserMessages] = parser.parse(expressionStr, scope, undefined, ec);
+      let [remaining, ref, parserMessages] = parser.parse(iteration, scope, undefined, ec);
       logParserMessages(parserMessages, ec);
       if (ref) {
         log.info(ref, 'Expression Reference');
