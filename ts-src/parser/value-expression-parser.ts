@@ -27,10 +27,10 @@ export class ValueExpressionParser extends ExpressionParser {
     if(dataTypeHint) {
       dataTypeRef = (typeof dataTypeHint === 'string') ? dataTypeHint : dataTypeHint['refName'];
     }
-    let value: any;
-    [remaining, [value, dataTypeHint]] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(remaining, scope, dataTypeRef, ec);
+    let value: any, parserMessages: ParserMessages;
+    [remaining, [value, dataTypeHint], parserMessages] = (scope.get(ExpressionScope.DataTypeInferenceStackParser) as DataTypeInferenceStackParser).parse(remaining, scope, dataTypeRef, ec);
     if(value === undefined) {
-      return [near, undefined, undefined];
+      return [near, undefined, parserMessages];
     } else {
       if(!dataTypeHint) {
         return [near, undefined, [{message: `${ExpressionStandardParserMessages.ValueExpressionsAlwaysResolveToDataType} near ${near}`, type: ParserMessageType.Error}]]

@@ -1,0 +1,53 @@
+{
+  "iterations": [
+    {
+      "description": "Value Object Number",
+      "t": {
+        "text": "5"
+      }
+    },
+    {
+      "description": "Attribute expression",
+      "t": {
+        "text": "price"
+      }
+    },
+    {
+      "description": "Value Object Set of Numbers",
+      "t": {
+        "text": "[1,2,3,4]"
+      }
+    },
+    {
+      "description": "Unknown hint prefix",
+      "t": {
+        "text": "<<e data-type=Number>> 4"
+      }
+    },
+    {
+      "description": "Unknown hint type",
+      "t": {
+        "text": "<<ex type=Numer>> 4"
+      }
+    },
+    {
+      "description": "Unknown hint data-type",
+      "t": {
+        "text": "<<ex type=Value data-type=Numer>> 4"
+      }
+    },
+    {
+      "description": "Constrain to Text",
+      "t": {
+        "text": "<<ex type=Value data-type=Text>> 4"
+      }
+    },
+    {
+      "description": "Constrain to Text",
+      "t": {
+        "text": "<<ex type=Value data-type=Text>> '4'"
+      }
+    }
+  ]
+}
+

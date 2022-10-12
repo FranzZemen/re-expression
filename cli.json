@@ -15,8 +15,8 @@
       }, {
         "repo": "re-expression",
         "source": "cli",
-        "hideTimestamp": false,
-        "hideSeverityPrefix": false
+        "hideTimestamp": true,
+        "hideSeverityPrefix": true
       }
     ]
   }

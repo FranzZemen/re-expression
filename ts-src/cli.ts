@@ -1,17 +1,22 @@
 import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-import {defaultCliFactory, execute, logParserMessages} from '@franzzemen/re-common/cli-common.js';
+import {CliFunction, defaultCliFactory, execute, logParserMessages} from '@franzzemen/re-common/cli-common.js';
 import {ExpressionStackParser} from './parser/expression-stack-parser.js';
 import {ExpressionScope} from './scope/expression-scope.js';
 
 export const expressionExecutionKey = 're-expression';
 
-function executeExpressionCLI(iteration: string, ec?: ExecutionContextI) {
+export interface ExpressionCliFormat {
+  text: string;
+}
+
+export const executeExpressionCLI: CliFunction<ExpressionCliFormat> = (iteration: ExpressionCliFormat, ec?: ExecutionContextI) => {
   const log = new LoggerAdapter(ec, 're-expression', 'cli', 'executeExpressionCLI');
   try {
     if (iteration) {
+      log.info(`Text to parse: "${iteration.text}"`);
       const scope: ExpressionScope = new ExpressionScope({}, undefined, ec);
       const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
-      let [remaining, ref, parserMessages] = parser.parse(iteration, scope, undefined, ec);
+      let [remaining, ref, parserMessages] = parser.parse(iteration.text, scope, undefined, ec);
       logParserMessages(parserMessages, ec);
       if (ref) {
         log.info(ref, 'Expression Reference');
@@ -34,5 +39,5 @@ defaultCliFactory.register({
 
 
 if (process.argv[2] === expressionExecutionKey) {
-  execute();
+  execute<ExpressionCliFormat>();
 }
