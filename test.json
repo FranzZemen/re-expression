@@ -47,6 +47,12 @@
       "t": {
         "text": "<<ex type=Value data-type=Text>> '4'"
       }
+    },
+    {
+      "description": "Set, multivariate",
+      "t": {
+        "text": "<<ex type=Set multivariate-data-type-handling=Multivariate>> [5, 6.0, price]"
+      }
     }
   ]
 }
