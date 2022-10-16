@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/re-expression",
-  "version": "4.1.8",
+  "version": "4.1.9",
   "description": "Expressions",
   "type": "module",
   "main": "index.js",
@@ -32,9 +32,9 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@franzzemen/app-utility": "5.1.13",
-    "@franzzemen/re-common": "10.2.2",
-    "@franzzemen/re-data-type": "9.2.1",
+    "@franzzemen/app-utility": "5.1.14",
+    "@franzzemen/re-common": "10.2.3",
+    "@franzzemen/re-data-type": "9.2.2",
     "fastest-validator": "^1.15.0",
     "moment": "^2.29.4",
     "object-path": "^0.11.8",
