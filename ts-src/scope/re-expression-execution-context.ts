@@ -5,8 +5,13 @@ License Type:
 import {AppExecutionContextDefaults, appSchemaWrapper} from '@franzzemen/app-execution-context';
 import {ExecutionContextDefaults, executionSchemaWrapper} from '@franzzemen/execution-context';
 import {LogExecutionContextDefaults, logSchemaWrapper} from '@franzzemen/logger-adapter';
-import {commonOptionsSchemaWrapper} from '@franzzemen/re-common';
-import {DataTypeExecutionContext, dataTypeOptionsSchemaWrapper, ReDataType} from '@franzzemen/re-data-type';
+import {CommonExecutionContextDefaults, commonOptionsSchemaWrapper} from '@franzzemen/re-common';
+import {
+  DataTypeExecutionContext,
+  DataTypeExecutionContextDefaults,
+  dataTypeOptionsSchemaWrapper,
+  ReDataType
+} from '@franzzemen/re-data-type';
 import Validator, {ValidationError} from 'fastest-validator';
 import {isPromise} from 'util/types';
 
@@ -28,6 +33,8 @@ export class ExpressionExecutionContextDefaults {
     allowUnknownDataType: ExpressionExecutionContextDefaults.AllowUnknownDataType
   }
   static ReExpression: ReExpression = {
+    common: CommonExecutionContextDefaults.CommonOptions,
+    data: DataTypeExecutionContextDefaults.DataTypeOptions,
     expression: ExpressionExecutionContextDefaults.ExpressionOptions
   }
   static ExpressionExecutionContext: ExpressionExecutionContext = {
