@@ -53,7 +53,7 @@ export const expressionOptionsSchemaWrapper = {
   props: expressionOptionsSchema
 };
 
-const reExpressionSchema = {
+export const reExpressionSchema = {
   common: commonOptionsSchemaWrapper,
   data: dataTypeOptionsSchemaWrapper,
   expression: expressionOptionsSchemaWrapper
