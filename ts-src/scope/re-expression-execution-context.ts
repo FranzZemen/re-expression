@@ -39,7 +39,7 @@ export class ExpressionExecutionContextDefaults {
     execution: ExecutionContextDefaults.Execution(),
     app: AppExecutionContextDefaults.App,
     log: LogExecutionContextDefaults.Log,
-    re: DataTypeExecutionContextDefaults.ReDataType
+    re: ExpressionExecutionContextDefaults.ReExpression
   };
 }
 
