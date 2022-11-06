@@ -5,10 +5,10 @@ License Type:
 import {AppExecutionContextDefaults, appSchemaWrapper} from '@franzzemen/app-execution-context';
 import {ExecutionContextDefaults, executionSchemaWrapper} from '@franzzemen/execution-context';
 import {LogExecutionContextDefaults, logSchemaWrapper} from '@franzzemen/logger-adapter';
-import {reCommonSchemaWrapper} from '@franzzemen/re-common';
+import {commonOptionsSchema, commonOptionsSchemaWrapper, reCommonSchemaWrapper} from '@franzzemen/re-common';
 import {
   DataTypeExecutionContext,
-  DataTypeExecutionContextDefaults,
+  DataTypeExecutionContextDefaults, dataTypeOptionsSchema, dataTypeOptionsSchemaWrapper,
   ReDataType,
   reDataTypeSchemaWrapper
 } from '@franzzemen/re-data-type';
@@ -24,7 +24,7 @@ export interface ReExpression extends ReDataType {
 }
 
 export interface ExpressionExecutionContext extends DataTypeExecutionContext {
-  re?: ReDataType;
+  re?: ReExpression;
 }
 
 export class ExpressionExecutionContextDefaults {
@@ -59,8 +59,8 @@ export const expressionOptionsSchemaWrapper = {
 };
 
 const reExpressionSchema = {
-  common: reCommonSchemaWrapper,
-  data: reDataTypeSchemaWrapper,
+  common: commonOptionsSchemaWrapper,
+  data: dataTypeOptionsSchemaWrapper,
   expression: expressionOptionsSchemaWrapper
 };
 
