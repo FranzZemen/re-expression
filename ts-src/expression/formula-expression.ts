@@ -1,5 +1,5 @@
-import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-import {EnhancedError, logErrorAndReturn, logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndReturn, logErrorAndThrow} from '@franzzemen/enhanced-error';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {Fragment, FragmentOrGrouping, isFragment, RecursiveGrouping} from '@franzzemen/re-common';
 import {isPromise} from 'util/types';
 import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
@@ -59,7 +59,7 @@ export class FormulaExpression extends Expression {
   refName?: string;
   formula: Formula = new Formula();
 
-  constructor(ref: FormulaExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: FormulaExpressionReference, scope: ExpressionScope, ec?: LogExecutionContext) {
     super(ref, scope, ec);
     this.refName = ref.refName;
     this.formula.operator = ref.operator;
@@ -68,7 +68,7 @@ export class FormulaExpression extends Expression {
     FormulaExpression.recurseFromFormulaReference(this.formula, ref.group, scope, ec);
   }
 
-  private static recurseFromFormulaReference(currentFormula: Formula, grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>[], scope: ExpressionScope, ec?: ExecutionContextI) {
+  private static recurseFromFormulaReference(currentFormula: Formula, grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>[], scope: ExpressionScope, ec?: LogExecutionContext) {
     grouping.forEach(groupItem => {
       if (isFragment(groupItem)) {
         const expressionFactory: ExpressionFactory = scope.get(ExpressionScope.ExpressionFactory);
@@ -103,7 +103,7 @@ export class FormulaExpression extends Expression {
    * @param scope
    * @param ec
    */
-  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): number | Promise<number> {
+  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: LogExecutionContext): number | Promise<number> {
     const stringsOrPromises: (string | Promise<string>)[] = [];
     const hasAsync = this.recurseInnerEval(stringsOrPromises, this.formula.elements, dataDomain, scope, ec);
     if(!hasAsync) {
@@ -119,7 +119,7 @@ export class FormulaExpression extends Expression {
     }
   }
 
-  private concatStringsAndReturn(strings: string[], scope: ExpressionScope, ec?: ExecutionContextI): number | Promise<number> {
+  private concatStringsAndReturn(strings: string[], scope: ExpressionScope, ec?: LogExecutionContext): number | Promise<number> {
     let evaluation: string = '';
     for(let fragment of strings) {
       evaluation += fragment;
@@ -127,12 +127,12 @@ export class FormulaExpression extends Expression {
     let value = eval(evaluation); // All of evaluation has been sanitized and ensures only numbers present.
     if(typeof value !== 'number') {
       const log = new LoggerAdapter(ec, 're-expression', 'formula-expression', 'concatStringsAndReturn');
-      throw logErrorAndReturn(`Potential security violation: value "${value}" is not a number.`, log, ec);
+      throw logErrorAndReturn(`Potential security violation: value "${value}" is not a number.`, log);
     }
     return this.awaitEval(value, scope, ec);
   }
 
-  private recurseInnerEval(stringsOrPromises: (string | Promise<string>)[] = [], elements: (Formula | FormulaElement)[], dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI) : boolean {
+  private recurseInnerEval(stringsOrPromises: (string | Promise<string>)[] = [], elements: (Formula | FormulaElement)[], dataDomain: any, scope: ExpressionScope, ec?: LogExecutionContext) : boolean {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression', 'recurseInnerEval');
     let hasAsync = false;
     elements.forEach(element => {
@@ -146,16 +146,16 @@ export class FormulaExpression extends Expression {
                 if (typeof value === 'number') {
                   return ` ${this.sanitizeOperator(element.operator, ec)} ${this.sanitizeNumber(value)}`
                 } else {
-                  throw logErrorAndReturn(`Potential security violation: value "${elementResultOrPromise}" is not a number.`, log, ec);
+                  throw logErrorAndReturn(`Potential security violation: value "${elementResultOrPromise}" is not a number.`, log);
                 }
               }, err => {
-                throw logErrorAndReturn(err, log, ec);
+                throw logErrorAndReturn(err, log);
               }));
         } else {
           if(typeof elementResultOrPromise === 'number') {
             stringsOrPromises.push(` ${this.sanitizeOperator(element.operator, ec)} ${this.sanitizeNumber(elementResultOrPromise)}`);
           } else {
-            logErrorAndThrow(`Potential security violation: value "${elementResultOrPromise}" is not a number.`, log, ec);
+            logErrorAndThrow(`Potential security violation: value "${elementResultOrPromise}" is not a number.`, log);
           }
         }
       } else {
@@ -169,7 +169,7 @@ export class FormulaExpression extends Expression {
     return hasAsync;
   }
 
-  private sanitizeOperator(operator: string, ec?: ExecutionContextI): string | Promise<string> {
+  private sanitizeOperator(operator: string, ec?: LogExecutionContext): string | Promise<string> {
     if(sanitizedOperators.some(sanitizedOperator => sanitizedOperator === operator)) {
       return operator;
     } else {
@@ -179,7 +179,7 @@ export class FormulaExpression extends Expression {
     }
   }
 
-  private sanitizeNumber(_number: number, ec?: ExecutionContextI): number {
+  private sanitizeNumber(_number: number, ec?: LogExecutionContext): number {
     if(typeof _number === 'number') {
       return _number;
     } else {
@@ -189,7 +189,7 @@ export class FormulaExpression extends Expression {
     }
   }
 
-  to(ec?: ExecutionContextI): FormulaExpressionReference {
+  to(ec?: LogExecutionContext): FormulaExpressionReference {
     const ref: Partial<FormulaExpressionReference> = {
       refName: this.refName,
       operator: this.formula.operator,
@@ -200,7 +200,7 @@ export class FormulaExpression extends Expression {
     return ref as FormulaExpressionReference;
   }
 
-  private static recurseToFormulaExpressionReference(currentGrouping: RecursiveGrouping<FormulaOperator, ExpressionReference>, elements: (Formula | FormulaElement)[], ec?: ExecutionContextI) {
+  private static recurseToFormulaExpressionReference(currentGrouping: RecursiveGrouping<FormulaOperator, ExpressionReference>, elements: (Formula | FormulaElement)[], ec?: LogExecutionContext) {
     elements.forEach(element => {
       if(isFormulaElement(element)) {
         const fragment: Fragment<FormulaOperator, ExpressionReference> = {

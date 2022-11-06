@@ -1,4 +1,4 @@
-import {ModuleResolution} from '@franzzemen/app-utility';
+import {ModuleResolution} from '@franzzemen/module-factory';
 import {Scope} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';

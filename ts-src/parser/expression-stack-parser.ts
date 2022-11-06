@@ -1,5 +1,7 @@
-import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndThrow} from '@franzzemen/enhanced-error';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
+import {ModuleDefinition} from '@franzzemen/module-factory';
 
 import {
   InferenceStackParser,
@@ -41,7 +43,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
    * an actual data-type hint is provided and not equal to this, an error is thrown.
    * @param ec
    */
-  static processHints(remaining: string, scope: ExpressionScope, dataTypeHint?: string, ec?: ExecutionContextI): [string, Hints, ParserMessages] {
+  static processHints(remaining: string, scope: ExpressionScope, dataTypeHint?: string, ec?: LogExecutionContext): [string, Hints, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'expression-stack-parser', ExpressionStackParser.name + '.processHints');
     const near = remaining;
     if (dataTypeHint === StandardDataType.Unknown || dataTypeHint === StandardDataType.Indeterminate) {
@@ -80,7 +82,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
       if (dataTypeRefName) {
         if (dataTypeHint && dataTypeHint !== dataTypeRefName) {
           const err = new Error(`Inconsistent suggested data type ${dataTypeHint} and hinted data type ${dataTypeHint}`);
-          logErrorAndThrow(err, log, ec);
+          logErrorAndThrow(err, log);
         }
       } else if (dataTypeHint) {
         dataTypeRefName = dataTypeHint;
@@ -113,7 +115,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
   }
 
 
-  parseAndResolve(remaining: string, scope: ExpressionScope, context?: ExpressionStackParserContext, ec?: ExecutionContextI): ResolvedExpressionParserResult {
+  parseAndResolve(remaining: string, scope: ExpressionScope, context?: ExpressionStackParserContext, ec?: LogExecutionContext): ResolvedExpressionParserResult {
     let expressionRef: ExpressionReference;
     [remaining, expressionRef] = this.parse(remaining, scope, context, ec);
     const resultOrPromise = Scope.resolve(scope, ec);
@@ -128,7 +130,7 @@ export class ExpressionStackParser extends InferenceStackParser<ExpressionParser
     }
   }
 
-  parse(remaining: string, scope: ExpressionScope, context: ExpressionStackParserContext = undefined, ec?: ExecutionContextI): ExpressionParserResult {
+  parse(remaining: string, scope: ExpressionScope, context: ExpressionStackParserContext = undefined, ec?: LogExecutionContext): ExpressionParserResult {
     // const log = new LoggerAdapter(ec, 're-expression', 'expression-stack-parser', 'parse');
     remaining = remaining.trim();
     const near = remaining;

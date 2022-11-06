@@ -1,2 +1,2 @@
-export * from './expression-options.js';
+export * from './re-expression-execution-context.js'
 export * from './expression-scope.js';

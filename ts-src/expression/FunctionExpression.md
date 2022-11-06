@@ -7,7 +7,7 @@ the expression at "run time".
 In addition to the Expression type and data type fields, a Function Expression contains a reference to an external 
 function to be called the signature of which must be:
 
-    type AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI, ...params) => Promise<any> | any;
+    type AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: LogExecutionContext, ...params) => Promise<any> | any;
 
 The external function is provided to the Rules Engine through a [Module Definition](../rule-element-ref/module.md), 
 noting here that we make use only of the functionName (not the constructorName or propertyName) are 
@@ -164,7 +164,7 @@ The source is copied here:
     import {AwaitEvaluation} from '../../../../publish/core/expression/function-expression';
 
 
-    const awaitEvaluation: AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI) : any | Promise<any> => {
+    const awaitEvaluation: AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: LogExecutionContext) : any | Promise<any> => {
         return 5;
     }
 

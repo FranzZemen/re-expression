@@ -1,4 +1,4 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
 import {DataTypeLiteralStackStringifier} from '@franzzemen/re-data-type';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
@@ -40,7 +40,7 @@ export class ExpressionStringifier {
   }
 
 
-  stringify(expressionRef: ExpressionReference, scope: Map<string, any>, options?: StringifyExpressionOptions, dataTypeInferableOnParsing = false, ec?: ExecutionContextI): string {
+  stringify(expressionRef: ExpressionReference, scope: Map<string, any>, options?: StringifyExpressionOptions, dataTypeInferableOnParsing = false, ec?: LogExecutionContext): string {
     let stringifyTypeHint = false;
     let stringifyDataTypeHint = false;
     // 1. Preprocess stringify hints

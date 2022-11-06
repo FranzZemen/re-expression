@@ -1,5 +1,7 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+
+import {logErrorAndThrow} from '@franzzemen/enhanced-error';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {
   EndConditionType,
   FragmentOrGrouping,
@@ -20,13 +22,13 @@ import {ExpressionStackParser} from './expression-stack-parser.js';
 
 
 class FragmentParserAdapter implements FragmentParser<ExpressionReference> {
-  parse(fragment: string, scope: ExpressionScope, ec?: ExecutionContextI): [string, ExpressionReference, ParserMessages] {
+  parse(fragment: string, scope: ExpressionScope, ec?: LogExecutionContext): [string, ExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FragmentParserAdapter.name}.parse`);
     const parser = scope.get(ExpressionScope.ExpressionStackParser) as ExpressionStackParser;
     let [remaining, expression] = parser.parse(fragment, scope, {}, ec);
     // TODO:  Allow Unknown data types?
     if (expression.dataTypeRef && !(StandardDataType.Number || StandardDataType.Float)) {
-      logErrorAndThrow(`A fragment expression in a Logical Expression needs to be of type Boolean, not ${expression.dataTypeRef}`, log, ec);
+      logErrorAndThrow(`A fragment expression in a Logical Expression needs to be of type Boolean, not ${expression.dataTypeRef}`, log);
     }
     return [remaining, expression, undefined];
   }
@@ -38,7 +40,7 @@ export class FormulaExpressionParser extends ExpressionParser {
     super(StandardExpressionType.Formula);
   }
 
-  private static determineDataType(grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>, scope: ExpressionScope, ec?: ExecutionContextI): StandardDataType.Float | StandardDataType.Number | StandardDataType.Unknown {
+  private static determineDataType(grouping: FragmentOrGrouping<FormulaOperator, ExpressionReference>, scope: ExpressionScope, ec?: LogExecutionContext): StandardDataType.Float | StandardDataType.Number | StandardDataType.Unknown {
     // let currDataTypeRef: StandardDataType.Number | StandardDataType.Float = StandardDataType.Number;
     if (isFragment(grouping)) {
       if (grouping.reference.dataTypeRef === StandardDataType.Float || grouping.reference.dataTypeRef === StandardDataType.Number) {
@@ -70,7 +72,7 @@ export class FormulaExpressionParser extends ExpressionParser {
     }
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FormulaExpressionReference, ParserMessages] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): [string, FormulaExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'formula-expression-parser', `${FormulaExpressionParser.name}.parse`);
     const parserMessages: ParserMessages = [];
     remaining = remaining.trim();
@@ -96,29 +98,29 @@ export class FormulaExpressionParser extends ExpressionParser {
     let result;
     if (type) {
       // # optional due to type, name present, spaces optional, opening bracket, body (anything) and closing square bracket (which is not guaranteed to be part of it.
-      result = /^#?([a-zA-Z]+[a-zA-Z0-9]*)(\[[^]+]([\s\t\r\n\v\f\u2028\u2029][^]*$|$))/.exec(remaining);
+      result = /^#?([a-zA-Z]+[a-zA-Z0-9]*)(\[[^]+]([\s][^]*$|$))/.exec(remaining);
       if (result === null) {
         // # optional due to type, name present, at least one space, anything but an opening bracket
-        result = /^#?([a-zA-Z]+[a-zA-Z0-9]*)([\s\t\r\n\v\f\u2028\u2029]+[^]*$|$)/.exec(remaining);
+        result = /^#?([a-zA-Z]+[a-zA-Z0-9]*)([\s]+[^]*$|$)/.exec(remaining);
       }
       if (result) {
         nameMayBePresent = true;
       } else {
         // # optional due to type, no name, spaces optional, opening and closing brackets (closing is not guaranteed)
-        result = /^#?(\[[^]*])(([\s\t\r\n\v\f\u2028\u2029]+[^]*$)|$)/.exec(remaining);
+        result = /^#?(\[[^]*])(([\s]+[^]*$)|$)/.exec(remaining);
       }
     } else {
       // # required, name present, spaces optional, opening bracket, body and maybe a closing bracket
-      result = /^#([a-zA-Z]+[a-zA-Z0-9]*)(\[[^]+]([\s\t\r\n\v\f\u2028\u2029][^]*$|$))/.exec(remaining);
+      result = /^#([a-zA-Z]+[a-zA-Z0-9]*)(\[[^]+]([\s][^]*$|$))/.exec(remaining);
       if (result === null) {
         // #require, name present, at least one space, anything but an opening bracket.
-        result = /^#([a-zA-Z]+[a-zA-Z0-9]*)([\s\t\r\n\v\f\u2028\u2029]+[^]*$|$)/.exec(remaining);
+        result = /^#([a-zA-Z]+[a-zA-Z0-9]*)([\s]+[^]*$|$)/.exec(remaining);
       }
       if (result) {
         nameMayBePresent = true;
       } else {
         // #required, spaces optional, opening and maybe closing bracket
-        result = /#(\[[^]*])(([\s\t\r\n\v\f\u2028\u2029]+[^]*$)|$)/.exec(remaining);
+        result = /#(\[[^]*])(([\s]+[^]*$)|$)/.exec(remaining);
       }
     }
 

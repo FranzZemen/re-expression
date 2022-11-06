@@ -1,4 +1,5 @@
-import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
 import {ParserMessages, Scope} from '@franzzemen/re-common';
 import {isPromise} from 'util/types';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
@@ -30,7 +31,7 @@ export abstract class ExpressionParser {
    * @param ec
    * @return remaining after parsing as well as the reference parsed
    */
-  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): ExpressionParserResult;
+  abstract parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): ExpressionParserResult;
 
   /**
    * Parse and invoke module resolver.  Convenient if the parser is used on its own.  Normally the stacked parser would
@@ -40,7 +41,7 @@ export abstract class ExpressionParser {
    * @param hints
    * @param ec
    */
-  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI) : ResolvedExpressionParserResult {
+  parseAndResolve(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext) : ResolvedExpressionParserResult {
     let expressionRef: ExpressionReference, parserMessages: ParserMessages;
     // First parse
     [remaining, expressionRef, parserMessages] = this.parse(remaining, scope, hints, ec);

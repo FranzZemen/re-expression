@@ -1,8 +1,7 @@
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
+import {AwaitEvaluation} from '@franzzemen/re-common/util/await-evaluation.js';
 
-import {AwaitEvaluation, ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-
-
-const awaitEvaluation: AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI, ...params) : any | Promise<any> => {
+const awaitEvaluation: AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: LogExecutionContext, ...params) : any | Promise<any> => {
   const log = new LoggerAdapter(ec, 'rules-engine-base', 'await-evaluate-factory-params', 'anonymous');
   if(params && params.length === 1 && Array.isArray(params[0])) {
     params[0].forEach(param => log.info(`Await evaluation test with params, param ${param}`));

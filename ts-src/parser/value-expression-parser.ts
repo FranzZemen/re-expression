@@ -1,4 +1,5 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {DataTypeInferenceStackParser} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
@@ -15,7 +16,7 @@ export class ValueExpressionParser extends ExpressionParser {
     super(StandardExpressionType.Value);
   }
 
-  parse (remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): ValueExpressionParserResult {
+  parse (remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): ValueExpressionParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'value-expression-parser', 'parse');
     const near = remaining;
     const typeHint = hints.get(ExpressionHintKey.Type);

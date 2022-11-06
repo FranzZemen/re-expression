@@ -1,4 +1,4 @@
-import {Hints} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
 import {DataTypeFactory, StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';

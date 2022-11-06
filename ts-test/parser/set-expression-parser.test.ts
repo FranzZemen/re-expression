@@ -1,4 +1,4 @@
-import {Hints} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
 import {ParserMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';

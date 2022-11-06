@@ -1,4 +1,4 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
 import {isPromise} from 'util/types';
 import {Expression, StandardExpressionType} from '../expression.js';
 import {ExpressionFactory} from '../factory/expression-factory.js';
@@ -20,7 +20,7 @@ export interface SetExpressionReference extends MultivariateExpression {
 export class SetExpression extends Expression implements SetExpressionReference {
   set: Expression[] = [];
 
-  constructor(ref: SetExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: SetExpressionReference, scope: ExpressionScope, ec?: LogExecutionContext) {
     super(ref, scope, ec);
     this.multivariate = true;
     const factory = scope.get(ExpressionScope.ExpressionFactory) as ExpressionFactory;
@@ -30,7 +30,7 @@ export class SetExpression extends Expression implements SetExpressionReference 
     });
   }
 
-  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI): any | Promise<any> {
+  awaitEvaluation(dataDomain: any, scope: Map<string, any>, ec?: LogExecutionContext): any | Promise<any> {
     let hasPromises = false;
     let results: any[] = [];
     this.set.forEach(element => {
@@ -47,7 +47,7 @@ export class SetExpression extends Expression implements SetExpressionReference 
     }
   }
 
-  to(ec?: ExecutionContextI): SetExpressionReference {
+  to(ec?: LogExecutionContext): SetExpressionReference {
     const setExpressionReference: Partial<SetExpressionReference> = {
       set: []
     };

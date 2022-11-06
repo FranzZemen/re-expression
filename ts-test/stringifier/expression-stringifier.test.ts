@@ -1,4 +1,4 @@
-import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {Scope} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
@@ -282,13 +282,13 @@ describe('Rules Engine Tests - expression-stringifier.test', () => {
       }
 
 
-      const ec: ExecutionContextI = {config:{log:{logAttributes: {hideMethod: false}}}};
+      const ec: LogExecutionContext = {log: {options:{hideMethod: false}}};
       class LogMethodAnnotation {
         constructor() {
         }
 
         @loggerAdapter()
-        logSomething(ec?: ExecutionContextI) {
+        logSomething(ec?: LogExecutionContext) {
           let b = 5+4;
           const a = 5;
           this['logger'].trace('Hello World');  // Works but contrived

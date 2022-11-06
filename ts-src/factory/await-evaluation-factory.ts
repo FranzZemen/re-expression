@@ -1,5 +1,6 @@
-import {AwaitEvaluation} from '@franzzemen/app-utility';
+
 import {RuleElementFactory} from '@franzzemen/re-common';
+import {AwaitEvaluation} from '@franzzemen/re-common/util/await-evaluation.js';
 
 
 export class AwaitEvaluationFactory extends RuleElementFactory<AwaitEvaluation> {

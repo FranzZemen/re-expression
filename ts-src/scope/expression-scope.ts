@@ -1,5 +1,7 @@
-import {AwaitEvaluation, ExecutionContextI, ModuleResolutionAction} from '@franzzemen/app-utility';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
+import {ModuleResolutionAction} from '@franzzemen/module-resolver';
 import {RuleElementReference, Scope} from '@franzzemen/re-common';
+import {AwaitEvaluation} from '@franzzemen/re-common/util/await-evaluation.js';
 import {DataTypeScope} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
 import {AttributeExpression} from '../expression/attribute-expression.js';
@@ -17,7 +19,8 @@ import {FunctionExpressionParser} from '../parser/function-expression-parser.js'
 import {SetExpressionParser} from '../parser/set-expression-parser.js';
 import {ValueExpressionParser} from '../parser/value-expression-parser.js';
 import {ExpressionStringifier} from '../stringifier/expression-stringifier.js';
-import {ExpressionOptions} from './expression-options.js';
+import {ReExpression} from './re-expression-execution-context.js';
+
 
 export class ExpressionScope extends DataTypeScope {
   public static ExpressionFactory = 'ExpressionFactory';
@@ -29,9 +32,9 @@ export class ExpressionScope extends DataTypeScope {
   public static AllowUnknownDataType = 'AllowUnknownDataType';
 
 
-  constructor(options?: ExpressionOptions, parentScope?: Scope, ec?: ExecutionContextI) {
+  constructor(options?: ReExpression, parentScope?: Scope, ec?: LogExecutionContext) {
     super(options, parentScope, ec);
-    this.set(ExpressionScope.AllowUnknownDataType, options?.allowUnknownDataType === true);
+    this.set(ExpressionScope.AllowUnknownDataType, this.options.expression?.allowUnknownDataType === true);
 
     const expressionFactory = new ExpressionFactory();
     expressionFactory.addConstructor(StandardExpressionType.Value, ValueExpression);
@@ -58,18 +61,23 @@ export class ExpressionScope extends DataTypeScope {
 
   }
 
-  addAwaitEvaluationFunction(awaitEvaluationRef: RuleElementReference<AwaitEvaluation>, action?: ModuleResolutionAction, ec?: ExecutionContextI) {
-    return this.addRuleElementReferenceItem(awaitEvaluationRef, ExpressionScope.AwaitEvaluationFactory, action, ec);
-  }
-  addAwaitEvaluationFunctions(awaitEvaluationRefs:RuleElementReference<AwaitEvaluation>[], actions?: ModuleResolutionAction[], ec?: ExecutionContextI) {
-    return this.addRuleElementReferenceItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, actions,ec);
+  get options(): ReExpression {
+    return this.options;
   }
 
-  getAwaitEvaluationFunction(refName: string, searchParent = true, ec?: ExecutionContextI): AwaitEvaluation {
+  addAwaitEvaluationFunction(awaitEvaluationRef: RuleElementReference<AwaitEvaluation>, action?: ModuleResolutionAction, ec?: LogExecutionContext) {
+    return this.addRuleElementReferenceItem(awaitEvaluationRef, ExpressionScope.AwaitEvaluationFactory, action, ec);
+  }
+
+  addAwaitEvaluationFunctions(awaitEvaluationRefs: RuleElementReference<AwaitEvaluation>[], actions?: ModuleResolutionAction[], ec?: LogExecutionContext) {
+    return this.addRuleElementReferenceItems<AwaitEvaluation>(awaitEvaluationRefs, ExpressionScope.AwaitEvaluationFactory, actions, ec);
+  }
+
+  getAwaitEvaluationFunction(refName: string, searchParent = true, ec?: LogExecutionContext): AwaitEvaluation {
     return this.getScopedFactoryItem<AwaitEvaluation>(refName, ExpressionScope.AwaitEvaluationFactory, searchParent, ec);
   }
 
-  hasAwaitEvaluationFactory(scope: Map<string, any>, refName: string, ec?: ExecutionContextI): boolean {
+  hasAwaitEvaluationFactory(scope: Map<string, any>, refName: string, ec?: LogExecutionContext): boolean {
     return this.hasScopedFactoryItem<AwaitEvaluation>(refName, ExpressionScope.AwaitEvaluationFactory, ec);
   }
 }

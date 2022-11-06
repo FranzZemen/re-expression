@@ -1,4 +1,4 @@
-import {ExecutionContextI} from '@franzzemen/app-utility';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
 import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
 import {ExpressionScope} from '../scope/expression-scope.js';
 
@@ -33,20 +33,20 @@ export class ValueExpression extends Expression {
   value: any;
 
 
-  constructor(expressionRef: ValueExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(expressionRef: ValueExpressionReference, scope: ExpressionScope, ec?: LogExecutionContext) {
     super(expressionRef, scope, ec);
     this.value = expressionRef.value;
   }
 
 
-  to(ec?: ExecutionContextI): ValueExpressionReference {
+  to(ec?: LogExecutionContext): ValueExpressionReference {
     const ref: Partial<ValueExpressionReference> = {};
     super.toBase(ref, ec);
     ref.value = this.value;
     return ref as ValueExpressionReference;
   }
 
-  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): any | Promise<any> {
+  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: LogExecutionContext): any | Promise<any> {
     return this.awaitEval(this.value, scope);
   }
 }

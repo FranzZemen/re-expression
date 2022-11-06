@@ -1,5 +1,6 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndThrow} from '@franzzemen/enhanced-error';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {ParserMessages, ParserMessageType, pushMessages} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 
@@ -39,7 +40,7 @@ export abstract class MultivariateParser extends ExpressionParser {
    * @param hints
    * @param ec
    */
-  parseMultivariate(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): MultivariateParserResult {
+  parseMultivariate(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): MultivariateParserResult {
     const log = new LoggerAdapter(ec, 're-expression', 'multivariate-parser', 'parse');
     const original = remaining;
     let parseMessages: ParserMessages = [];
@@ -118,7 +119,7 @@ export abstract class MultivariateParser extends ExpressionParser {
         // Next expression
         innerExpressionReference = undefined;
         // Remove commas
-        const removeCommaResult = /^([\s\t\r\n\v\f\u2028\u2029),]*)([^]*)$/.exec(innerRemaining);
+        const removeCommaResult = /^([\s),]*)([^]*)$/.exec(innerRemaining);
         if (removeCommaResult) {
           innerRemaining = removeCommaResult[2].trim();
         }
@@ -197,7 +198,7 @@ export abstract class MultivariateParser extends ExpressionParser {
                   innerExpression,
                   innerDataType
                 }, 'Inconsistent inner expression data types for consistent data type handling');
-                logErrorAndThrow('Inconsistent inner expression data types for consistent data type handling', log, ec);
+                logErrorAndThrow('Inconsistent inner expression data types for consistent data type handling', log);
               } else {
                 innerDataType = innerExpression.dataTypeRef;
                 return true;

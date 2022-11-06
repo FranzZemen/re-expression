@@ -1,5 +1,7 @@
-import {AwaitEvaluation, ExecutionContextI, Hints} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
 import {isFragment, isRecursiveGrouping, Scope} from '@franzzemen/re-common';
+import {AwaitEvaluation} from '@franzzemen/re-common/util/await-evaluation.js';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';
@@ -392,7 +394,7 @@ describe('re-expression tests', () => {
 
 
 
-        const numberFunction: AwaitEvaluation = (dataDomain: any, scope: ExpressionScope, ec?:ExecutionContextI, ...params) => {
+        const numberFunction: AwaitEvaluation = (dataDomain: any, scope: ExpressionScope, ec?:LogExecutionContext, ...params) => {
           return 14;
         }
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);
@@ -462,7 +464,7 @@ describe('re-expression tests', () => {
 
 
 
-        const numberFunction: AwaitEvaluation = (dataDomain: any, scope: ExpressionScope, ec?:ExecutionContextI, ...params) => {
+        const numberFunction: AwaitEvaluation = (dataDomain: any, scope: ExpressionScope, ec?:LogExecutionContext, ...params) => {
           return 14;
         }
         const factory: AwaitEvaluationFactory = scope.get(ExpressionScope.AwaitEvaluationFactory);

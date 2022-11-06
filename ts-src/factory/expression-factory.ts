@@ -1,5 +1,6 @@
-import {ExecutionContextI, LoggerAdapter, ModuleResolutionAction} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndThrow} from '@franzzemen/enhanced-error';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
+import {ModuleResolutionAction} from '@franzzemen/module-resolver';
 import {RuleElementFactory} from '@franzzemen/re-common';
 import {DataTypeFactory, DataTypeScope} from '@franzzemen/re-data-type';
 import {Expression, ExpressionReference, StandardExpressionType} from '../expression.js';
@@ -19,7 +20,7 @@ export function isExpressionConstructor(obj: any | ExpressionConstructor): obj i
 
 
 export class ExpressionFactory extends RuleElementFactory<ExpressionConstructor> {
-  constructor(ec?: ExecutionContextI) {
+  constructor(ec?: LogExecutionContext) {
     super();
   }
 
@@ -27,8 +28,9 @@ export class ExpressionFactory extends RuleElementFactory<ExpressionConstructor>
     this.register({instanceRef: {refName, instance: _constructor}});
   }
 
-  createExpression(expressionRef: ExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI): Expression {
-    const log = new LoggerAdapter(ec, 're-expression-factory', 'expression-factory', 'createExpression');
+  createExpression(expressionRef: ExpressionReference, scope: ExpressionScope, ec?: LogExecutionContext): Expression {
+    let log: LoggerAdapter;
+    log = new LoggerAdapter(ec, 're-expression-factory', 'expression-factory', 'createExpression');
     // let expressionReference: ExpressionReference;
     let expression: Expression;
 
@@ -61,7 +63,7 @@ export class ExpressionFactory extends RuleElementFactory<ExpressionConstructor>
     return expression;
   }
 
-  loadDataType(expression: Expression, scope: ExpressionScope, ec?: ExecutionContextI) {
+  loadDataType(expression: Expression, scope: ExpressionScope, ec?: LogExecutionContext) {
     const log = new LoggerAdapter(ec, 're-expression-factory', 'expression-factory', 'loadDataType');
     if (expression.dataTypeRef && expression.dataType === undefined) {
       const dataTypeFactory = scope.get(DataTypeScope.DataTypeFactory) as DataTypeFactory;
@@ -89,7 +91,7 @@ export class ExpressionFactory extends RuleElementFactory<ExpressionConstructor>
     }
   }
 
-  loadAwaitEvaluationFunctions(expression: Expression, scope: ExpressionScope, ec?: ExecutionContextI) {
+  loadAwaitEvaluationFunctions(expression: Expression, scope: ExpressionScope, ec?: LogExecutionContext) {
     const log = new LoggerAdapter(ec, 're-expression-factory', 'expression-factory', 'loadAwaitEvaluationFunctions');
     switch (expression.type) {
       case StandardExpressionType.Function:

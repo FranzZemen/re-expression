@@ -1,4 +1,5 @@
-import {ExecutionContextI, Hints, LoggerAdapter} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {StandardExpressionType} from '../expression.js';
@@ -15,7 +16,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     super(StandardExpressionType.Attribute);
   }
 
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, execContext?: ExecutionContextI): AttributeExpressionParserResult {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): AttributeExpressionParserResult {
     // Formats:
     // someAttributeName.anotherAttributeName
     // [1].someAttributeName.anotherAttributeName[5].yetAnother[4]
@@ -26,7 +27,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     // function expression
     // invocation expression
 
-    const log = new LoggerAdapter(execContext, 're-expression', 'attribute-expression-parser', 'parse');
+    const log = new LoggerAdapter(ec, 're-expression', 'attribute-expression-parser', 'parse');
     const typeHint = hints.get(ExpressionHintKey.Type);
     if (typeHint && typeHint !== StandardExpressionType.Attribute) {
       return [remaining, undefined, undefined];
@@ -55,7 +56,7 @@ export class AttributeExpressionParser extends ExpressionParser {
     // [1].someAttributeName.anotherAttributeName[5].yetAnother[4]
 
     // Note - after the attribute we need a space, unless its end of input, thus the or condition in the non-capturing group
-    const result = /^([a-zA-Z0-9.\[\]"']+)([\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining);
+    const result = /^([a-zA-Z0-9.\[\]"']+)([\s)\],][^]*$|$)/.exec(remaining);
     if (result) {
       // Ensure that the square brackets are balanced
       // Note that if the closing square brackets are greater than the opening, we just want up to where they are equal.  There rest might be part of another expression etc.
@@ -79,7 +80,7 @@ export class AttributeExpressionParser extends ExpressionParser {
         }
       } else if (closingSquareBrackets) {
         // Closing square brackets without opening...retry parsing without closing square bracket
-        const result2 = /^([a-zA-Z0-9.]+)([\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining);
+        const result2 = /^([a-zA-Z0-9.]+)([\s)\],][^]*$|$)/.exec(remaining);
         if (result2) {
           path = result2[1];
           return [result2[2].trim(), {type: StandardExpressionType.Attribute, dataTypeRef, path, multivariate}, [{message: ExpressionStandardParserMessages.AttributeExpressionParsed, type: ParserMessageType.Info}]];

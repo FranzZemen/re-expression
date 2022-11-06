@@ -1,5 +1,5 @@
-import {ExecutionContextI, LoggerAdapter} from '@franzzemen/app-utility';
-import {logErrorAndThrow} from '@franzzemen/app-utility/enhanced-error.js';
+import {logErrorAndThrow} from '@franzzemen/enhanced-error';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
 import {ExpressionScope} from '../scope/expression-scope.js';
 import {Expression, ExpressionReference} from '../expression.js';
 import pkg from 'object-path';
@@ -28,7 +28,7 @@ export class AttributeExpression extends Expression {
   // The original set path which may match internal
   private originalPath: Path;
 
-  constructor(ref: AttributeExpressionReference, scope: ExpressionScope, ec?: ExecutionContextI) {
+  constructor(ref: AttributeExpressionReference, scope: ExpressionScope, ec?: LogExecutionContext) {
     super(ref, scope, ec);
     this.path = ref.path;
   }
@@ -71,14 +71,14 @@ export class AttributeExpression extends Expression {
     return replaced;
   }
 
-  to(ec?:ExecutionContextI): AttributeExpressionReference {
+  to(ec?:LogExecutionContext): AttributeExpressionReference {
     const ref: Partial<AttributeExpressionReference> = {};
     super.toBase(ref, ec);
     ref.path = this.originalPath;
     return ref as AttributeExpressionReference;
   }
 
-  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: ExecutionContextI): any | Promise<any> {
+  awaitEvaluation(dataDomain: any, scope: ExpressionScope, ec?: LogExecutionContext): any | Promise<any> {
     const log = new LoggerAdapter(ec, 're-expression', 'attribute-expression', 'awaitEvaluation');
     if (!dataDomain) {
       return undefined;
@@ -97,7 +97,7 @@ export class AttributeExpression extends Expression {
       }
     } else if (isMultivariateValue) {
       const err = new Error('Attribute Expression marked as not multivariate, but domain value is an array');
-      logErrorAndThrow(err, log, ec);
+      logErrorAndThrow(err, log);
     }
     return propertyValue === undefined ? undefined : this.awaitEval(propertyValue, scope);
   }

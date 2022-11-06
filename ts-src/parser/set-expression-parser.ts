@@ -1,4 +1,5 @@
-import {ExecutionContextI, Hints} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext} from '@franzzemen/logger-adapter';
 import {ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
 import {SetExpressionReference} from '../expression/set-expression.js';
@@ -29,7 +30,7 @@ export class SetExpressionParser extends MultivariateParser {
    * @param hints
    * @param ec
    */
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): SetExpressionParserResult {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): SetExpressionParserResult {
     let expRef: ExpressionReference, set: ExpressionReference[], parserMessages: ParserMessages;
     // Simply delegates to the
     const multivariateResult: MultivariateParserResult = this.parseMultivariate(remaining, scope, hints, ec);

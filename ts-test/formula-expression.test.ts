@@ -1,4 +1,5 @@
-import {AwaitEvaluation, Hints} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {AwaitEvaluation} from '@franzzemen/re-common/util/await-evaluation.js';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import chai from 'chai';
 import 'mocha';

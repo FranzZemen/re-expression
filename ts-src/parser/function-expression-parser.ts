@@ -1,4 +1,6 @@
-import {ExecutionContextI, Hints, LoggerAdapter, ModuleDefinition} from '@franzzemen/app-utility';
+import {Hints} from '@franzzemen/hints';
+import {LogExecutionContext, LoggerAdapter} from '@franzzemen/logger-adapter';
+import {ModuleDefinition} from '@franzzemen/module-factory';
 import {loadModuleDefinitionFromHints, ParserMessages, ParserMessageType} from '@franzzemen/re-common';
 import {StandardDataType} from '@franzzemen/re-data-type';
 import {ExpressionReference, StandardExpressionType} from '../expression.js';
@@ -14,7 +16,7 @@ export class FunctionExpressionParser extends MultivariateParser {
   constructor() {
     super(StandardExpressionType.Function);
   }
-  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: ExecutionContextI): [string, FunctionExpressionReference, ParserMessages] {
+  parse(remaining: string, scope: ExpressionScope, hints: Hints, ec?: LogExecutionContext): [string, FunctionExpressionReference, ParserMessages] {
     const log = new LoggerAdapter(ec, 're-expression', 'function-expression-parser', 'parse');
     let refName: string;
     let module: ModuleDefinition;
@@ -49,10 +51,10 @@ export class FunctionExpressionParser extends MultivariateParser {
     let result;
     if (type === StandardExpressionType.Function) {
       // Search for either the function ref name by itself, or preceded by the '@' symbol, which is reserved.
-      result = /^@?([a-zA-Z]+[a-zA-Z0-9]*)([\[\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining); // Note the opening square bracket that might replace a following space...start of parameters
+      result = /^@?([a-zA-Z]+[a-zA-Z0-9]*)([\[\s)\],][^]*$|$)/.exec(remaining); // Note the opening square bracket that might replace a following space...start of parameters
     } else {
       // The '@' symbol must precede since no type hint was provided
-      result = /^@([a-zA-Z]+[a-zA-Z0-9]*)([\[\s\t\r\n\v\f\u2028\u2029)\],][^]*$|$)/.exec(remaining); // Note the opening square bracket that might replace a following space...start of parameters
+      result = /^@([a-zA-Z]+[a-zA-Z0-9]*)([\[\s)\],][^]*$|$)/.exec(remaining); // Note the opening square bracket that might replace a following space...start of parameters
     }
     if (result) {
       type = StandardExpressionType.Function;

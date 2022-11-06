@@ -85,7 +85,7 @@ behavior, however if the opposite was desired, then a type hint for the Set Expr
 
 As with all Expressions, a Set Expression contains the method of signature AwaitEvaluation:
 
-    type AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: ExecutionContextI) => Promise<any> | any;
+    type AwaitEvaluation = (dataDomain: any, scope: Map<string, any>, ec?: LogExecutionContext) => Promise<any> | any;
 
 A Set Expression will therefore return an array of the individual evaluations of its contained Expressions.  If any 
 of those return a Promise, the return type of the Set will be the result of Promise.all, i.e. it will return a 
