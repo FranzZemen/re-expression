@@ -62,7 +62,7 @@ export class ExpressionScope extends DataTypeScope {
   }
 
   get options(): ReExpression {
-    return this.options;
+    return this._options;
   }
 
   addAwaitEvaluationFunction(awaitEvaluationRef: RuleElementReference<AwaitEvaluation>, action?: ModuleResolutionAction, ec?: LogExecutionContext) {
