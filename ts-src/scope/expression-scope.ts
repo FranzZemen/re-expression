@@ -34,7 +34,7 @@ export class ExpressionScope extends DataTypeScope {
 
   constructor(options?: ReExpression, parentScope?: Scope, ec?: LogExecutionContext) {
     super(options, parentScope, ec);
-    this.set(ExpressionScope.AllowUnknownDataType, this.options.expression?.allowUnknownDataType === true);
+    this.set(ExpressionScope.AllowUnknownDataType, this.options['re-expression']?.allowUnknownDataType === true);
 
     const expressionFactory = new ExpressionFactory();
     expressionFactory.addConstructor(StandardExpressionType.Value, ValueExpression);

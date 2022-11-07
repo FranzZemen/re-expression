@@ -20,7 +20,7 @@ export interface ExpressionOptions {
 }
 
 export interface ReExpression extends ReDataType {
-  expression?: ExpressionOptions;
+  're-expression'?: ExpressionOptions;
 }
 
 export interface ExpressionExecutionContext extends DataTypeExecutionContext {
@@ -33,9 +33,9 @@ export class ExpressionExecutionContextDefaults {
     allowUnknownDataType: ExpressionExecutionContextDefaults.AllowUnknownDataType
   }
   static ReExpression: ReExpression = {
-    common: CommonExecutionContextDefaults.CommonOptions,
-    data: DataTypeExecutionContextDefaults.DataTypeOptions,
-    expression: ExpressionExecutionContextDefaults.ExpressionOptions
+    're-common': CommonExecutionContextDefaults.CommonOptions,
+    're-data-type': DataTypeExecutionContextDefaults.DataTypeOptions,
+    're-expression': ExpressionExecutionContextDefaults.ExpressionOptions
   }
   static ExpressionExecutionContext: ExpressionExecutionContext = {
     execution: ExecutionContextDefaults.Execution(),
@@ -61,9 +61,9 @@ export const expressionOptionsSchemaWrapper = {
 };
 
 export const reExpressionSchema = {
-  common: commonOptionsSchemaWrapper,
-  data: dataTypeOptionsSchemaWrapper,
-  expression: expressionOptionsSchemaWrapper
+  're-common': commonOptionsSchemaWrapper,
+  're-data-type': dataTypeOptionsSchemaWrapper,
+  're-expression': expressionOptionsSchemaWrapper
 };
 
 export const reExpressionSchemaWrapper = {

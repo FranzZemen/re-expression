@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/re-expression",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "description": "Expressions",
   "type": "module",
   "main": "index.js",
@@ -37,8 +37,8 @@
     "@franzzemen/logger-adapter": "^4.3.0",
     "@franzzemen/module-factory": "^1.0.5",
     "@franzzemen/module-resolver": "^1.1.0",
-    "@franzzemen/re-common": "^10.4.6",
-    "@franzzemen/re-data-type": "9.4.5",
+    "@franzzemen/re-common": "^10.4.7",
+    "@franzzemen/re-data-type": "9.4.6",
     "fastest-validator": "^1.15.0"
   }
 }
